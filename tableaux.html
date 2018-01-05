@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Probabilites</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script type="text/javascript">
+window.onload = function() {
+	/*for (var j=0; j<4; j++) {
+		for (var i=0; i<13; i++) {
+			var balise = '<div style="';
+			balise += 'background-position:'+(i*-40)+'px '+(j*-60)+'px;';
+			balise += '-moz-border-radius:5px;';
+			balise += 'margin-right:5px;';
+			balise += 'float:left;';
+			balise += 'border:1px solid black;';
+			balise += 'width:40px;';
+			balise += 'height:60px;';
+			balise += 'background-image:url(52cartes.png);';
+			balise += '"></div>';
+			document.body.innerHTML += balise;
+		}
+		document.body.innerHTML += '<div style="clear:both"></div>';
+	}*/
+	var sortes = "CKTP";
+	var valeurs = "A234567890VDR";
+	var paquet = [];
+	for (var j=0; j<sortes.length; j++) {
+		for (var i=0; i<valeurs.length; i++) {
+			paquet.push(valeurs[i]+sortes[j]);
+		}
+	}
+	alert(paquet);
+}
+</script>
+</head>
+<body>
+</body>
+</html>
+
+
+
+
+
+
+

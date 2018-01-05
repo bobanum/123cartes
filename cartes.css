@@ -1,0 +1,63 @@
+body {
+  margin:0;
+}
+body, div.carte.trou {
+  background-color:#393;
+}
+div.carte {
+  background-image:url(images/dos.png);
+  background-color:#FFF;
+  border:1px solid black;
+  width:40px;
+  height:52px;
+  position:absolute;
+  -moz-border-radius:5px;
+  -webkit-border-radius:5px;
+}
+div.carte.ouverte {
+  background-image:url(images/cartes.png);
+}
+div.carte.trou {
+  background-image:none;
+  border-style:dashed;
+}
+div.pile{
+  width:40px;
+  height:52px;
+  position:absolute;
+  /*background-color:#3C3;
+  border:1px dashed #090;*/
+}
+div.bouton {
+  font-family:times new roman;
+  font-weight:bold;
+  position:absolute;
+  line-height:1em;
+  font-size:1.4em;
+  width:1.3em;
+  height:1em;
+  left:100px;
+  top:5px;
+  padding:0px;
+  text-align:center;
+  border:1px outset green;
+  cursor:pointer;
+  -moz-border-radius:5px;
+  -webkit-border-radius:5px;
+  background-color:green;
+}
+a.choixJeu {
+  font-family:arial;
+  display:block;
+  font-size:24px;
+  border:1px solid black;
+  -moz-border-radius:5px;
+  -webkit-border-radius:5px;
+  background:url(images/bgbouton.png) repeat-x;
+  padding:0px 2px;
+  color:#FFF;
+  text-decoration:none;
+  text-align:center;
+  text-shadow:0 -1px 0 rgba(0, 0, 0, 0.6);
+  margin:3px;
+}

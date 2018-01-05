@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Probabilites</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script type="text/javascript">
+
+function probabilite(boulesTirees, boulesTotal) {
+	var resultat = 0;
+	resultat = factoriel(boulesTotal)/(factoriel(boulesTotal-boulesTirees)*factoriel(boulesTirees));
+	return resultat;
+}
+function factoriel(nombre) {
+	var resultat = 1;
+	for (var i=1; i<=nombre; i++) {
+		resultat *= i;
+	}
+	return resultat;
+}
+</script>
+</head>
+<body>
+<script type="text/javascript">
+var boulesTirees = prompt("Nombre de boules tirées");
+var boulesTotal = prompt("Nombre de boules au total");
+alert(probabilite(boulesTirees, boulesTotal));
+alert(boulesTirees);
+alert(boulesTotal);
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
