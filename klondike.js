@@ -10,8 +10,8 @@ function klondike_main() {
 	g.defausse = null;
 	g.maisons = [];
 	g.colonnes = [];
-	g.pref.distanceColonne = 15;
-	g.pref.distanceDefausse = 10;
+	g.pref.distanceColonne = (15/8);
+	g.pref.distanceDefausse = (10/8);
 	placerJeu();
 	return;
 }
@@ -19,25 +19,25 @@ function klondike_main() {
 function placerJeu() {
 	var delai, cartes, i, j, tourner, carte;
 	placerTrous();
-	g.talon = placerPile("talon", g.paquet, 5, 5, {
+	g.talon = placerPile("talon", g.paquet, (5/8), (5/8), {
 		left: 0,
 		top: 0
 	});
 	g.talon.addEventListener(g.MOUSEDOWN, distribuer3cartes, false);
-	g.defausse = placerPile("defausse", [], 50, 5, {
-		left: 10,
+	g.defausse = placerPile("defausse", [], (50/8), (5/8), {
+		left: (20),
 		top: 0
 	});
 	for (i = 0; i < 4; i += 1) {
-		g.maisons.push(placerPile("maison" + i, [], i * 45 + 140, 5, {
+		g.maisons.push(placerPile("maison" + i, [], i * (45/8) + (140/8), 5/8, {
 			left: 0,
 			top: 0
 		}));
 	}
 	for (i = 0; i < 7; i += 1) {
-		g.colonnes.push(placerPile("colonne" + i, [], i * 45 + 5, 67, {
+		g.colonnes.push(placerPile("colonne" + i, [], i * (45/8) + (5/8), 67/8, {
 			left: 0,
-			top: 15
+			top: 30
 		}));
 	}
 	delai = 0;
@@ -95,10 +95,10 @@ function replacerDefausse() {
 	if (g.defausse.lastChild) {
 		activation(g.defausse.lastChild, deplacerDefausse, false);
 		c = g.defausse.lastChild;
-		c.style.marginLeft = c.style.marginTop = "0px";
+		c.style.marginLeft = c.style.marginTop = "0em";
 		if (c.previousSibling) {
 			c = c.previousSibling;
-			c.style.marginLeft = c.style.marginTop = "0px";
+			c.style.marginLeft = c.style.marginTop = "0em";
 		}
 	}
 }
@@ -107,19 +107,19 @@ function placerTrous() {
 	var trou, i;
 	trou = document.body.appendChild(document.createElement("div"));
 	trou.className = "carte trou";
-	trou.style.left = "5px";
-	trou.style.top = "5px";
+	trou.style.left = 5/8 + "em";
+	trou.style.top = 5/8 + "em";
 	for (i = 0; i < 4; i += 1) {
 		trou = document.body.appendChild(document.createElement("div"));
 		trou.className = "carte trou";
-		trou.style.left = (i * 45 + 140) + "px";
-		trou.style.top = "5px";
+		trou.style.left = (i * (45/8) + (140/8)) + "em";
+		trou.style.top = 5/8 + "em";
 	}
 	for (i = 0; i < 7; i += 1) {
 		trou = document.body.appendChild(document.createElement("div"));
 		trou.className = "carte trou";
-		trou.style.left = (i * 45 + 5) + "px";
-		trou.style.top = "67px";
+		trou.style.left = (i * (45/8) + (5/8)) + "em";
+		trou.style.top = 67/8 + "em";
 	}
 }
 

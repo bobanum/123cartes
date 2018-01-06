@@ -5,7 +5,7 @@
 var g = {};
 
 function main() {
-	g.sortes = "TPCK";
+	g.sortes = "CTKP";
 	g.valeurs = "1234567890VDR";
 	g.pref = {};
 	if ((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i))) {
@@ -54,15 +54,15 @@ function placerPile(id, cartes, left, top, decalage) {
 		left: 0,
 		top: 0
 	};
-	pile.style.left = left + "px";
-	pile.style.top = top + "px";
+	pile.style.left = left + "em";
+	pile.style.top = top + "em";
 	for (i = 0; i < cartes.length; i += 1) {
 		carte = pile.appendChild(document.createElement("div"));
 		carte.className = "carte";
 		carte.carte = cartes[i];
-		carte.style.marginLeft = i * pile.decalage.left + "px";
-		carte.style.marginTop = i * pile.decalage.top + "px";
-		carte.style.backgroundPosition = (g.valeurs.indexOf(carte.carte[1]) * -40) + "px " + (g.sortes.indexOf(carte.carte[0]) * -52) + "px";
+		carte.style.marginLeft = i * pile.decalage.left + "em";
+		carte.style.marginTop = i * pile.decalage.top + "em";
+		carte.style.backgroundPosition = (g.valeurs.indexOf(carte.carte[1]) * -5) + "em " + (g.sortes.indexOf(carte.carte[0]) * -7) + "em";
 	}
 	return pile;
 }
@@ -245,6 +245,6 @@ function getSorte(carte) {
 }
 
 function getCouleur(carte) {
-	return Math.floor(getSorte(carte) / 2);
+	return getSorte(carte) % 2;
 }
 window.addEventListener("load", main);
