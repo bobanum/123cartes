@@ -23,22 +23,22 @@ function placerJeu(paquet) {
 	g.colonnes = [];
 	g.undo = [];
 	placerTrous();
-	placerBoutons(76, 5);
-	g.talon = placerPile("talon", paquet, 5, 5, {
+	placerBoutons(7, 1);
+	g.talon = placerPile("talon", paquet, 1, 1, {
 		left: 0,
 		top: 0
 	});
 	g.talon.addEventListener(g.MOUSEDOWN, distribuer10cartes, false); //***
 	for (i = 0; i < 8; i += 1) {
-		g.maisons.push(placerPile("maison" + i, [], i * 15 + 170, 5, {
+		g.maisons.push(placerPile("maison" + i, [], i * 2 + (170/8), 1, {
 			left: 0,
 			top: 0
 		}));
 	}
 	for (i = 0; i < 10; i += 1) {
-		g.colonnes.push(placerPile("colonne" + i, [], i * 30 + 5, 67, {
+		g.colonnes.push(placerPile("colonne" + i, [], i * 6 + 1, 9, {
 			left: 0,
-			top: 15
+			top: (15)
 		}));
 	}
 	delai = 0;
@@ -98,19 +98,19 @@ function placerTrous() {
 	var i, trou;
 	trou = document.body.appendChild(document.createElement("div"));
 	trou.className = "carte trou";
-	trou.style.left = "5px";
-	trou.style.top = "5px";
+	trou.style.left = 1 + "em";
+	trou.style.top = 1 + "em";
 	for (i = 0; i < 8; i += 1) {
 		trou = document.body.appendChild(document.createElement("div"));
 		trou.className = "carte trou";
-		trou.style.left = (i * 15 + 170) + "px";
-		trou.style.top = "5px";
+		trou.style.left = (i * 6 + 13) + "em";
+		trou.style.top = 1 + "em";
 	}
 	for (i = 0; i < 7; i += 1) {
 		trou = document.body.appendChild(document.createElement("div"));
 		trou.className = "carte trou";
-		trou.style.left = (i * 45 + 5) + "px";
-		trou.style.top = "67px";
+		trou.style.left = (i * 6 + 1) + "em";
+		trou.style.top = 9 + "em";
 	}
 }
 
@@ -119,21 +119,21 @@ function placerBoutons(left, top) {
 	bouton = document.body.appendChild(document.createElement("div"));
 	bouton.innerHTML = "&#x27F2;";
 	bouton.className = "bouton";
-	bouton.style.left = left + "px";
-	bouton.style.top = top + "px";
+	bouton.style.left = left + "em";
+	bouton.style.top = top + 1 + "em";
 	bouton.addEventListener('click', evtRecommencer, false); //***
 	bouton = document.body.appendChild(document.createElement("div"));
 	bouton.innerHTML = "&#x27f4;";
 	bouton.className = "bouton";
-	bouton.style.left = left + 34 + "px";
-	bouton.style.top = "5px";
+	bouton.style.left = left + 3 + "em";
+	bouton.style.top = top + 1 + "em";
 	bouton.addEventListener('click', evtNllePartie, false); //***
 	bouton = document.body.appendChild(document.createElement("div"));
 	bouton.innerHTML = "&#x293e;";
 	bouton.className = "bouton";
-	bouton.style.left = left + "px";
-	bouton.style.top = top + 30 + "px";
-	bouton.style.width = "63px";
+	bouton.style.left = left + "em";
+	bouton.style.top = top + 4 + "em";
+	bouton.style.width = 5 + "em";
 	bouton.addEventListener('click', evtUndo, false); //***
 	return;
 }

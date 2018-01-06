@@ -6,19 +6,18 @@ body {
 body {
   margin: 0;
   background-color: #393;
-  font-size: 2vmin;
+  position: relative;
+  width: 40.5em;
+  margin: 0 auto;
 }
 @media all and (min-aspect-ratio: 1/1) {
   body {
-    position: relative;
     font-size: 2.5vh;
-    width: 40.5em;
-    margin: 0 auto;
   }
 }
 @media all and (max-aspect-ratio: 1/1) {
   body {
-    font-size: 2.5vw;
+    font-size: 1.6vw;
   }
 }
 div.carte {
@@ -50,12 +49,15 @@ div.bouton {
   font-weight: bold;
   position: absolute;
   line-height: 1em;
-  font-size: 1.4em;
-  width: 1.3em;
-  height: 1em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 2em;
+  height: 2em;
   left: 100px;
   top: 5px;
   padding: 0px;
+  box-sizing: border-box;
   text-align: center;
   border: 1px outset green;
   cursor: pointer;
