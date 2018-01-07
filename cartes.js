@@ -100,27 +100,27 @@ function transfererCarte(carte, pile, left, top, tourner, duree, delai) {
 		};
 	}
 	if (carte.style.marginLeft === "") {
-		carte.style.marginLeft = "0px";
+		carte.style.marginLeft = "0em";
 	}
 	if (carte.style.marginTop === "") {
-		carte.style.marginTop = "0px";
+		carte.style.marginTop = "0em";
 	}
 	if (duree === undefined) {
 		duree = 200;
 	}
 	if (duree > 0) {
 		initialiserTransition(carte, {
-			left: deltaX + "px",
-			top: deltaY + "px",
-			marginLeft: left + "px",
-			marginTop: top + "px"
+			left: deltaX + "em",
+			top: deltaY + "em",
+			marginLeft: left + "em",
+			marginTop: top + "em"
 		}, duree, fonction, carte.style, delai);
 		return carte;
 	} else {
-		carte.style.left = deltaX + "px";
-		carte.style.top = deltaY + "px";
-		carte.style.marginLeft = left + "px";
-		carte.style.marginTop = top + "px";
+		carte.style.left = deltaX + "em";
+		carte.style.top = deltaY + "em";
+		carte.style.marginLeft = left + "em";
+		carte.style.marginTop = top + "em";
 		positionRelative(carte, pile);
 		if (tourner) {
 			retourner(carte);

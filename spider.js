@@ -11,7 +11,6 @@ function spider_main() {
 	g.colonnes = [];
 	g.undo = [];
 	g.pref.afficherPossibilites = false;
-	g.pref.distanceColonne = 15;
 	g.pref.animTalon = 0;
 	g.pref.animColonne = 0;
 	placerJeu(g.paquet);
@@ -30,7 +29,7 @@ function placerJeu(paquet) {
 	});
 	g.talon.addEventListener(g.MOUSEDOWN, distribuer10cartes, false); //***
 	for (i = 0; i < 8; i += 1) {
-		g.maisons.push(placerPile("maison" + i, [], i * 2 + (170/8), 1, {
+		g.maisons.push(placerPile("maison" + i, [], i * 2 + 21, 1, {
 			left: 0,
 			top: 0
 		}));
@@ -38,7 +37,7 @@ function placerJeu(paquet) {
 	for (i = 0; i < 10; i += 1) {
 		g.colonnes.push(placerPile("colonne" + i, [], i * 6 + 1, 9, {
 			left: 0,
-			top: (15)
+			top: 1
 		}));
 	}
 	delai = 0;

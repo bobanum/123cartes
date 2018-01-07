@@ -1,3 +1,6 @@
+@carte-largeur: 5em;
+@carte-hauteur: 7em;
+@carte-background-size: (13*@carte-largeur) (4*@carte-hauteur);
 html, body {
 	height: 100%;
 }
@@ -5,7 +8,6 @@ body {
 	margin: 0;
 	background-color: #393;
 	position: relative;
-	width:40.5em;
 	margin: 0 auto;
 }
 @media all and (min-aspect-ratio: 1/1) {
@@ -20,26 +22,34 @@ body {
 }
 div.carte {
 	background-color: #FFF;
+//	background-origin: border-box;
+	box-sizing: border-box;
 	background-image: url(images/dos_bleu.png);
-	border: 1px solid black;
-	background-size: 5em 7em;
-	width: 5em;
-	height: 7em;
+	box-shadow: 0em 0em 0em .05em rgb(211, 211, 211), 0.05em .05em .4em rgba(0,0,0,.5);
+//	border: 1px solid black;
+	background-size: @carte-largeur @carte-hauteur;
+	width: @carte-largeur;
+	height: @carte-hauteur;
 	position: absolute;
 	border-radius: .5em;
 	&.ouverte {
 		background-image: url(images/cartes5x7.png);
-		background-size: 5em*13 4*7em;
+		background-size: @carte-background-size;
 	}
 	&.trou {
 		background-image: none;
 		border-style: dashed;
+		border-width: .1em;
 		background-color: #393;
+		box-shadow: none;
 	}
 }
+#talon div.carte {
+	box-shadow: none;
+}
 div.pile {
-	width: 5em;
-	height: 7em;
+	width: @carte-largeur;
+	height: @carte-hauteur;
 	position: absolute;
 }
 div.bouton {

@@ -1,0 +1,15 @@
+@largeur: 5*7 + 1*8;
+body {
+	width: @largeur*1em;
+	position: relative;
+}
+@media all and (min-aspect-ratio: 4/3) {
+	body {
+		font-size: 100vh(@largeur/(3*4));
+	}
+}
+@media all and (max-aspect-ratio: 4/3) {
+	body {
+		font-size: 100vw/@largeur;
+	}
+}

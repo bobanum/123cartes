@@ -10,8 +10,9 @@ function klondike_main() {
 	g.defausse = null;
 	g.maisons = [];
 	g.colonnes = [];
-	g.pref.distanceColonne = (15/8);
-	g.pref.distanceDefausse = (10/8);
+	g.pref.animTalon = 0;
+	g.pref.animColonne = 0;
+	g.pref.animDistribution = 200;
 	placerJeu();
 	return;
 }
@@ -19,25 +20,25 @@ function klondike_main() {
 function placerJeu() {
 	var delai, cartes, i, j, tourner, carte;
 	placerTrous();
-	g.talon = placerPile("talon", g.paquet, (5/8), (5/8), {
+	g.talon = placerPile("talon", g.paquet, 1, 1, {
 		left: 0,
 		top: 0
 	});
 	g.talon.addEventListener(g.MOUSEDOWN, distribuer3cartes, false);
-	g.defausse = placerPile("defausse", [], (50/8), (5/8), {
-		left: (20),
+	g.defausse = placerPile("defausse", [], 7, 1, {
+		left: 1,
 		top: 0
 	});
 	for (i = 0; i < 4; i += 1) {
-		g.maisons.push(placerPile("maison" + i, [], i * (45/8) + (140/8), 5/8, {
+		g.maisons.push(placerPile("maison" + i, [], i * 5 + 19, 1, {
 			left: 0,
 			top: 0
 		}));
 	}
 	for (i = 0; i < 7; i += 1) {
-		g.colonnes.push(placerPile("colonne" + i, [], i * (45/8) + (5/8), 67/8, {
+		g.colonnes.push(placerPile("colonne" + i, [], i * 6 + 1, 9, {
 			left: 0,
-			top: 30
+			top: 1
 		}));
 	}
 	delai = 0;
@@ -49,7 +50,7 @@ function placerJeu() {
 			if (tourner) {
 				activation(g.talon.lastChild, deplacerColonne, true);
 			}
-			carte = transfererCarte(positionAbsolue(g.talon.lastChild), g.colonnes[j], i * g.colonnes[j].decalage.left, i * g.colonnes[j].decalage.top, tourner, 200, delai);
+			carte = transfererCarte(positionAbsolue(g.talon.lastChild), g.colonnes[j], i * g.colonnes[j].decalage.left, i * g.colonnes[j].decalage.top, tourner, g.pref.animDistribution, delai);
 			cartes.push(carte);
 			delai += 100;
 		}
@@ -107,19 +108,19 @@ function placerTrous() {
 	var trou, i;
 	trou = document.body.appendChild(document.createElement("div"));
 	trou.className = "carte trou";
-	trou.style.left = 5/8 + "em";
-	trou.style.top = 5/8 + "em";
+	trou.style.left = 1 + "em";
+	trou.style.top = 1 + "em";
 	for (i = 0; i < 4; i += 1) {
 		trou = document.body.appendChild(document.createElement("div"));
 		trou.className = "carte trou";
-		trou.style.left = (i * (45/8) + (140/8)) + "em";
-		trou.style.top = 5/8 + "em";
+		trou.style.left = (i * 6 + 19) + "em";
+		trou.style.top = 1 + "em";
 	}
 	for (i = 0; i < 7; i += 1) {
 		trou = document.body.appendChild(document.createElement("div"));
 		trou.className = "carte trou";
-		trou.style.left = (i * (45/8) + (5/8)) + "em";
-		trou.style.top = 67/8 + "em";
+		trou.style.left = (i * 6 + 1) + "em";
+		trou.style.top = 9 + "em";
 	}
 }
 
