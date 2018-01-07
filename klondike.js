@@ -1,5 +1,5 @@
 /*jslint browser:true, forin:true*/
-/*globals g, coordAbs, positionAbsolue, placerJeu, placerTrous, distribuer3cartes, deplacerColonne, afficherJouables, transition2, masquerJouables, replacerDefausse, deplacerDefausse, trouverPossibilites, afficherPossibilites, calculerDistance, masquerPossibilites, grouperColonne, retourner*/
+/*globals g, coordAbs, positionAbsolue, placerJeu, placerTrous, distribuer3cartes, deplacerColonne, afficherJouables, masquerJouables, replacerDefausse, deplacerDefausse, trouverPossibilites, afficherPossibilites, calculerDistance, masquerPossibilites, grouperColonne, retourner*/
 /*globals nouveauPaquet,brasser,placerPile,transfererCarte,transfererPile,activation,getValeur,getSorte,getCouleur*/
 /*exported placerJeu, distribuer3cartes, replacerDefausse, placerTrous, deplacerDefausse, deplacerColonne, trouverPossibilites, afficherPossibilites, masquerPossibilites, afficherJouables, masquerJouables, calculerDistance, grouperColonne*/
 //'use strict';
@@ -10,15 +10,12 @@ function klondike_main() {
 	g.defausse = null;
 	g.maisons = [];
 	g.colonnes = [];
-	g.pref.animTalon = 0;
-	g.pref.animColonne = 0;
-	g.pref.animDistribution = 200;
 	placerJeu();
 	return;
 }
 
 function placerJeu() {
-	var delai, cartes, i, j, tourner, carte;
+	var cartes, i, j, tourner, carte;
 	placerTrous();
 	g.talon = placerPile("talon", g.paquet, 1, 1, {
 		left: 0,
@@ -41,7 +38,6 @@ function placerJeu() {
 			top: 1
 		}));
 	}
-	delai = 0;
 
 	cartes = [];
 	for (i = 0; i < 7; i += 1) {
@@ -50,14 +46,11 @@ function placerJeu() {
 			if (tourner) {
 				activation(g.talon.lastChild, deplacerColonne, true);
 			}
-			carte = transfererCarte(positionAbsolue(g.talon.lastChild), g.colonnes[j], i * g.colonnes[j].decalage.left, i * g.colonnes[j].decalage.top, tourner, g.pref.animDistribution, delai);
+			carte = transfererCarte(positionAbsolue(g.talon.lastChild), g.colonnes[j], i * g.colonnes[j].decalage.left, i * g.colonnes[j].decalage.top, tourner);
 			cartes.push(carte);
-			delai += 100;
 		}
 	}
-	transition2(cartes, function () {
-		afficherJouables();
-	});
+	afficherJouables();
 	return;
 }
 
@@ -70,24 +63,20 @@ function distribuer3cartes() {
 		for (i = 0; i < 3; i += 1) {
 			if (g.talon.lastChild) {
 				carte = g.talon.lastChild;
-				carte2 = transfererCarte(positionAbsolue(carte), g.defausse, i * g.defausse.decalage.left, i * g.defausse.decalage.top, true, 100, i * 100);
+				carte2 = transfererCarte(positionAbsolue(carte), g.defausse, i * g.defausse.decalage.left, i * g.defausse.decalage.top, true);
 				cartes.push(carte2);
 			}
 		}
-		transition2(cartes, function () {
-			afficherJouables();
-		});
+		afficherJouables();
 		activation(carte, deplacerDefausse, true);
 	} else {
 		replacerDefausse();
 		cartes = [];
 		while (g.defausse.lastChild) {
-			carte = transfererCarte(positionAbsolue(g.defausse.lastChild), g.talon, 0, 0, true, 0);
+			carte = transfererCarte(positionAbsolue(g.defausse.lastChild), g.talon, 0, 0, true);
 			cartes.push(carte);
 		}
-		transition2(cartes, function () {
-			afficherJouables();
-		});
+		afficherJouables();
 	}
 }
 
@@ -157,17 +146,15 @@ function deplacerDefausse(e) {
 		if (poss) {
 			marginTop = poss.childNodes.length * poss.decalage.top;
 			marginLeft = poss.childNodes.length * poss.decalage.left;
-			carte = transfererCarte(carte, poss, marginLeft, marginTop, false, 200);
+			carte = transfererCarte(carte, poss, marginLeft, marginTop, false);
 			activation(carte, deplacerDefausse, false);
 			activation(carte, deplacerColonne, true);
 			activation(g.defausse.lastChild, deplacerDefausse, true);
 		} else {
-			carte = transfererCarte(carte, carte.deplacement.parent, carte.deplacement.marginLeft, carte.deplacement.marginTop, false, 200);
+			carte = transfererCarte(carte, carte.deplacement.parent, carte.deplacement.marginLeft, carte.deplacement.marginTop, false);
 			activation(carte, deplacerColonne, false);
 		}
-		transition2(carte, function () {
-			afficherJouables();
-		});
+		afficherJouables();
 		masquerPossibilites(carte.deplacement.possibilites);
 		delete carte.deplacement;
 	}
@@ -210,7 +197,7 @@ function deplacerColonne(e) {
 			marginTop = poss.childNodes.length * poss.decalage.top;
 			marginLeft = poss.childNodes.length * poss.decalage.left;
 
-			pile = transfererPile(carte.parentNode, poss, marginLeft, marginTop, 200);
+			pile = transfererPile(carte.parentNode, poss, marginLeft, marginTop);
 			if (carte.deplacement.parent.lastChild) {
 				if (carte.deplacement.parent.lastChild.className === "carte") {
 					retourner(carte.deplacement.parent.lastChild);
@@ -218,11 +205,9 @@ function deplacerColonne(e) {
 				}
 			}
 		} else { // On la retourne au point de depart
-			pile = transfererPile(carte.parentNode, carte.deplacement.parent, carte.deplacement.marginLeft, carte.deplacement.marginTop, false, 200);
+			pile = transfererPile(carte.parentNode, carte.deplacement.parent, carte.deplacement.marginLeft, carte.deplacement.marginTop, false);
 		}
-		transition2(pile, function () {
-			afficherJouables();
-		});
+		afficherJouables();
 		masquerPossibilites(carte.deplacement.possibilites);
 		delete carte.deplacement;
 		return;

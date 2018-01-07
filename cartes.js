@@ -1,5 +1,5 @@
 /*jslint browser:true*/
-/*globals initialiserTransition, coordAbs, positionAbsolue, positionRelative, unirPiles*/
+/*globals coordAbs, positionAbsolue, positionRelative, unirPiles*/
 /*exported g,nouveauPaquet,brasser,placerPile,transfererCarte,transfererPile,activation,unirPiles,getValeur,getSorte,getCouleur,positionAbsolue,positionRelative*/
 //'use strict';
 var g = {};
@@ -82,7 +82,7 @@ function retourner(carte, etat) {
 	return carte;
 }
 
-function transfererCarte(carte, pile, left, top, tourner, duree, delai) {
+function transfererCarte(carte, pile, left, top, tourner) {
 	var coords, deltaX, deltaY, fonction;
 
 	coords = coordAbs(pile);
@@ -105,31 +105,19 @@ function transfererCarte(carte, pile, left, top, tourner, duree, delai) {
 	if (carte.style.marginTop === "") {
 		carte.style.marginTop = "0em";
 	}
-	if (duree === undefined) {
-		duree = 200;
-	}
-	if (duree > 0) {
-		initialiserTransition(carte, {
-			left: deltaX + "em",
-			top: deltaY + "em",
-			marginLeft: left + "em",
-			marginTop: top + "em"
-		}, duree, fonction, carte.style, delai);
-		return carte;
-	} else {
-		carte.style.left = deltaX + "em";
-		carte.style.top = deltaY + "em";
-		carte.style.marginLeft = left + "em";
-		carte.style.marginTop = top + "em";
-		positionRelative(carte, pile);
-		if (tourner) {
-			retourner(carte);
-		}
+
+	carte.style.left = deltaX + "em";
+	carte.style.top = deltaY + "em";
+	carte.style.marginLeft = left + "em";
+	carte.style.marginTop = top + "em";
+	positionRelative(carte, pile);
+	if (tourner) {
+		retourner(carte);
 	}
 	return;
 }
 
-function transfererPile(pile1, pile2, left, top, duree, delai) {
+function transfererPile(pile1, pile2, left, top) {
 	var coords, deltaX, deltaY, fonction;
 	coords = coordAbs(pile2);
 	deltaX = coords.left;
@@ -138,20 +126,9 @@ function transfererPile(pile1, pile2, left, top, duree, delai) {
 	fonction = function () {
 		unirPiles(pile1, pile2);
 	};
-	if (duree === undefined) {
-		duree = 200;
-	}
-	if (duree > 0) {
-		initialiserTransition(pile1, {
-			left: deltaX + left + "px",
-			top: deltaY + top + "px"
-		}, duree, fonction, pile1.style, delai);
-		return pile1;
-	} else {
-		pile1.style.left = deltaX + left + "px";
-		pile1.style.top = deltaY + top + "px";
-		unirPiles(pile1, pile2);
-	}
+	pile1.style.left = deltaX + left + "px";
+	pile1.style.top = deltaY + top + "px";
+	unirPiles(pile1, pile2);
 	return;
 }
 

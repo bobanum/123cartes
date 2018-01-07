@@ -1,5 +1,5 @@
 /*jslint browser:true*/
-/*globals g, coordAbs, positionAbsolue, unirPiles, placerJeu, placerTrous, placerBoutons, distribuer10cartes, deplacerColonne, transition2, afficherJouables, masquerJouables, evtRecommencer, evtNllePartie, evtUndo, trouverPossibilites, grouperColonne, afficherPossibilites, trouverTouche, calculerDistance, retourner, masquerPossibilites, estDeplacable, confirm*/
+/*globals g, coordAbs, positionAbsolue, unirPiles, placerJeu, placerTrous, placerBoutons, distribuer10cartes, deplacerColonne, afficherJouables, masquerJouables, evtRecommencer, evtNllePartie, evtUndo, trouverPossibilites, grouperColonne, afficherPossibilites, trouverTouche, calculerDistance, retourner, masquerPossibilites, estDeplacable, confirm*/
 /*globals nouveauPaquet,brasser,placerPile,transfererCarte,transfererPile,activation,unirPiles,getValeur,getSorte,getCouleur*/
 /*exported distribuer10cartes, placerTrous, placerBoutons, trouverPossibilites, estDeplacable, afficherPossibilites, masquerPossibilites, calculerDistance, trouverTouche, evtUndo, evtRecommencer, evtNllePartie*/
 //'use strict';
@@ -11,13 +11,11 @@ function spider_main() {
 	g.colonnes = [];
 	g.undo = [];
 	g.pref.afficherPossibilites = false;
-	g.pref.animTalon = 0;
-	g.pref.animColonne = 0;
 	placerJeu(g.paquet);
 }
 
 function placerJeu(paquet) {
-	var i, delai, cartes, j, tourner, carte;
+	var i, cartes, j, tourner, carte;
 	g.maisons = [];
 	g.colonnes = [];
 	g.undo = [];
@@ -40,7 +38,6 @@ function placerJeu(paquet) {
 			top: 1
 		}));
 	}
-	delai = 0;
 
 	cartes = [];
 	for (i = 0; i < 6; i += 1) {
@@ -49,18 +46,15 @@ function placerJeu(paquet) {
 			if (tourner) {
 				activation(g.talon.lastChild, deplacerColonne, true);
 			}
-			carte = transfererCarte(positionAbsolue(g.talon.lastChild), g.colonnes[j], i * g.colonnes[j].decalage.left, i * g.colonnes[j].decalage.top, tourner, g.pref.animTalon, delai);
+			carte = transfererCarte(positionAbsolue(g.talon.lastChild), g.colonnes[j], i * g.colonnes[j].decalage.left, i * g.colonnes[j].decalage.top, tourner);
 			cartes.push(carte);
-			delai += 100;
 			if (j >= 3 && i === 5) {
 				break;
 			}
 		}
 	}
 	//tourner les premières cartes
-	transition2(cartes, function () {
-		afficherJouables();
-	});
+	afficherJouables();
 	return;
 }
 
@@ -83,13 +77,11 @@ function distribuer10cartes() {
 				colonne = g.colonnes[i];
 				carte = g.talon.lastChild;
 				activation(carte, deplacerColonne, true);
-				carte2 = transfererCarte(positionAbsolue(carte), colonne, colonne.decalage.left * colonne.childNodes.length, colonne.decalage.top * colonne.childNodes.length, true, g.pref.animTalon, i * 100);
+				carte2 = transfererCarte(positionAbsolue(carte), colonne, colonne.decalage.left * colonne.childNodes.length, colonne.decalage.top * colonne.childNodes.length, true);
 				cartes.push(carte2);
 			}
 		}
-		transition2(cartes, function () {
-			afficherJouables();
-		});
+		afficherJouables();
 	}
 }
 
@@ -189,7 +181,7 @@ function deplacerColonne(e) {
 			marginTop = poss.childNodes.length * poss.decalage.top;
 			marginLeft = poss.childNodes.length * poss.decalage.left;
 
-			pile = transfererPile(carte.parentNode, poss, marginLeft, marginTop, g.pref.animColonne);
+			pile = transfererPile(carte.parentNode, poss, marginLeft, marginTop);
 			if (carte.deplacement.parent.lastChild) {
 				if (carte.deplacement.parent.lastChild.className === "carte") {
 					retourner(carte.deplacement.parent.lastChild);
@@ -197,11 +189,9 @@ function deplacerColonne(e) {
 				}
 			}
 		} else { // On la retourne au point de depart
-			pile = transfererPile(carte.parentNode, carte.deplacement.parent, carte.deplacement.marginLeft, carte.deplacement.marginTop, g.pref.animColonne);
+			pile = transfererPile(carte.parentNode, carte.deplacement.parent, carte.deplacement.marginLeft, carte.deplacement.marginTop);
 		}
-		transition2(pile, function () {
-			afficherJouables();
-		});
+		afficherJouables();
 		if (g.pref.afficherPossibilites) {
 			masquerPossibilites(carte.deplacement.possibilites);
 		}
