@@ -1,5 +1,5 @@
 /*jslint browser:true*/
-/*globals g, coordAbs, positionAbsolue, unirPiles, placerJeu, placerTrous, placerBoutons, distribuer10cartes, deplacerColonne, afficherJouables, masquerJouables, evtRecommencer, evtNllePartie, evtUndo, trouverPossibilites, grouperColonne, afficherPossibilites, trouverTouche, calculerDistance, retourner, masquerPossibilites, estDeplacable, confirm*/
+/*globals g, coordAbs, positionAbsolue, unirPiles, placerJeu, placerTrous, placerBoutons, distribuer10cartes, deplacerColonne, afficherJouables, masquerJouables, evtRecommencer, evtNllePartie, evtUndo, trouverPossibilites, grouperColonne, afficherPossibilites, trouverTouche, calculerDistance, retournerCarte, masquerPossibilites, estDeplacable, confirm, html_trou*/
 /*globals nouveauPaquet,brasser,placerPile,transfererCarte,transfererPile,activation,unirPiles,getValeur,getSorte,getCouleur*/
 /*exported distribuer10cartes, placerTrous, placerBoutons, trouverPossibilites, estDeplacable, afficherPossibilites, masquerPossibilites, calculerDistance, trouverTouche, evtUndo, evtRecommencer, evtNllePartie*/
 //'use strict';
@@ -42,11 +42,13 @@ function placerJeu(paquet) {
 	cartes = [];
 	for (i = 0; i < 6; i += 1) {
 		for (j = 0; j < 10; j += 1) {
+			carte = g.talon.lastChild;
+			transfererCarte(carte, g.colonnes[j]);
 			tourner = ((j >= 4 && i === 4) || (j < 4 && i === 5));
 			if (tourner) {
-				activation(g.talon.lastChild, deplacerColonne, true);
+				activation(carte, deplacerColonne, true);
+				retournerCarte(carte);
 			}
-			carte = transfererCarte(positionAbsolue(g.talon.lastChild), g.colonnes[j], i * g.colonnes[j].decalage.left, i * g.colonnes[j].decalage.top, tourner);
 			cartes.push(carte);
 			if (j >= 3 && i === 5) {
 				break;
@@ -87,21 +89,15 @@ function distribuer10cartes() {
 
 function placerTrous() {
 	var i, trou;
-	trou = document.body.appendChild(document.createElement("div"));
-	trou.className = "carte trou";
-	trou.style.left = 1 + "em";
-	trou.style.top = 1 + "em";
+	trou = html_trou(1, 1);
+	document.body.appendChild(trou);
 	for (i = 0; i < 8; i += 1) {
-		trou = document.body.appendChild(document.createElement("div"));
-		trou.className = "carte trou";
-		trou.style.left = (i * 6 + 13) + "em";
-		trou.style.top = 1 + "em";
+		trou = html_trou(i * 6 + 13, 1);
+		document.body.appendChild(trou);
 	}
 	for (i = 0; i < 7; i += 1) {
-		trou = document.body.appendChild(document.createElement("div"));
-		trou.className = "carte trou";
-		trou.style.left = (i * 6 + 1) + "em";
-		trou.style.top = 9 + "em";
+		trou = html_trou(i * 6 + 1, 9);
+		document.body.appendChild(trou);
 	}
 }
 
@@ -109,19 +105,19 @@ function placerBoutons(left, top) {
 	var bouton;
 	bouton = document.body.appendChild(document.createElement("div"));
 	bouton.innerHTML = "&#x27F2;";
-	bouton.className = "bouton";
+	bouton.classList.add("bouton");
 	bouton.style.left = left + "em";
 	bouton.style.top = top + 1 + "em";
 	bouton.addEventListener('click', evtRecommencer, false); //***
 	bouton = document.body.appendChild(document.createElement("div"));
 	bouton.innerHTML = "&#x27f4;";
-	bouton.className = "bouton";
+	bouton.classList.add("bouton");
 	bouton.style.left = left + 3 + "em";
 	bouton.style.top = top + 1 + "em";
 	bouton.addEventListener('click', evtNllePartie, false); //***
 	bouton = document.body.appendChild(document.createElement("div"));
 	bouton.innerHTML = "&#x293e;";
-	bouton.className = "bouton";
+	bouton.classList.add("bouton");
 	bouton.style.left = left + "em";
 	bouton.style.top = top + 4 + "em";
 	bouton.style.width = 5 + "em";
@@ -171,7 +167,7 @@ function deplacerColonne(e) {
 			}
 		}
 		if (poss) { // Si on peut placer la colonne qq part
-			tourne = (carte.deplacement.parent.lastChild && carte.deplacement.parent.lastChild.className === "carte");
+			tourne = (carte.deplacement.parent.lastChild && carte.deplacement.parent.lastChild.classList.contains("carte"));
 			g.undo.push({
 				type: 'pile',
 				objet: carte,
@@ -183,8 +179,8 @@ function deplacerColonne(e) {
 
 			pile = transfererPile(carte.parentNode, poss, marginLeft, marginTop);
 			if (carte.deplacement.parent.lastChild) {
-				if (carte.deplacement.parent.lastChild.className === "carte") {
-					retourner(carte.deplacement.parent.lastChild);
+				if (carte.deplacement.parent.lastChild.classList.contains("carte")) {
+					retournerCarte(carte.deplacement.parent.lastChild);
 					activation(carte.deplacement.parent.lastChild, deplacerColonne, true);
 				}
 			}
@@ -226,9 +222,9 @@ function trouverPossibilites(carte) { // += 1+
 	for (i = 0; i < g.colonnes.length; i += 1) {
 		colonne = g.colonnes[i];
 		if (colonne.lastChild) {
-			if (colonne.lastChild.className === "carte ouverte" && valeur === getValeur(colonne.lastChild) - 1 && sorte === getSorte(colonne.lastChild)) {
+			if (colonne.lastChild.classList.contains("ouverte") && valeur === getValeur(colonne.lastChild) - 1 && sorte === getSorte(colonne.lastChild)) {
 				resultat[1].push(colonne);
-			} else if (colonne.lastChild.className === "carte ouverte" && valeur === getValeur(colonne.lastChild) - 1) {
+			} else if (colonne.lastChild.classList.contains("ouverte") && valeur === getValeur(colonne.lastChild) - 1) {
 				resultat[2].push(colonne);
 			}
 		} else {
@@ -250,7 +246,7 @@ function estJouable(carte) { // += 1+
 		colonne = g.colonnes[i];
 		if (colonne.id !== carte.parentNode.id) {
 			if (colonne.lastChild) {
-				if (colonne.lastChild.className === "carte ouverte" && valeur === getValeur(colonne.lastChild) - 1) {
+				if (colonne.lastChild.classList.contains("ouverte") && valeur === getValeur(colonne.lastChild) - 1) {
 					return true;
 				}
 			} else {
@@ -262,7 +258,7 @@ function estJouable(carte) { // += 1+
 }
 
 function estDeplacable(carte) { // += 1+
-	if (carte.className !== "carte ouverte") {
+	if (!carte.classList.contains("ouverte")) {
 		return false;
 	}
 	if (carte.nextSibling && getSorte(carte) !== getSorte(carte.nextSibling)) {
@@ -310,7 +306,7 @@ function trouverJouables() {
 		colonne = g.colonnes[i];
 		if (colonne.lastChild) {
 			carte = colonne.lastChild;
-			while (carte && carte.className === "carte ouverte") {
+			while (carte && carte.classList.contains("ouverte")) {
 				if (estJouable(carte)) {
 					resultat.push(carte);
 				}
@@ -336,7 +332,7 @@ function masquerJouables() {
 		colonne = g.colonnes[i];
 		if (colonne.lastChild) {
 			carte = colonne.lastChild;
-			while (carte && carte.className === "carte ouverte") {
+			while (carte && carte.classList.contains("ouverte")) {
 				carte.style.backgroundColor = "";
 				carte = carte.previousSibling;
 			}
@@ -411,14 +407,14 @@ function evtUndo() {
 		undo = undo[0];
 		if (undo.type === 'pile') {
 			if (undo.tourne) {
-				retourner(undo.origine.lastChild);
+				retournerCarte(undo.origine.lastChild);
 			}
 			pile = grouperColonne(undo.objet);
 			unirPiles(pile, undo.origine);
 		} else if (undo.type === 'distribuer') {
 			for (i = 9; i >= 0; i -= 1) {
 				carte = g.colonnes[i].lastChild;
-				retourner(carte);
+				retournerCarte(carte);
 				activation(carte, deplacerColonne, true);
 				pile = grouperColonne(carte);
 				unirPiles(pile, g.talon);

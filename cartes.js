@@ -1,6 +1,6 @@
 /*jslint browser:true*/
 /*globals coordAbs, positionAbsolue, positionRelative, unirPiles*/
-/*exported g,nouveauPaquet,brasser,placerPile,transfererCarte,transfererPile,activation,unirPiles,getValeur,getSorte,getCouleur,positionAbsolue,positionRelative*/
+/*exported g,nouveauPaquet,brasser,placerPile,transfererCarte,transfererPile,activation,unirPiles,getValeur,getSorte,getCouleur,positionAbsolue,positionRelative,retournerCarte,html_trou*/
 //'use strict';
 var g = {};
 
@@ -47,78 +47,96 @@ function brasser(paquet) {
 
 function placerPile(id, cartes, left, top, decalage) {
 	var pile, i, carte;
-	pile = document.body.appendChild(document.createElement("div"));
-	pile.id = id;
-	pile.className = "pile";
-	pile.decalage = decalage || {
+	decalage = decalage || {
 		left: 0,
 		top: 0
 	};
+	pile = html_pile(id, decalage.left, decalage.top);
+	document.body.appendChild(pile);
 	pile.style.left = left + "em";
 	pile.style.top = top + "em";
 	for (i = 0; i < cartes.length; i += 1) {
-		carte = pile.appendChild(document.createElement("div"));
-		carte.className = "carte";
-		carte.carte = cartes[i];
-		carte.style.marginLeft = i * pile.decalage.left + "em";
-		carte.style.marginTop = i * pile.decalage.top + "em";
-		carte.style.backgroundPosition = (g.valeurs.indexOf(carte.carte[1]) * -5) + "em " + (g.sortes.indexOf(carte.carte[0]) * -7) + "em";
+		carte = html_carte(cartes[i]);
+		pile.appendChild(carte);
 	}
 	return pile;
 }
+function html_pile(id, dX, dY) {
+	var resultat;
+	dX = dX || 0;
+	dY = dY || 0;
+	resultat = document.createElement("div");
+	resultat.id = id;
+	resultat.classList.add("pile");
+	resultat.setAttribute("data-dX", dX);
+	resultat.setAttribute("data-dY", dY);
+	return resultat;
+}
+/**
+ * Retourne un element HTML représentant une carte dont la description est passée en paramètre.
+ * @param   {string}   str_carte [[Description]]
+ * @returns {[[Type]]} [[Description]]
+ */
+function html_carte(str_carte) {
+	var resultat;
+	resultat = document.createElement("div");
+	resultat.classList.add("carte");
+	resultat.setAttribute("data-carte", str_carte);
+	resultat.style.backgroundPositionX = (getValeur(str_carte) * -5) + "em";
+	resultat.style.backgroundPositionY = (getSorte(str_carte) * -7) + "em";
+	return resultat;
+}
+/**
+ * Retourne un element HTML représentant un trou.
+ * @param   {number}      left Position horizontale du trou
+ * @param   {number}      top  Position verticale du trou
+ * @returns {HTMLElement} L'élément représentant le trou
+ */
+function html_trou(left, top) {
+	var resultat;
+	resultat = document.body.appendChild(document.createElement("div"));
+	resultat.classList.add("trou");
+	resultat.style.left = left + "em";
+	resultat.style.top = top + "em";
+	return resultat;
+}
 
-function retourner(carte, etat) {
-	if (etat === true) {
-		carte.className = "carte ouverte";
+/**
+ * Rend visible (ou non) la face carte.
+ * @param   {HTMLElement} carte L'élément HTML représentant la carte
+ * @param   {boolean}     etat  L'état final de la carte. Par défaut, on inverse l'état actuel.
+ * @returns {HTMLElement} La carte ainsi changée
+ */
+function retournerCarte(carte, etat) {
+	if (etat === undefined) {
+		carte.classList.toggle("ouverte");
 	} else if (etat === false) {
-		carte.className = "carte";
+		carte.classList.remove("ouverte");
 	} else {
-		if (carte.className === "carte ouverte") {
-			carte.className = "carte";
-		} else {
-			carte.className = "carte ouverte";
-		}
+		carte.classList.add("ouverte");
 	}
 	return carte;
 }
 
-function transfererCarte(carte, pile, left, top, tourner) {
-	var coords, deltaX, deltaY, fonction;
-
-	coords = coordAbs(pile);
-	deltaX = coords.left;
-	deltaY = coords.top;
-	positionAbsolue(carte);
-	if (tourner) {
-		fonction = function () {
-			retourner(carte);
-			positionRelative(carte, pile);
-		};
-	} else {
-		fonction = function () {
-			positionRelative(carte, pile);
-		};
-	}
-	if (carte.style.marginLeft === "") {
-		carte.style.marginLeft = "0em";
-	}
-	if (carte.style.marginTop === "") {
-		carte.style.marginTop = "0em";
-	}
-
-	carte.style.left = deltaX + "em";
-	carte.style.top = deltaY + "em";
-	carte.style.marginLeft = left + "em";
-	carte.style.marginTop = top + "em";
-	positionRelative(carte, pile);
-	if (tourner) {
-		retourner(carte);
-	}
-	return;
+/**
+ * Transfere la carte donnée vers une autre pile
+ * @param {object}   carte   [[Description]]
+ * @param {[[Type]]} pile    [[Description]]
+ * @param {[[Type]]} left    [[Description]]
+ * @param {[[Type]]} top     [[Description]]
+ * @param {[[Type]]} tourner [[Description]]
+ */
+function transfererCarte(carte, pile) {
+	carte.parentNode.removeChild(carte);
+	carte.style.top = pile.children.length * pile.getAttribute("data-dY") + "em";
+	carte.style.left = pile.children.length * pile.getAttribute("data-dX") + "em";
+	pile.appendChild(carte);
+	return carte;
 }
 
 function transfererPile(pile1, pile2, left, top) {
 	var coords, deltaX, deltaY, fonction;
+	debugger;
 	coords = coordAbs(pile2);
 	deltaX = coords.left;
 	deltaY = coords.top;
@@ -213,14 +231,35 @@ function unirPiles(pile1, pile2) {
 	pile1.parentNode.removeChild(pile1);
 }
 
+/**
+ * Retourne l'indice de la valeur de la carte passée en paramètre.
+ * @param   {string} carte La description de la carte. Ex: K7. Si carte n'est pas un string, on présume qu'il s'agit de l'objet HTML et récupère l'attribut data-carte.
+ * @returns {number} L'indice de la valeur de la carte. Un nombre entre 0 et 12 en fonction de g.valeurs
+ */
 function getValeur(carte) {
-	return g.valeurs.indexOf(carte.carte[1]);
+	if (typeof carte !== "string") {
+		carte = carte.getAttribute("data-carte");
+	}
+	return g.valeurs.indexOf(carte.charAt(1));
 }
 
+/**
+ * Retourne l'indice de la sorte de la carte passée en paramètre.
+ * @param   {string} carte La description de la carte. Ex: K7. Si carte n'est pas un string, on présume qu'il s'agit de l'objet HTML et récupère l'attribut data-carte.
+ * @returns {number} L'indice de la valeur de la carte. Un nombre entre 0 et 3 en fonction de g.sortes
+ */
 function getSorte(carte) {
-	return g.sortes.indexOf(carte.carte[0]);
+	if (typeof carte !== "string") {
+		carte = carte.getAttribute("data-carte");
+	}
+	return g.sortes.indexOf(carte.charAt(0));
 }
 
+/**
+ * Retourne la couleur de la carte passée en paramètre.
+ * @param   {string} carte La description de la carte. Ex: K7. Si carte n'est pas un string, on présume qu'il s'agit de l'objet HTML et récupère l'attribut data-carte.
+ * @returns {number} La couleur de la carte. 0 pour rouge et 1 pour noir.
+ */
 function getCouleur(carte) {
 	return getSorte(carte) % 2;
 }

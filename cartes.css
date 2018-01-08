@@ -19,7 +19,7 @@ body {
     font-size: 1.6vw;
   }
 }
-div.carte {
+.carte {
   background-color: #FFF;
   box-sizing: border-box;
   background-image: url(images/dos_bleu.png);
@@ -30,16 +30,32 @@ div.carte {
   position: absolute;
   border-radius: .5em;
 }
-div.carte.ouverte {
+.carte.ouverte {
   background-image: url(images/cartes5x7.png);
   background-size: 65em 28em;
 }
-div.carte.trou {
+.trou {
+  background-color: #FFF;
+  box-sizing: border-box;
+  background-image: url(images/dos_bleu.png);
+  box-shadow: 0em 0em 0em 0.05em #d3d3d3, 0.05em 0.05em 0.4em rgba(0, 0, 0, 0.5);
+  background-size: 5em 7em;
+  width: 5em;
+  height: 7em;
+  position: absolute;
+  border-radius: .5em;
   background-image: none;
   border-style: dashed;
   border-width: .1em;
   background-color: #393;
   box-shadow: none;
+}
+.trou.ouverte {
+  background-image: url(images/cartes5x7.png);
+  background-size: 65em 28em;
+}
+.possibilite {
+  background-color: cyan;
 }
 #talon div.carte {
   box-shadow: none;
