@@ -1,7 +1,7 @@
 /*jslint browser:true, forin:true*/
-/*globals g, coordAbs, positionAbsolue, placerJeu, placerTrous, distribuer3cartes, deplacerColonne, afficherJouables, masquerJouables, replacerDefausse, deplacerDefausse, trouverPossibilites, afficherPossibilites, calculerDistance, masquerPossibilites, grouperColonne, retournerCarte, html_trou*/
-/*globals nouveauPaquet,brasser,placerPile,transfererCarte,transfererPile,activation,getValeur,getSorte,getCouleur*/
-/*exported placerJeu, distribuer3cartes, replacerDefausse, placerTrous, deplacerDefausse, deplacerColonne, trouverPossibilites, afficherPossibilites, masquerPossibilites, afficherJouables, masquerJouables, calculerDistance, grouperColonne*/
+/*globals g, coordAbs, positionAbsolue, placerJeu, placerTrous, distribuer3cartes, evt_deplacerColonne, afficherJouables, masquerJouables, replacerDefausse, evt_deplacerDefausse, trouverPossibilites, afficherPossibilites, calculerDistance, masquerPossibilites, grouperColonne, retournerCarte, html_trou, html_pile, empiler*/
+/*globals nouveauPaquet,brasser,placerPile,transfererCarte,transfererPile,getValeur,getSorte,getCouleur*/
+/*exported placerJeu, distribuer3cartes, replacerDefausse, placerTrous, evt_deplacerDefausse, evt_deplacerColonne, trouverPossibilites, afficherPossibilites, masquerPossibilites, afficherJouables, masquerJouables, calculerDistance, grouperColonne*/
 //'use strict';
 
 function klondike_main() {
@@ -10,12 +10,17 @@ function klondike_main() {
 	g.defausse = null;
 	g.maisons = [];
 	g.colonnes = [];
+	g.plateau = null;
 	placerJeu();
 	return;
 }
 
 function placerJeu() {
-	var cartes, i, j, carte;
+	var cartes, i, j, carte, maison, colonne;
+	g.plateau = document.createElement("div");
+	g.plateau.setAttribute("id", "plateau");
+	document.body.appendChild(g.plateau);
+
 	placerTrous();
 	g.talon = placerPile("talon", g.paquet, 1, 1, {
 		left: 0,
@@ -27,16 +32,14 @@ function placerJeu() {
 		top: 0
 	});
 	for (i = 0; i < 4; i += 1) {
-		g.maisons.push(placerPile("maison" + i, [], i * 5 + 19, 1, {
-			left: 0,
-			top: 0
-		}));
+		maison = html_maison(i);
+		g.maisons.push(maison);
+		g.plateau.appendChild(maison);
 	}
 	for (i = 0; i < 7; i += 1) {
-		g.colonnes.push(placerPile("colonne" + i, [], i * 6 + 1, 9, {
-			left: 0,
-			top: 1
-		}));
+		colonne = html_colonne(i);
+		g.colonnes.push(colonne);
+		g.plateau.appendChild(colonne);
 	}
 
 	cartes = [];
@@ -44,17 +47,120 @@ function placerJeu() {
 		for (j = i; j < 7; j += 1) {
 			carte = g.talon.lastChild;
 			transfererCarte(carte, g.colonnes[j]);
-			if (i === j) {
-				activation(carte, deplacerColonne, true);
-				retournerCarte(carte);
-			}
 			cartes.push(carte);
 		}
+		retournerCarteColonne(g.colonnes[i]);
 	}
+	document.body.addEventListener("mousedown", dragstart);
 	afficherJouables();
 	return;
 }
+function html_maison(no) {
+	var resultat;
+	resultat = html_pile(0, 0);
+	resultat.setAttribute("id", "maison" + no);
+	resultat.classList.add("maison");
+	resultat.style.left = (no * 6 + 19) + "em";
+	resultat.style.top = 1 + "em";
+	return resultat;
+}
+function html_colonne(no) {
+	var resultat;
+	resultat = html_pile(0, 1);
+	resultat.setAttribute("id", "colonne" + no);
+	resultat.classList.add("colonne");
+	resultat.style.left = (no * 6 + 1) + "em";
+	resultat.style.top = 9 + "em";
+	return resultat;
+}
+function retournerCarteColonne(colonne) {
+	var carte = colonne.lastChild;
+	retournerCarte(carte);
+	var pile = html_pile(0, 1);
+	empiler(pile, carte);
+	empiler(colonne, pile);
+//	colonne.appendChild(pile);
+	return;
+}
+function dragstart(e) {
+	var pile, carte, origine, possibilites, pos;
+	carte = e.target.closest(".ouverte");
+	if (!carte) {
+		return;
+	}
+	pile = carte.closest(".pile");
+	if (pile.classList.contains("maison")) {
+		return;
+	}
+	pile.classList.add("prise");
+	masquerJouables();
+	origine = pile.parentNode;
+	possibilites = trouverPossibilites(carte);
+	afficherPossibilites(possibilites);
+	possibilites = possibilites.maisons.concat(possibilites.colonnes);
+	pos = coordonnees(pile);
+	document.body.appendChild(pile);
+	pile.style.left = pos.x + "px";
+	pile.style.top = pos.y + "px";
+	pile.decalage = {x: e.offsetX, y: e.offsetY};
+	console.log("c'est parti", e.type);
+	function dragmove(e) {
+		//console.log("déplacer la carte", e.type);
+		pile.style.left = e.clientX - pile.decalage.x + "px";
+		pile.style.top = e.clientY - pile.decalage.y + "px";
+	}
+	function drop(e) {
+		var position = coordonneesCentre(pile);
+		var choix = null;
+		var distance = null;
+		possibilites.forEach(function(p) {
+			var c = coordonneesCentre(p);
+			var dx = c.x - position.x;
+			var dy = c.y - position.y;
+			var d = Math.sqrt(dx*dx + dy*dy);
+			if (distance === null || d < distance) {
+				distance = d;
+				choix = p;
+			}
+		});
+		if (choix) {
+			if (choix.classList.contains("maison")) {
+				empiler(choix, pile.firstChild);
+				pile.parentNode.removeChild(pile);
+			} else {
+				empiler(choix, pile);
+			}
+			var cartes = document.querySelectorAll(".colonne .carte:last-child:not(.ouverte)");
+			for (var i = 0; i < cartes.length; i += 1) {
+				retournerCarteColonne(cartes[i].closest(".colonne"));
+			}
+		} else {
+			empiler(origine, pile);
+		}
+		pile.classList.remove("prise");
 
+		console.log("Rendu ???", e.type);
+		document.body.removeEventListener("mousemove", dragmove);
+		document.body.removeEventListener("mouseleave", dragcancel);
+		document.body.removeEventListener("mouseup", drop);
+		afficherJouables();
+		masquerPossibilites();
+	}
+	function dragcancel(e) {
+		console.log("Fini!", e.type, e.eventPhase);
+		empiler(origine, pile);
+		pile.classList.remove("prise");
+		afficherJouables();
+		masquerPossibilites();
+		document.body.removeEventListener("mousemove", dragmove);
+		document.body.removeEventListener("mouseleave", dragcancel);
+		document.body.removeEventListener("mouseup", drop);
+	}
+	document.body.addEventListener("mousemove", dragmove);
+	document.body.addEventListener("mouseleave", dragcancel);
+	document.body.addEventListener("mouseup", drop);
+	document.body.addEventListener("mousedown", dragstart);
+}
 function distribuer3cartes() {
 	var cartes, i, carte, carte2;
 	masquerJouables();
@@ -69,7 +175,6 @@ function distribuer3cartes() {
 			}
 		}
 		afficherJouables();
-		activation(carte, deplacerDefausse, true);
 	} else {
 		replacerDefausse();
 		cartes = [];
@@ -81,10 +186,30 @@ function distribuer3cartes() {
 	}
 }
 
+function coordonnees(element, ref) {
+	if (ref === undefined) {
+		ref = document.body;
+	}
+	var resultat = {x: 0, y: 0};
+	while (element !== ref && element !== document.body) {
+		resultat.x += element.offsetLeft;
+		resultat.y += element.offsetTop;
+		element = element.parentNode;
+	}
+	return resultat;
+}
+function coordonneesCentre(element, ref) {
+	if (ref === undefined) {
+		ref = document.body;
+	}
+	var resultat = coordonnees(element, ref);
+	resultat.x += element.offsetWidth / 2;
+	resultat.y += element.offsetHeight / 2;
+	return resultat;
+}
 function replacerDefausse() {
 	var c;
 	if (g.defausse.lastChild) {
-		activation(g.defausse.lastChild, deplacerDefausse, false);
 		c = g.defausse.lastChild;
 		c.style.marginLeft = c.style.marginTop = "0em";
 		if (c.previousSibling) {
@@ -97,26 +222,22 @@ function replacerDefausse() {
 function placerTrous() {
 	var trou, i;
 	trou = html_trou(1, 1);
-	document.body.appendChild(trou);
+	g.plateau.appendChild(trou);
 	for (i = 0; i < 4; i += 1) {
 		trou = html_trou(i * 6 + 19, 1);
-		document.body.appendChild(trou);
+		g.plateau.appendChild(trou);
 	}
 	for (i = 0; i < 7; i += 1) {
 		trou = html_trou(i * 6 + 1, 9);
-		document.body.appendChild(trou);
+		g.plateau.appendChild(trou);
 	}
 }
 
-function deplacerDefausse(e) {
+function evt_deplacerDefausse(e) {
 	var carte, touche, poss, marginTop, marginLeft;
 	carte = e.target;
 	e.preventDefault();
-	if (g.iPod) {
-		touche = e.touches[0];
-	} else {
-		touche = e;
-	}
+	touche = e;
 	if (e.type === g.MOUSEDOWN && !carte.deplacement) {
 		masquerJouables();
 		carte.deplacement = {};
@@ -142,12 +263,8 @@ function deplacerDefausse(e) {
 			marginTop = poss.childNodes.length * poss.decalage.top;
 			marginLeft = poss.childNodes.length * poss.decalage.left;
 			carte = transfererCarte(carte, poss, marginLeft, marginTop, false);
-			activation(carte, deplacerDefausse, false);
-			activation(carte, deplacerColonne, true);
-			activation(g.defausse.lastChild, deplacerDefausse, true);
 		} else {
 			carte = transfererCarte(carte, carte.deplacement.parent, carte.deplacement.marginLeft, carte.deplacement.marginTop, false);
-			activation(carte, deplacerColonne, false);
 		}
 		afficherJouables();
 		masquerPossibilites(carte.deplacement.possibilites);
@@ -155,15 +272,12 @@ function deplacerDefausse(e) {
 	}
 }
 
-function deplacerColonne(e) {
+function evt_deplacerColonne(e) {
 	var carte, touche, coords, pile, poss, marginTop, marginLeft;
 	carte = e.target;
+	console.log(carte, e.type);
 	e.preventDefault();
-	if (g.iPod) {
-		touche = e.touches[0];
-	} else {
-		touche = e;
-	}
+	touche = e;
 	if (e.type === g.MOUSEDOWN && !carte.deplacement) {
 		masquerJouables();
 		carte.deplacement = {};
@@ -196,7 +310,6 @@ function deplacerColonne(e) {
 			if (carte.deplacement.parent.lastChild) {
 				if (carte.deplacement.parent.lastChild.classList.contains("carte")) {
 					retournerCarte(carte.deplacement.parent.lastChild);
-					activation(carte.deplacement.parent.lastChild, deplacerColonne, true);
 				}
 			}
 		} else { // On la retourne au point de depart
@@ -210,74 +323,105 @@ function deplacerColonne(e) {
 }
 
 function trouverPossibilites(carte) {
-	var sorte, valeur, couleur, resultat, i, maison, colonne;
+	var resultat;
+	resultat = {
+		maisons: trouverPossibilitesMaison(carte),
+		colonnes: trouverPossibilitesColonne(carte)
+	};
+	return resultat;
+}
+
+function trouverPossibilitesMaison(carte) {
+	var sorte, valeur, resultat, i, dessus;
 	sorte = getSorte(carte);
 	valeur = getValeur(carte);
-	couleur = getCouleur(carte);
-	resultat = {
-		maisons: [],
-		colonnes: []
-	};
-	if (!carte.nextSibling) {
-		for (i = 0; i < g.maisons.length; i += 1) {
-			maison = g.maisons[i];
-			if (maison.lastChild) {
-				if (sorte === getSorte(maison.lastChild) && valeur === getValeur(maison.lastChild) + 1) {
-					resultat.maisons.push(maison);
-				}
-			} else {
-				if (valeur === 0) {
-					resultat.maisons.push(maison);
-				}
-			}
-		}
+	resultat = [];
+
+	if (carte.nextSibling) {
+		return [];
 	}
-	for (i = 0; i < g.colonnes.length; i += 1) {
-		colonne = g.colonnes[i];
-		if (colonne.lastChild) {
-			if (colonne.lastChild.classList.contains("ouverte") && couleur !== getCouleur(colonne.lastChild) && valeur === getValeur(colonne.lastChild) - 1) {
-				resultat.colonnes.push(colonne);
-			}
-		} else {
-			if (valeur === 12) {
-				resultat.colonnes.push(colonne);
+	if (valeur === 0) {
+		var maisons = document.querySelectorAll(".maison:empty");
+		for (i = 0; i < maisons.length; i += 1) {
+			resultat.push(maisons[i]);
+		}
+		return resultat;
+	}
+	for (i = 0; i < g.maisons.length; i += 1) {
+		dessus = g.maisons[i].lastChild;
+		if (dessus) {
+			if (sorte === getSorte(dessus) && valeur === getValeur(dessus) + 1) {
+				resultat.push(g.maisons[i]);
 			}
 		}
 	}
 	return resultat;
 }
 
+function trouverPossibilitesColonne(carte) {
+	var resultat, valeur, couleur, i;
+	resultat = [];
+	valeur = getValeur(carte);
+	couleur = getCouleur(carte);
+	if (valeur === 12) {
+		var colonnes = document.querySelectorAll(".colonne:empty");
+		for (i = 0; i < colonnes.length; i += 1) {
+			resultat.push(colonnes[i]);
+		}
+		return resultat;
+	}
+	var cartes = document.querySelectorAll(".colonne .carte:only-child");
+	for (i = 0; i < cartes.length; i += 1) {
+		if (couleur !== getCouleur(cartes[i]) && valeur === getValeur(cartes[i]) - 1) {
+			resultat.push(cartes[i]);
+		}
+	}
+	return resultat;
+}
+
 function estJouable(carte) {
-	var valeur, sorte, couleur, i, maison, colonne;
+	if (estJouableMaison(carte)) {
+		return true;
+	}
+	if (estJouableColonne(carte)) {
+		return true;
+	}
+	return false;
+}
+
+function estJouableMaison(carte) {
+	var valeur, sorte, couleur, i, dessus;
 	valeur = getValeur(carte);
 	sorte = getSorte(carte);
 	couleur = getCouleur(carte);
-	if (!carte.nextSibling) {
-		for (i = 0; i < g.maisons.length; i += 1) {
-			maison = g.maisons[i];
-			if (maison.lastChild) {
-				if (sorte === getSorte(maison.lastChild) && valeur === getValeur(maison.lastChild) + 1) {
-					return true;
-				}
-			} else {
-				if (valeur === 0) {
-					return true;
-				}
+	if (carte.nextSibling) {
+		return false;
+	}
+	if (valeur === 0 && document.querySelector(".maison:empty")) {
+		return true;
+	}
+	for (i = 0; i < g.maisons.length; i += 1) {
+		dessus = g.maisons[i].lastChild;
+		if (dessus) {
+			if (sorte === getSorte(dessus) && valeur === getValeur(dessus) + 1) {
+				return true;
 			}
 		}
 	}
-	for (i = 0; i < g.colonnes.length; i += 1) {
-		colonne = g.colonnes[i];
-		if (colonne.id !== carte.parentNode.id) {
-			if (colonne.lastChild) {
-				if (colonne.lastChild.classList.contains("ouverte") && couleur !== getCouleur(colonne.lastChild) && valeur === getValeur(colonne.lastChild) - 1) {
-					return true;
-				}
-			} else {
-				if (valeur === 12) {
-					return true;
-				}
-			}
+	return false;
+}
+
+function estJouableColonne(carte) {
+	var valeur, couleur, i;
+	valeur = getValeur(carte);
+	couleur = getCouleur(carte);
+	if (valeur === 12 && document.body.querySelector(".colonne:empty")) {
+		return true;
+	}
+	var cartes = document.querySelectorAll(".colonne .carte:only-child");
+	for (i = 0; i < cartes.length; i += 1) {
+		if (couleur !== getCouleur(cartes[i]) && valeur === getValeur(cartes[i]) - 1) {
+			return true;
 		}
 	}
 	return false;
@@ -297,18 +441,13 @@ function afficherPossibilites(possibilites) {
 	}
 }
 
-function masquerPossibilites(possibilites) {
-	var j, i, element;
-	for (j in possibilites) {
-		for (i = 0; i < possibilites[j].length; i += 1) {
-			if (possibilites[j][i].lastChild) {
-				element = possibilites[j][i].lastChild;
-			} else {
-				element = possibilites[j][i];
-			}
-			element.classList.remove("possibilite");
-		}
+function masquerPossibilites() {
+	var i, elements;
+	elements = document.querySelectorAll(".possibilite");
+	for (i = 0; i < elements.length; i += 1) {
+		elements[i].classList.remove("possibilite");
 	}
+	return elements;
 }
 
 function trouverJouables() {
@@ -320,7 +459,7 @@ function trouverJouables() {
 	for (i = 0; i < g.colonnes.length; i += 1) {
 		colonne = g.colonnes[i];
 		if (colonne.lastChild) {
-			carte = colonne.lastChild;
+			carte = colonne.lastChild.firstChild;
 			while (carte && carte.classList.contains("ouverte")) {
 				if (estJouable(carte)) {
 					resultat.push(carte);
@@ -336,27 +475,17 @@ function afficherJouables(jouables) {
 	var i;
 	jouables = jouables || trouverJouables();
 	for (i = 0; i < jouables.length; i += 1) {
-		jouables[i].style.backgroundColor = "yellow";
+		jouables[i].classList.add("jouable");
 	}
 }
 
 function masquerJouables() {
-	var resultat, i, colonne, carte;
-	resultat = [];
-	if (g.defausse.lastChild) {
-		g.defausse.lastChild.style.backgroundColor = "";
+	var i;
+	var jouables = document.querySelectorAll(".jouable");
+	for (i = 0; i < jouables.length; i += 1) {
+		jouables[i].classList.remove("jouable");
 	}
-	for (i = 0; i < g.colonnes.length; i += 1) {
-		colonne = g.colonnes[i];
-		if (colonne.lastChild) {
-			carte = colonne.lastChild;
-			while (carte && carte.classList.contains("ouverte")) {
-				carte.style.backgroundColor = "";
-				carte = carte.previousSibling;
-			}
-		}
-	}
-	return resultat;
+	return jouables;
 }
 
 function calculerDistance(carte, possibilites) {

@@ -1,28 +1,26 @@
 /*jslint browser:true*/
 /*globals coordAbs, positionAbsolue, positionRelative, unirPiles*/
-/*exported g,nouveauPaquet,brasser,placerPile,transfererCarte,transfererPile,activation,unirPiles,getValeur,getSorte,getCouleur,positionAbsolue,positionRelative,retournerCarte,html_trou*/
+/*exported g,nouveauPaquet,brasser,placerPile,transfererCarte,transfererPile,unirPiles,getValeur,getSorte,getCouleur,positionAbsolue,positionRelative,retournerCarte,html_trou,empiler*/
 //'use strict';
 var g = {};
 
+/**
+ * Initialisation des variables globales. Est exécuré lors du "load" de la page.
+ */
 function main() {
 	g.sortes = "CTKP";
 	g.valeurs = "1234567890VDR";
 	g.pref = {};
-	if ((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i))) {
-		g.iPod = true;
-		g.MOUSEDOWN = 'touchstart';
-		g.MOUSEUP = 'touchend';
-		g.MOUSEMOVE = 'touchmove';
-		g.MOUSEOUT = 'mouseout';
-	} else {
-		g.iPod = false;
-		g.MOUSEDOWN = 'mousedown';
-		g.MOUSEUP = 'mouseup';
-		g.MOUSEMOVE = 'mousemove';
-		g.MOUSEOUT = 'mouseout';
-	}
+	g.MOUSEDOWN = 'mousedown';
+	g.MOUSEUP = 'mouseup';
+	g.MOUSEMOVE = 'mousemove';
+	g.MOUSEOUT = 'mouseout';
 }
 
+/**
+ * Retourne un nouveau paquet de cartes en fonction des variables globales. Les cartes sont les désignations sous forme de chaine.
+ * @returns {[string]} Le tableau
+ */
 function nouveauPaquet() {
 	var resultat, s, v;
 	resultat = [];
@@ -34,25 +32,45 @@ function nouveauPaquet() {
 	return resultat;
 }
 
+/**
+ * Retourne un tableau mélangé
+ * @param   {Array} paquet Le tableau à mélanger
+ * @returns {Array} une copie du tableau
+ */
 function brasser(paquet) {
-	var resultat, carte;
-	paquet = paquet.concat();
+	var resultat, copie, carte, pos;
+	copie = paquet.slice();
+//	autre version :
+//	copie.sort( function () { return Math.random() < 0.5; });
+//	return copie;
 	resultat = [];
-	while (paquet.length) {
-		carte = paquet.splice(Math.floor(Math.random() * paquet.length), 1)[0];
+	while (copie.length > 0) {
+		pos = Math.floor(Math.random() * copie.length);
+		carte = copie[pos];
+		copie.splice(pos, 1);
 		resultat.push(carte);
 	}
 	return resultat;
 }
 
+/**
+ * Place une nouvelle pile sur le jeu. N'est exécutée qu'une seule fois.
+ * @param   {string}      id           Le id à donner à la pile
+ * @param   {array}       cartes       Les cartes à mettre dans la pile
+ * @param   {number}      left         La position en x du coin supérieur gauche de la pile
+ * @param   {number}      top          La position en y du coin supérieur gauche de la pile
+ * @param   {object}      [decalage={] Le décalage à appliquer aux éléments de la pile
+ * @returns {HTMLElement} Un élément div.pile#id
+ */
 function placerPile(id, cartes, left, top, decalage) {
 	var pile, i, carte;
 	decalage = decalage || {
 		left: 0,
 		top: 0
 	};
-	pile = html_pile(id, decalage.left, decalage.top);
-	document.body.appendChild(pile);
+	pile = html_pile(decalage.left, decalage.top);
+	pile.setAttribute("id", id);
+	g.plateau.appendChild(pile);
 	pile.style.left = left + "em";
 	pile.style.top = top + "em";
 	for (i = 0; i < cartes.length; i += 1) {
@@ -61,12 +79,18 @@ function placerPile(id, cartes, left, top, decalage) {
 	}
 	return pile;
 }
-function html_pile(id, dX, dY) {
+/**
+ * Retourne un élément html représentant une pile vide.
+ * @param   {string}      id     Le id à donner à la pile
+ * @param   {number}      [dX=0] Le décalage en x du contenu
+ * @param   {num}         [dY=0] Le décalage en x du contenu
+ * @returns {HTMLElement} Un élément div.pile#id
+ */
+function html_pile(dX, dY) {
 	var resultat;
 	dX = dX || 0;
 	dY = dY || 0;
 	resultat = document.createElement("div");
-	resultat.id = id;
 	resultat.classList.add("pile");
 	resultat.setAttribute("data-dX", dX);
 	resultat.setAttribute("data-dY", dY);
@@ -94,7 +118,7 @@ function html_carte(str_carte) {
  */
 function html_trou(left, top) {
 	var resultat;
-	resultat = document.body.appendChild(document.createElement("div"));
+	resultat = g.plateau.appendChild(document.createElement("div"));
 	resultat.classList.add("trou");
 	resultat.style.left = left + "em";
 	resultat.style.top = top + "em";
@@ -120,11 +144,27 @@ function retournerCarte(carte, etat) {
 
 /**
  * Transfere la carte donnée vers une autre pile
- * @param {object}   carte   [[Description]]
- * @param {[[Type]]} pile    [[Description]]
- * @param {[[Type]]} left    [[Description]]
- * @param {[[Type]]} top     [[Description]]
- * @param {[[Type]]} tourner [[Description]]
+ * @param   {HTMLElement} carte La carte à transferer
+ * @param   {HTMLElement} pile  La pile sur laquelle mettre la carte
+ * @returns {HTMLElement} La carte originale
+ * @todo RÉVISER
+ */
+function empiler(destination, pile) {
+	destination = destination.closest(".pile");
+	if (pile.parentNode) {
+		pile.parentNode.removeChild(pile);
+	}
+	pile.style.top = destination.children.length * destination.getAttribute("data-dY") + "em";
+	pile.style.left = destination.children.length * destination.getAttribute("data-dX") + "em";
+	destination.appendChild(pile);
+	return destination;
+}
+
+/**
+ * Transfere la carte donnée vers une autre pile
+ * @param   {HTMLElement} carte La carte à transferer
+ * @param   {HTMLElement} pile  La pile sur laquelle mettre la carte
+ * @returns {HTMLElement} La carte originale
  */
 function transfererCarte(carte, pile) {
 	carte.parentNode.removeChild(carte);
@@ -134,20 +174,33 @@ function transfererCarte(carte, pile) {
 	return carte;
 }
 
-function transfererPile(pile1, pile2, left, top) {
-	var coords, deltaX, deltaY, fonction;
-	debugger;
-	coords = coordAbs(pile2);
-	deltaX = coords.left;
-	deltaY = coords.top;
+/**
+ * Déplace une pile sur une autre pile
+ * @param {HTMLElement} pile1 [[Description]]
+ * @param {HTMLElement} pile2 [[Description]]
+ * @param {number}      left  La position en x de la pile1 dans la pile 2
+ * @param {number}      top   La position en y de la pile1 dans la pile 2
+ */
+function transfererPile(pile1, pile2) {
+	if (pile1.parentNode) {
+		pile1.parentNode.removeChild(pile1);
+	}
+	pile1.style.top = pile2.children.length * pile2.getAttribute("data-dY") + "em";
+	pile1.style.left = pile2.children.length * pile2.getAttribute("data-dX") + "em";
+	pile2.appendChild(pile1);
+	return pile1;
+//	var coords, deltaX, deltaY, fonction;
+//	coords = coordAbs(pile2);
+//	deltaX = coords.left;
+//	deltaY = coords.top;
 
-	fonction = function () {
-		unirPiles(pile1, pile2);
-	};
-	pile1.style.left = deltaX + left + "px";
-	pile1.style.top = deltaY + top + "px";
-	unirPiles(pile1, pile2);
-	return;
+//	fonction = function () {
+//		unirPiles(pile1, pile2);
+//	};
+//	pile1.style.left = deltaX + left + "px";
+//	pile1.style.top = deltaY + top + "px";
+//	unirPiles(pile1, pile2);
+//	return;
 }
 
 function coordAbs(carte) {
@@ -176,7 +229,7 @@ function positionAbsolue(carte) {
 	}
 	carte.style.left = coords.left + "px";
 	carte.style.top = coords.top + "px";
-	document.body.appendChild(carte.parentNode.removeChild(carte));
+	g.plateau.appendChild(carte.parentNode.removeChild(carte));
 	return carte;
 }
 
@@ -202,22 +255,6 @@ function positionRelative(carte, pile) {
 	carte.style.top = coords.top + "px";
 	pile.appendChild(carte.parentNode.removeChild(carte));
 	return carte;
-}
-
-function activation(carte, handler, actif) {
-	if (carte) {
-		if (actif === true) {
-			carte.addEventListener(g.MOUSEDOWN, handler, true);
-			carte.addEventListener(g.MOUSEUP, handler, true);
-			carte.addEventListener(g.MOUSEMOVE, handler, true);
-			carte.addEventListener(g.MOUSEOUT, handler, true);
-		} else {
-			carte.removeEventListener(g.MOUSEDOWN, handler, true);
-			carte.removeEventListener(g.MOUSEUP, handler, true);
-			carte.removeEventListener(g.MOUSEMOVE, handler, true);
-			carte.removeEventListener(g.MOUSEOUT, handler, true);
-		}
-	}
 }
 
 function unirPiles(pile1, pile2) {
@@ -249,6 +286,7 @@ function getValeur(carte) {
  * @returns {number} L'indice de la valeur de la carte. Un nombre entre 0 et 3 en fonction de g.sortes
  */
 function getSorte(carte) {
+	if (carte == null) debugger;
 	if (typeof carte !== "string") {
 		carte = carte.getAttribute("data-carte");
 	}

@@ -7,18 +7,10 @@ html, body {
 body {
 	margin: 0;
 	background-color: #393;
+}
+#plateau {
 	position: relative;
 	margin: 0 auto;
-}
-@media all and (min-aspect-ratio: 1/1) {
-	body {
-		font-size: 2.5vh;
-	}
-}
-@media all and (max-aspect-ratio: 1/1) {
-	body {
-		font-size: 1.6vw;
-	}
 }
 .carte {
 	background-color: #FFF;
@@ -36,6 +28,12 @@ body {
 	}
 	&.trou {
 	}
+}
+.jouable {
+	background-color: yellow;
+}
+.prise {
+	box-shadow: 0.5em 0.5em 1.5em rgba(0,0,0,.3);
 }
 .trou {
 	.carte;
