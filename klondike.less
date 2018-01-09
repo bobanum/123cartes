@@ -1,6 +1,65 @@
+@import url(cartes.less);
 @largeur: 5*7 + 1*8;
 #plateau {
 	width: @largeur*1em;
+}
+#defausse {
+	left: 7em;
+	top: 1em;
+	& > .pile:last-child .pile {
+		margin-left: 1em;
+	}
+}
+#talon {
+	left: 1em;
+	top: 1em;
+	&:before {
+		display: block;
+		content: "";
+		.trou;
+	}
+}
+#fondation {
+	position: absolute;
+	left: 19em;
+	top: 1em;
+	display: flex;
+	& > .maison {
+		position: relative;
+		& + .maison {
+			margin-left: 1em;
+		}
+		&:before {
+			display: block;
+			content: "";
+			.trou;
+		}
+	}
+}
+#tableau {
+	position: absolute;
+	left: 1em;
+	top: 9em;
+	display: flex;
+	justify-content: space-between;
+	width: @largeur - 2em;
+	& > .colonne {
+		position: relative;
+		&:before {
+			display: block;
+			content: "";
+			.trou;
+		}
+	}
+	.colonne > .pile {
+//		margin-top: .5em;
+	}
+	.colonne > .pile .pile {
+		margin-top: .5em;
+	}
+	.pile.ouverte > .pile {
+		margin-top: 1.5em;
+	}
 }
 @media all and (min-aspect-ratio: 4/3) {
 	body {

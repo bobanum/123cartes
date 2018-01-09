@@ -26,7 +26,11 @@ body {
   background-image: url(images/cartes5x7.png);
   background-size: 65em 28em;
 }
-.jouable {
+.pile.ouverte > .carte {
+  background-image: url(images/cartes5x7.png);
+  background-size: 65em 28em;
+}
+.jouable > .carte {
   background-color: yellow;
 }
 .prise {
@@ -42,6 +46,7 @@ body {
   height: 7em;
   position: absolute;
   border-radius: .5em;
+  position: relative;
   background-image: none;
   border-style: dashed;
   border-width: .1em;
@@ -52,15 +57,13 @@ body {
   background-image: url(images/cartes5x7.png);
   background-size: 65em 28em;
 }
-.possibilite {
+.possibilite > .carte {
   background-color: cyan;
 }
 #talon div.carte {
   box-shadow: none;
 }
-div.pile {
-  width: 5em;
-  height: 7em;
+.pile {
   position: absolute;
 }
 div.bouton {

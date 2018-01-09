@@ -132,6 +132,7 @@ function html_trou(left, top) {
  * @returns {HTMLElement} La carte ainsi changée
  */
 function retournerCarte(carte, etat) {
+	carte = carte.closest(".pile");
 	if (etat === undefined) {
 		carte.classList.toggle("ouverte");
 	} else if (etat === false) {
@@ -269,28 +270,39 @@ function unirPiles(pile1, pile2) {
 }
 
 /**
- * Retourne l'indice de la valeur de la carte passée en paramètre.
- * @param   {string} carte La description de la carte. Ex: K7. Si carte n'est pas un string, on présume qu'il s'agit de l'objet HTML et récupère l'attribut data-carte.
- * @returns {number} L'indice de la valeur de la carte. Un nombre entre 0 et 12 en fonction de g.valeurs
+ * Retourne la désignation de la carte passée en paramètre.
+ * @param   {string|HTMLElement} carte La carte. Si carte est un string, on le retourne. Sinon, on le récupère de la pile ou de la carte.
+ * @returns {string}             L'indice de la valeur de la carte. Un nombre entre 0 et 12 en fonction de g.valeurs
  */
-function getValeur(carte) {
-	if (typeof carte !== "string") {
-		carte = carte.getAttribute("data-carte");
+function getDesignation(carte) {
+	if (typeof carte === "string") {
+		return carte;
+	} else if (carte.firstChild !== null) {
+		return getDesignation(carte.firstChild);
+	} else if (carte.hasAttribute("data-carte")) {
+		return carte.getAttribute("data-carte");
 	}
-	return g.valeurs.indexOf(carte.charAt(1));
 }
 
 /**
  * Retourne l'indice de la sorte de la carte passée en paramètre.
- * @param   {string} carte La description de la carte. Ex: K7. Si carte n'est pas un string, on présume qu'il s'agit de l'objet HTML et récupère l'attribut data-carte.
+ * @todo Réviser
+ * @param   {string|HTMLElement} carte La carte. @see getDesignation.
  * @returns {number} L'indice de la valeur de la carte. Un nombre entre 0 et 3 en fonction de g.sortes
  */
 function getSorte(carte) {
-	if (carte == null) debugger;
-	if (typeof carte !== "string") {
-		carte = carte.getAttribute("data-carte");
-	}
-	return g.sortes.indexOf(carte.charAt(0));
+	var designation = getDesignation(carte);
+	return g.sortes.indexOf(designation.charAt(0));
+}
+
+/**
+ * Retourne l'indice de la valeur de la carte passée en paramètre.
+ * @param   {string|HTMLElement} carte La carte. @see getDesignation.
+ * @returns {number} L'indice de la valeur de la carte. Un nombre entre 0 et 12 en fonction de g.valeurs
+ */
+function getValeur(carte) {
+	var designation = getDesignation(carte);
+	return g.valeurs.indexOf(designation.charAt(1));
 }
 
 /**

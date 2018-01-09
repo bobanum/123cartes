@@ -26,10 +26,12 @@ body {
 		background-image: url(images/cartes5x7.png);
 		background-size: @carte-background-size;
 	}
-	&.trou {
-	}
 }
-.jouable {
+.pile.ouverte > .carte {
+	background-image: url(images/cartes5x7.png);
+	background-size: @carte-background-size;
+}
+.jouable > .carte {
 	background-color: yellow;
 }
 .prise {
@@ -37,21 +39,22 @@ body {
 }
 .trou {
 	.carte;
+	position: relative;
 	background-image: none;
 	border-style: dashed;
 	border-width: .1em;
 	background-color: #393;
 	box-shadow: none;
 }
-.possibilite {
+.possibilite > .carte {
 	background-color: cyan;
 }
 #talon div.carte {
 	box-shadow: none;
 }
-div.pile {
-	width: @carte-largeur;
-	height: @carte-hauteur;
+.pile {
+//	zzzwidth: @carte-largeur;
+//	zzzheight: @carte-hauteur;
 	position: absolute;
 }
 div.bouton {
