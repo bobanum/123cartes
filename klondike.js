@@ -1,7 +1,7 @@
 /*jslint browser:true, forin:true*/
-/*globals g, coordAbs, placerJeu, placerTrous, distribuer3cartes, afficherJouables, masquerJouables, replacerDefausse, trouverPossibilites, afficherPossibilites, calculerDistance, masquerPossibilites, retournerCarte, html_pile, empiler, html_carte, dessusPile, coordonnees, coordonneesCentre*/
+/*globals g, placerJeu, placerTrous, distribuer3cartes, afficherJouables, masquerJouables, replacerDefausse, trouverPossibilites, afficherPossibilites, masquerPossibilites, retournerCarte, html_pile, empiler, html_carte, dessusPile, coordonnees, coordonneesCentre, distance*/
 /*globals nouveauPaquet,brasser,getValeur,getSorte,getCouleur*/
-/*exported placerJeu, distribuer3cartes, replacerDefausse, placerTrous, trouverPossibilites, afficherPossibilites, masquerPossibilites, afficherJouables, masquerJouables, calculerDistance*/
+/*exported placerJeu, distribuer3cartes, replacerDefausse, placerTrous, trouverPossibilites, afficherPossibilites, masquerPossibilites, afficherJouables, masquerJouables*/
 //'use strict';
 
 function klondike_main() {
@@ -131,31 +131,30 @@ function dragstart(e) {
 	pile.style.left = pos.x + "px";
 	pile.style.top = pos.y + "px";
 	pile.decalage = {x: e.offsetX, y: e.offsetY};
-	console.log("c'est parti", e.type);
 	function dragmove(e) {
-		//console.log("déplacer la carte", e.type);
 		pile.style.left = e.clientX - pile.decalage.x + "px";
 		pile.style.top = e.clientY - pile.decalage.y + "px";
 	}
-	function drop(e) {
-		var position = coordonneesCentre(pile);
-		var choix = null;
-		var distance = null;
-		possibilites.forEach(function(p) {
-			var c = coordonneesCentre(p);
-			var dx = c.x - position.x;
-			var dy = c.y - position.y;
-			var d = Math.sqrt(dx*dx + dy*dy);
-			if (distance === null || d < distance) {
-				distance = d;
-				choix = p;
+	function drop() {
+		var position, choix, possibilite, d;
+		position = coordonneesCentre(pile);
+		choix = {
+			element: null,
+			distance: Infinity
+		};
+		for (i = 0; i < possibilites.length; i += 1) {
+			possibilite = possibilites[i];
+			d = distance(position, coordonneesCentre(possibilite));
+			if (d < choix.distance) {
+				choix.element = possibilite;
+				choix.distance = d;
 			}
-		});
-		if (choix) {
-			if (choix.classList.contains("maison")) {
-				empiler(dessusPile(choix), pile);
+		}
+		if (choix.element) {
+			if (choix.element.classList.contains("maison")) {
+				empiler(dessusPile(choix.element), pile);
 			} else {
-				empiler(choix, pile);
+				empiler(choix.element, pile);
 			}
 			var cartes = document.querySelectorAll("#tableau .pile:not(.ouverte) > .carte:only-child");
 			for (var i = 0; i < cartes.length; i += 1) {
@@ -165,23 +164,20 @@ function dragstart(e) {
 			empiler(origine, pile);
 		}
 		pile.classList.remove("prise");
-
-		console.log("Rendu ???", e.type);
 		document.body.removeEventListener("mousemove", dragmove);
 		document.body.removeEventListener("mouseleave", dragcancel);
 		document.body.removeEventListener("mouseup", drop);
 		masquerPossibilites();
 		afficherJouables();
 	}
-	function dragcancel(e) {
-		console.log("Fini!", e.type, e.eventPhase);
+	function dragcancel() {
 		empiler(origine, pile);
 		pile.classList.remove("prise");
-		afficherJouables();
-		masquerPossibilites();
 		document.body.removeEventListener("mousemove", dragmove);
 		document.body.removeEventListener("mouseleave", dragcancel);
 		document.body.removeEventListener("mouseup", drop);
+		masquerPossibilites();
+		afficherJouables();
 	}
 	document.body.addEventListener("mousemove", dragmove);
 	document.body.addEventListener("mouseleave", dragcancel);
@@ -391,26 +387,5 @@ function masquerJouables() {
 		jouables[i].classList.remove("jouable");
 	}
 	return jouables;
-}
-function calculerDistance(carte, possibilites) {
-	var resultat, coords1, distance, i, coords2, left, top, d;
-	resultat = -1;
-	coords1 = coordAbs(carte);
-	distance = 99999999999999999999999;
-	for (i = 0; i < possibilites.length; i += 1) {
-		if (possibilites[i].lastChild) {
-			coords2 = coordAbs(possibilites[i].lastChild);
-		} else {
-			coords2 = coordAbs(possibilites[i]);
-		}
-		left = coords1.left - coords2.left;
-		top = coords1.top - coords2.top;
-		d = Math.pow(left, 2) + Math.pow(top, 2);
-		if (d < distance) {
-			distance = d;
-			resultat = i;
-		}
-	}
-	return resultat;
 }
 window.addEventListener("load", klondike_main);
