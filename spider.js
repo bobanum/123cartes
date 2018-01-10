@@ -1,5 +1,5 @@
 /*jslint browser:true*/
-/*globals g, coordAbs, unirPiles, placerJeu, placerTrous, placerBoutons, distribuer10cartes, afficherJouables, masquerJouables, evtRecommencer, evtNllePartie, evtUndo, trouverPossibilites, grouperColonne, afficherPossibilites, trouverTouche, calculerDistance, retournerCarte, masquerPossibilites, estDeplacable, confirm, html_pile, html_carte, empiler, dessusPile, coordonnees, coordonneesCentre*/
+/*globals g, coordAbs, unirPiles, placerJeu, placerTrous, placerBoutons, distribuer10cartes, afficherJouables, masquerJouables, evtRecommencer, evtNllePartie, evtUndo, trouverPossibilites, grouperColonne, afficherPossibilites, trouverTouche, calculerDistance, retournerCarte, masquerPossibilites, estDeplacable, confirm, html_pile, html_carte, empiler, dessusPile, coordonnees, coordonneesCentre, distance*/
 /*globals nouveauPaquet,brasser,placerPile,unirPiles,getValeur,getSorte*/
 /*exported distribuer10cartes, placerTrous, placerBoutons, trouverPossibilites, estDeplacable, afficherPossibilites, masquerPossibilites, calculerDistance, trouverTouche, evtUndo, evtRecommencer, evtNllePartie*/
 //'use strict';
@@ -89,7 +89,7 @@ function commencerJeu() {
 			empiler(dessusPile(g.colonnes[j]), carte);
 		}
 	}
-	//tourner les premières cartes
+	//tourner les premiÃ¨res cartes
 	for (j = 0; j < 10; j += 1) {
 		carte = dessusPile(g.colonnes[j]);
 		retournerCarte(carte);
@@ -141,27 +141,28 @@ function dragstart(e) {
 		pile.style.top = e.clientY - pile.decalage.y + "px";
 	}
 	function drop(e) {
-		var position = coordonneesCentre(pile);
-		var choix = null;
-		var distance = null;
-		possibilites.forEach(function(p) {
-			var c = coordonneesCentre(p);
-			var dx = c.x - position.x;
-			var dy = c.y - position.y;
-			var d = Math.sqrt(dx*dx + dy*dy);
-			if (distance === null || d < distance) {
-				distance = d;
-				choix = p;
+		var choix, position, i, possibilite, d;
+		choix = {
+			element: null,
+			distance: Infinity
+		};
+		position = coordonneesCentre(pile);
+		for (i = 0; i < possibilites.length; i += 1) {
+			possibilite = possibilites[i];
+			d = distance(position, coordonneesCentre(possibilite));
+			if (d < choix.distance) {
+				choix.element = possibilite;
+				choix.distance = d;
 			}
-		});
-		if (choix) {
-			if (choix.classList.contains("maison")) {
-				empiler(dessusPile(choix), pile);
+		}
+		if (choix.element) {
+			if (choix.element.classList.contains("maison")) {
+				empiler(dessusPile(choix.element), pile);
 			} else {
-				empiler(choix, pile);
+				empiler(choix.element, pile);
 			}
 			var cartes = document.querySelectorAll("#tableau .pile:not(.ouverte) > .carte:only-child");
-			for (var i = 0; i < cartes.length; i += 1) {
+			for (i = 0; i < cartes.length; i += 1) {
 				retournerCarte(cartes[i]);
 			}
 		} else {

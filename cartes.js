@@ -1,6 +1,6 @@
 /*jslint browser:true*/
 /*globals coordAbs, positionAbsolue, positionRelative, unirPiles*/
-/*exported g,nouveauPaquet,brasser,placerPile,transfererCarte,transfererPile,unirPiles,getValeur,getSorte,getCouleur,positionAbsolue,positionRelative,retournerCarte,empiler, dessusPile,coordonnees,coordonneesCentre*/
+/*exported g,distance,nouveauPaquet,brasser,placerPile,transfererCarte,transfererPile,unirPiles,getValeur,getSorte,getCouleur,positionAbsolue,positionRelative,retournerCarte,empiler, dessusPile,coordonnees,coordonneesCentre*/
 //'use strict';
 var g = {};
 
@@ -82,18 +82,12 @@ function placerPile(id, cartes, left, top, decalage) {
 /**
  * Retourne un élément html représentant une pile vide.
  * @param   {string}      id     Le id à donner à la pile
- * @param   {number}      [dX=0] Le décalage en x du contenu
- * @param   {num}         [dY=0] Le décalage en x du contenu
  * @returns {HTMLElement} Un élément div.pile#id
  */
-function html_pile(dX, dY) {
+function html_pile() {
 	var resultat;
-	dX = dX || 0;
-	dY = dY || 0;
 	resultat = document.createElement("div");
 	resultat.classList.add("pile");
-	resultat.setAttribute("data-dX", dX);
-	resultat.setAttribute("data-dY", dY);
 	return resultat;
 }
 /**
@@ -140,8 +134,6 @@ function empiler(destination, pile) {
 	if (pile.parentNode) {
 		pile.parentNode.removeChild(pile);
 	}
-	pile.style.top = destination.children.length * destination.getAttribute("data-dY") + "em";
-	pile.style.left = destination.children.length * destination.getAttribute("data-dX") + "em";
 	destination.appendChild(pile);
 	return destination;
 }
@@ -154,6 +146,7 @@ function dessusPile(pile) {
 	}
 	return resultat.closest(".pile");
 }
+
 /**
  * Transfere la carte donnée vers une autre pile
  * @param   {HTMLElement} carte La carte à transferer
@@ -162,8 +155,6 @@ function dessusPile(pile) {
  */
 function transfererCarte(carte, pile) {
 	carte.parentNode.removeChild(carte);
-	carte.style.top = pile.children.length * pile.getAttribute("data-dY") + "em";
-	carte.style.left = pile.children.length * pile.getAttribute("data-dX") + "em";
 	pile.appendChild(carte);
 	return carte;
 }
@@ -179,22 +170,8 @@ function transfererPile(pile1, pile2) {
 	if (pile1.parentNode) {
 		pile1.parentNode.removeChild(pile1);
 	}
-	pile1.style.top = pile2.children.length * pile2.getAttribute("data-dY") + "em";
-	pile1.style.left = pile2.children.length * pile2.getAttribute("data-dX") + "em";
 	pile2.appendChild(pile1);
 	return pile1;
-//	var coords, deltaX, deltaY, fonction;
-//	coords = coordAbs(pile2);
-//	deltaX = coords.left;
-//	deltaY = coords.top;
-
-//	fonction = function () {
-//		unirPiles(pile1, pile2);
-//	};
-//	pile1.style.left = deltaX + left + "px";
-//	pile1.style.top = deltaY + top + "px";
-//	unirPiles(pile1, pile2);
-//	return;
 }
 function coordonnees(element, ref) {
 	if (ref === undefined) {
@@ -217,7 +194,12 @@ function coordonneesCentre(element, ref) {
 	resultat.y += element.offsetHeight / 2;
 	return resultat;
 }
-
+function distance(p1, p2) {
+	var dx, dy;
+	dx = p1.x - p2.x;
+	dy = p1.y - p2.y;
+	return Math.sqrt(dx*dx + dy*dy);
+}
 function coordAbs(carte) {
 	var left, top, ptr;
 	left = 0;
