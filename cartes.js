@@ -1,6 +1,6 @@
 /*jslint browser:true*/
 /*globals coordAbs, positionAbsolue, positionRelative, unirPiles*/
-/*exported g,nouveauPaquet,brasser,placerPile,transfererCarte,transfererPile,unirPiles,getValeur,getSorte,getCouleur,positionAbsolue,positionRelative,retournerCarte,html_trou,empiler*/
+/*exported g,nouveauPaquet,brasser,placerPile,transfererCarte,transfererPile,unirPiles,getValeur,getSorte,getCouleur,positionAbsolue,positionRelative,retournerCarte,empiler, dessusPile,coordonnees,coordonneesCentre*/
 //'use strict';
 var g = {};
 
@@ -111,21 +111,6 @@ function html_carte(str_carte) {
 	return resultat;
 }
 /**
- * Retourne un element HTML représentant un trou.
- * @param   {number}      left Position horizontale du trou
- * @param   {number}      top  Position verticale du trou
- * @returns {HTMLElement} L'élément représentant le trou
- */
-function html_trou(left, top) {
-	var resultat;
-	resultat = g.plateau.appendChild(document.createElement("div"));
-	resultat.classList.add("trou");
-	resultat.style.left = left + "em";
-	resultat.style.top = top + "em";
-	return resultat;
-}
-
-/**
  * Rend visible (ou non) la face carte.
  * @param   {HTMLElement} carte L'élément HTML représentant la carte
  * @param   {boolean}     etat  L'état final de la carte. Par défaut, on inverse l'état actuel.
@@ -161,6 +146,14 @@ function empiler(destination, pile) {
 	return destination;
 }
 
+function dessusPile(pile) {
+	var resultat;
+	resultat = pile.querySelector(".carte:only-child");
+	if (resultat === null) {
+		return pile;
+	}
+	return resultat.closest(".pile");
+}
 /**
  * Transfere la carte donnée vers une autre pile
  * @param   {HTMLElement} carte La carte à transferer
@@ -202,6 +195,27 @@ function transfererPile(pile1, pile2) {
 //	pile1.style.top = deltaY + top + "px";
 //	unirPiles(pile1, pile2);
 //	return;
+}
+function coordonnees(element, ref) {
+	if (ref === undefined) {
+		ref = document.body;
+	}
+	var resultat = {x: 0, y: 0};
+	while (element !== ref && element !== document.body) {
+		resultat.x += element.offsetLeft;
+		resultat.y += element.offsetTop;
+		element = element.parentNode;
+	}
+	return resultat;
+}
+function coordonneesCentre(element, ref) {
+	if (ref === undefined) {
+		ref = document.body;
+	}
+	var resultat = coordonnees(element, ref);
+	resultat.x += element.offsetWidth / 2;
+	resultat.y += element.offsetHeight / 2;
+	return resultat;
 }
 
 function coordAbs(carte) {
