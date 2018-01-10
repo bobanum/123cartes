@@ -3,6 +3,7 @@ html,
 body {
   height: 100%;
   overflow: hidden;
+  user-select: none;
 }
 body {
   margin: 0;
@@ -16,47 +17,53 @@ body {
   background-color: #FFF;
   box-sizing: border-box;
   background-image: url(images/dos_bleu.png);
-  box-shadow: 0em 0em 0em 0.05em #d3d3d3, 0.05em 0.05em 0.4em rgba(0, 0, 0, 0.5);
-  background-size: 5em 7em;
-  width: 5em;
-  height: 7em;
+  box-shadow: 0rem 0rem 0rem 0.05rem #d3d3d3, 0.05rem 0.05rem 0.4rem rgba(0, 0, 0, 0.5);
+  background-size: 5rem 7rem;
+  width: 5rem;
+  height: 7rem;
   position: absolute;
-  border-radius: .5em;
+  border-radius: .5rem;
 }
 .carte.ouverte {
   background-image: url(images/cartes5x7.png);
-  background-size: 65em 28em;
+  background-size: 65rem 28rem;
 }
 .pile.ouverte > .carte {
   background-image: url(images/cartes5x7.png);
-  background-size: 65em 28em;
+  background-size: 65rem 28rem;
 }
 .jouable > .carte {
   background-color: yellow;
 }
 .prise {
-  box-shadow: 0.5em 0.5em 1.5em rgba(0, 0, 0, 0.3);
+  box-shadow: 0.5rem 0.5rem 1.5rem rgba(0, 0, 0, 0.3);
 }
 .trou {
   background-color: #FFF;
   box-sizing: border-box;
   background-image: url(images/dos_bleu.png);
-  box-shadow: 0em 0em 0em 0.05em #d3d3d3, 0.05em 0.05em 0.4em rgba(0, 0, 0, 0.5);
-  background-size: 5em 7em;
-  width: 5em;
-  height: 7em;
+  box-shadow: 0rem 0rem 0rem 0.05rem #d3d3d3, 0.05rem 0.05rem 0.4rem rgba(0, 0, 0, 0.5);
+  background-size: 5rem 7rem;
+  width: 5rem;
+  height: 7rem;
   position: absolute;
-  border-radius: .5em;
+  border-radius: .5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: red;
   position: relative;
   background-image: none;
-  border-style: dashed;
-  border-width: .1em;
-  background-color: #393;
   box-shadow: none;
+  border-color: transparent;
+  border-width: 0;
+  background-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.3), -0.05rem -0.05rem rgba(0, 0, 0, 0.2), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.3), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.2);
 }
 .trou.ouverte {
   background-image: url(images/cartes5x7.png);
-  background-size: 65em 28em;
+  background-size: 65rem 28rem;
 }
 .possibilite > .carte {
   background-color: cyan;
@@ -66,26 +73,8 @@ body {
 }
 .pile {
   position: absolute;
-}
-div.bouton {
-  font-family: times new roman;
-  font-weight: bold;
-  position: absolute;
-  line-height: 1em;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 2em;
-  height: 2em;
-  left: 100px;
-  top: 5px;
-  padding: 0px;
-  box-sizing: border-box;
-  text-align: center;
-  border: 1px outset green;
-  cursor: pointer;
-  radius: 5px;
-  background-color: green;
+  left: 0;
+  top: 0;
 }
 a.choixJeu {
   font-family: arial;
@@ -105,15 +94,15 @@ a.choixJeu {
   width: 43em;
 }
 #defausse {
-  left: 7em;
-  top: 1em;
+  left: 7rem;
+  top: 1rem;
 }
 #defausse > .pile:last-child .pile {
-  margin-left: 1em;
+  margin-left: 1rem;
 }
 #talon {
-  left: 1em;
-  top: 1em;
+  left: 1rem;
+  top: 1rem;
 }
 #talon:before {
   display: block;
@@ -121,65 +110,96 @@ a.choixJeu {
   background-color: #FFF;
   box-sizing: border-box;
   background-image: url(images/dos_bleu.png);
-  box-shadow: 0em 0em 0em 0.05em #d3d3d3, 0.05em 0.05em 0.4em rgba(0, 0, 0, 0.5);
-  background-size: 5em 7em;
-  width: 5em;
-  height: 7em;
+  box-shadow: 0rem 0rem 0rem 0.05rem #d3d3d3, 0.05rem 0.05rem 0.4rem rgba(0, 0, 0, 0.5);
+  background-size: 5rem 7rem;
+  width: 5rem;
+  height: 7rem;
   position: absolute;
-  border-radius: .5em;
+  border-radius: .5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: red;
   position: relative;
   background-image: none;
-  border-style: dashed;
-  border-width: .1em;
-  background-color: #393;
   box-shadow: none;
+  border-color: transparent;
+  border-width: 0;
+  background-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.3), -0.05rem -0.05rem rgba(0, 0, 0, 0.2), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.3), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.2);
 }
 #talon:before.ouverte {
   background-image: url(images/cartes5x7.png);
-  background-size: 65em 28em;
+  background-size: 65rem 28rem;
 }
 #fondation {
   position: absolute;
-  left: 19em;
-  top: 1em;
+  left: 19rem;
+  top: 1rem;
   display: flex;
 }
 #fondation > .maison {
   position: relative;
 }
 #fondation > .maison + .maison {
-  margin-left: 1em;
+  margin-left: 1rem;
 }
 #fondation > .maison:before {
-  display: block;
   content: "";
   background-color: #FFF;
   box-sizing: border-box;
   background-image: url(images/dos_bleu.png);
-  box-shadow: 0em 0em 0em 0.05em #d3d3d3, 0.05em 0.05em 0.4em rgba(0, 0, 0, 0.5);
-  background-size: 5em 7em;
-  width: 5em;
-  height: 7em;
+  box-shadow: 0rem 0rem 0rem 0.05rem #d3d3d3, 0.05rem 0.05rem 0.4rem rgba(0, 0, 0, 0.5);
+  background-size: 5rem 7rem;
+  width: 5rem;
+  height: 7rem;
   position: absolute;
-  border-radius: .5em;
+  border-radius: .5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: red;
   position: relative;
   background-image: none;
-  border-style: dashed;
-  border-width: .1em;
-  background-color: #393;
   box-shadow: none;
+  border-color: transparent;
+  border-width: 0;
+  background-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.3), -0.05rem -0.05rem rgba(0, 0, 0, 0.2), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.3), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.2);
 }
 #fondation > .maison:before.ouverte {
   background-image: url(images/cartes5x7.png);
-  background-size: 65em 28em;
+  background-size: 65rem 28rem;
+}
+#fondation > .maison:nth-child(1):before {
+  content: "♥";
+  content: "";
+  background-image: url(images/fond_trou_c.svg);
+}
+#fondation > .maison:nth-child(2):before {
+  content: "♣";
+  content: "";
+  background-image: url(images/fond_trou_t.svg);
+}
+#fondation > .maison:nth-child(3):before {
+  content: "♦";
+  content: "";
+  background-image: url(images/fond_trou_k.svg);
+}
+#fondation > .maison:nth-child(4):before {
+  content: "♠";
+  content: "";
+  background-image: url(images/fond_trou_p.svg);
 }
 #tableau {
   position: absolute;
-  left: 1em;
-  top: 9em;
+  left: 1rem;
+  top: 9rem;
   display: flex;
   justify-content: space-between;
-  width: 41em;
+  width: 41rem;
 }
 #tableau > .colonne {
   position: relative;
@@ -190,36 +210,42 @@ a.choixJeu {
   background-color: #FFF;
   box-sizing: border-box;
   background-image: url(images/dos_bleu.png);
-  box-shadow: 0em 0em 0em 0.05em #d3d3d3, 0.05em 0.05em 0.4em rgba(0, 0, 0, 0.5);
-  background-size: 5em 7em;
-  width: 5em;
-  height: 7em;
+  box-shadow: 0rem 0rem 0rem 0.05rem #d3d3d3, 0.05rem 0.05rem 0.4rem rgba(0, 0, 0, 0.5);
+  background-size: 5rem 7rem;
+  width: 5rem;
+  height: 7rem;
   position: absolute;
-  border-radius: .5em;
+  border-radius: .5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: red;
   position: relative;
   background-image: none;
-  border-style: dashed;
-  border-width: .1em;
-  background-color: #393;
   box-shadow: none;
+  border-color: transparent;
+  border-width: 0;
+  background-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.3), -0.05rem -0.05rem rgba(0, 0, 0, 0.2), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.3), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.2);
 }
 #tableau > .colonne:before.ouverte {
   background-image: url(images/cartes5x7.png);
-  background-size: 65em 28em;
+  background-size: 65rem 28rem;
 }
 #tableau .colonne > .pile .pile {
-  margin-top: .5em;
+  margin-top: .5rem;
 }
 #tableau .pile.ouverte > .pile {
-  margin-top: 1.5em;
+  margin-top: 1.5rem;
 }
 @media all and (min-aspect-ratio: 4/3) {
-  body {
+  html {
     font-size: 3.10077519vh;
   }
 }
 @media all and (max-aspect-ratio: 4/3) {
-  body {
+  html {
     font-size: 2.3255814vw;
   }
 }

@@ -11,6 +11,25 @@
 		content: "";
 		.trou;
 	}
+	&::after {
+		position: absolute;
+		font-family: impact;
+		content: attr(data-n);
+		top:0;
+		left:0;
+		display: flex;
+		text-align: center;
+		width: 100%;
+		justify-content: center;
+		align-items: center;
+		height: 100%;
+		font-size: 2em;
+		font-weight: bold;
+
+		color: white;
+		text-shadow: .1rem .1rem .0em rgba(0, 0, 0, 0.5);
+		-webkit-text-stroke: .05rem black;
+	}
 }
 #fondation {
 	position: absolute;
@@ -23,9 +42,18 @@
 			margin-left: 1em;
 		}
 		&:before {
-			display: block;
-			content: "";
 			.trou;
+			white-space: pre;
+			color: rgba(0, 0, 0, 0.1);
+			background-image: url(images/fond_trou.svg);
+			background-size: 1em;
+			background-repeat: no-repeat;
+			background-position: center center;
+			content: "♥♣\0A♦♠";
+			content: "";
+			line-height: .7em;
+			font-size: 3em;
+//			text-shadow: 0 0 .2em rgba(0,0,0,.1);
 		}
 	}
 }
@@ -57,12 +85,12 @@
 	}
 }
 @media all and (min-aspect-ratio: 3/2) {
-	body {
+	html {
 		font-size: 3/2*100vh/@largeur;
 	}
 }
 @media all and (max-aspect-ratio: 3/2) {
-	body {
+	html {
 		font-size: 100vw/@largeur;
 	}
 }
