@@ -1,7 +1,7 @@
 /*jslint browser:true, forin:true*/
-/*globals g, placerJeu, placerTrous, distribuer3cartes, afficherJouables, masquerJouables, replacerDefausse, trouverPossibilites, afficherPossibilites, masquerPossibilites, retournerCarte, html_pile, empiler, html_carte, dessusPile, coordonnees, coordonneesCentre, distance*/
+/*globals g, placerJeu, placerTrous, distribuer3cartes, afficherJouables, masquerJouables, replacerDefausse, trouverPossibilites, afficherPossibilites, masquerPossibilites, retournerCarte, html_pile, empiler, html_carte, dessusPile, coordonneesCentre, distance, depiler*/
 /*globals nouveauPaquet,brasser,getValeur,getSorte,getCouleur*/
-/*exported placerJeu, distribuer3cartes, replacerDefausse, placerTrous, trouverPossibilites, afficherPossibilites, masquerPossibilites, afficherJouables, masquerJouables*/
+/*exported placerJeu, distribuer3cartes, replacerDefausse, placerTrous, trouverPossibilites, afficherPossibilites, masquerPossibilites, trouverJouables*/
 //'use strict';
 
 function klondike_main() {
@@ -103,7 +103,7 @@ function html_colonne(no) {
 	return resultat;
 }
 function dragstart(e) {
-	var pile, carte, origine, possibilites, pos;
+	var pile, carte, origine, possibilites;
 	if (e.target === g.talon) {
 		replacerTalon();
 		return;
@@ -126,53 +126,22 @@ function dragstart(e) {
 	possibilites = trouverPossibilites(carte);
 	afficherPossibilites(possibilites);
 	possibilites = possibilites.maisons.concat(possibilites.colonnes);
-	pos = coordonnees(pile);
-	document.body.appendChild(pile);
-	pile.style.left = pos.x + "px";
-	pile.style.top = pos.y + "px";
+	depiler(pile);
 	pile.decalage = {x: e.offsetX, y: e.offsetY};
 	function dragmove(e) {
 		pile.style.left = e.clientX - pile.decalage.x + "px";
 		pile.style.top = e.clientY - pile.decalage.y + "px";
 	}
 	function drop() {
-		var position, choix, possibilite, d;
-		position = coordonneesCentre(pile);
-		choix = {
-			element: null,
-			distance: Infinity
-		};
-		for (i = 0; i < possibilites.length; i += 1) {
-			possibilite = possibilites[i];
-			d = distance(position, coordonneesCentre(possibilite));
-			if (d < choix.distance) {
-				choix.element = possibilite;
-				choix.distance = d;
-			}
-		}
-		if (choix.element) {
-			if (choix.element.classList.contains("maison")) {
-				empiler(dessusPile(choix.element), pile);
-			} else {
-				empiler(choix.element, pile);
-			}
-			var cartes = document.querySelectorAll("#tableau .pile:not(.ouverte) > .carte:only-child");
-			for (var i = 0; i < cartes.length; i += 1) {
-				retournerCarte(cartes[i]);
-			}
-		} else {
-			empiler(origine, pile);
-		}
-		pile.classList.remove("prise");
-		document.body.removeEventListener("mousemove", dragmove);
-		document.body.removeEventListener("mouseleave", dragcancel);
-		document.body.removeEventListener("mouseup", drop);
-		masquerPossibilites();
-		afficherJouables();
+		deposerCarte(pile, possibilites, origine);
+		dragstop();
 	}
 	function dragcancel() {
 		empiler(origine, pile);
 		pile.classList.remove("prise");
+		dragstop();
+	}
+	function dragstop() {
 		document.body.removeEventListener("mousemove", dragmove);
 		document.body.removeEventListener("mouseleave", dragcancel);
 		document.body.removeEventListener("mouseup", drop);
@@ -182,13 +151,42 @@ function dragstart(e) {
 	document.body.addEventListener("mousemove", dragmove);
 	document.body.addEventListener("mouseleave", dragcancel);
 	document.body.addEventListener("mouseup", drop);
-	document.body.addEventListener("mousedown", dragstart);
 }
+function deposerCarte(pile, possibilites, origine) {
+	var position, choix, possibilite, d;
+	position = coordonneesCentre(pile);
+	choix = {
+		element: null,
+		distance: Infinity
+	};
+	for (i = 0; i < possibilites.length; i += 1) {
+		possibilite = possibilites[i];
+		d = distance(position, coordonneesCentre(possibilite));
+		if (d < choix.distance) {
+			choix.element = possibilite;
+			choix.distance = d;
+		}
+	}
+	if (choix.element) {
+		if (choix.element.classList.contains("maison")) {
+			empiler(choix.element, pile);
+		} else {
+			empiler(choix.element, pile);
+		}
+		var cartes = document.querySelectorAll("#tableau .pile:not(.ouverte) > .carte:only-child");
+		for (var i = 0; i < cartes.length; i += 1) {
+			retournerCarte(cartes[i]);
+		}
+	} else {
+		empiler(origine, pile);
+	}
+	pile.classList.remove("prise");
+	return pile;
+}
+
 function distribuer3cartes() {
-//	var pile = html_pile(2,0);
 	var carte;
 	masquerJouables();
-//	empiler(g.defausse, pile);
 	var pile = g.defausse;
 	for (var i = 0; i < 3 && g.talon.firstChild; i += 1) {
 		carte = dessusPile(g.talon);
@@ -228,7 +226,7 @@ function trouverPossibilites(carte) {
 	return resultat;
 }
 function trouverPossibilitesMaison(carte) {
-	var sorte, valeur, resultat, i, dessus;
+	var sorte, valeur, resultat, dessus;
 	sorte = getSorte(carte);
 	valeur = getValeur(carte);
 	resultat = [];
@@ -237,19 +235,12 @@ function trouverPossibilitesMaison(carte) {
 		return [];
 	}
 	if (valeur === 0) {
-		var maisons = document.querySelectorAll(".maison:empty");
-		for (i = 0; i < maisons.length; i += 1) {
-			resultat.push(maisons[i]);
-		}
+		resultat.push(g.maisons[sorte]);
 		return resultat;
 	}
-	for (i = 0; i < g.maisons.length; i += 1) {
-		dessus = g.maisons[i].lastChild;
-		if (dessus) {
-			if (sorte === getSorte(dessus) && valeur === getValeur(dessus) + 1) {
-				resultat.push(g.maisons[i]);
-			}
-		}
+	dessus = g.maisons[sorte].lastChild;
+	if (dessus && valeur === getValeur(dessus) + 1) {
+		resultat.push(g.maisons[sorte]);
 	}
 	return resultat;
 }
@@ -268,7 +259,7 @@ function trouverPossibilitesColonne(carte) {
 	var cartes = document.querySelectorAll(".colonne .carte:only-child");
 	for (i = 0; i < cartes.length; i += 1) {
 		if (couleur !== getCouleur(cartes[i]) && valeur === getValeur(cartes[i]) - 1) {
-			resultat.push(cartes[i]);
+			resultat.push(cartes[i].parentNode);
 		}
 	}
 	return resultat;
@@ -321,35 +312,14 @@ function estJouableColonne(carte) {
 	}
 	return false;
 }
-function afficherPossibilites(possibilites) {
-	var j, i, element;
-	for (j in possibilites) {
-		for (i = 0; i < possibilites[j].length; i += 1) {
-			if (possibilites[j][i].lastChild) {
-				element = possibilites[j][i].lastChild;
-			} else {
-				element = possibilites[j][i];
-			}
-			element.classList.add("possibilite");
-		}
-	}
-}
-function masquerPossibilites() {
-	var i, elements;
-	elements = document.querySelectorAll(".possibilite");
-	for (i = 0; i < elements.length; i += 1) {
-		elements[i].classList.remove("possibilite");
-	}
-	return elements;
-}
 function trouverJouables() {
-	var resultat, i, carte, pile;
+	var resultat, i, carte, piles, pile;
 	resultat = [];
 	carte = dessusDefausse();
-	if (carte && estJouable(carte)) {
+	if (estJouable(carte)) {
 		resultat.push(carte);
 	}
-	var piles = document.querySelectorAll("#tableau .pile.ouverte");
+	piles = document.querySelectorAll("#tableau .pile.ouverte");
 
 	for (i = 0; i < piles.length; i += 1) {
 		pile = piles[i];
@@ -357,35 +327,6 @@ function trouverJouables() {
 			resultat.push(pile);
 		}
 	}
-
-//	for (i = 0; i < g.colonnes.length; i += 1) {
-//		colonne = g.colonnes[i];
-//		if (colonne.lastChild) {
-//			carte = dessusPile(colonne);
-//		debugger;
-//			while (carte && carte.classList.contains("ouverte")) {
-//				if (estJouable(carte)) {
-//					resultat.push(carte);
-//				}
-//				carte = carte.previousSibling;
-//			}
-//		}
-//	}
 	return resultat;
-}
-function afficherJouables(jouables) {
-	var i;
-	jouables = jouables || trouverJouables();
-	for (i = 0; i < jouables.length; i += 1) {
-		jouables[i].classList.add("jouable");
-	}
-}
-function masquerJouables() {
-	var i;
-	var jouables = document.querySelectorAll(".jouable");
-	for (i = 0; i < jouables.length; i += 1) {
-		jouables[i].classList.remove("jouable");
-	}
-	return jouables;
 }
 window.addEventListener("load", klondike_main);

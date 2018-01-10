@@ -3,6 +3,7 @@ html,
 body {
   height: 100%;
   overflow: hidden;
+  user-select: none;
 }
 body {
   margin: 0;
@@ -16,47 +17,53 @@ body {
   background-color: #FFF;
   box-sizing: border-box;
   background-image: url(images/dos_bleu.png);
-  box-shadow: 0em 0em 0em 0.05em #d3d3d3, 0.05em 0.05em 0.4em rgba(0, 0, 0, 0.5);
-  background-size: 5em 7em;
-  width: 5em;
-  height: 7em;
+  box-shadow: 0rem 0rem 0rem 0.05rem #d3d3d3, 0.05rem 0.05rem 0.4rem rgba(0, 0, 0, 0.5);
+  background-size: 5rem 7rem;
+  width: 5rem;
+  height: 7rem;
   position: absolute;
-  border-radius: .5em;
+  border-radius: .5rem;
 }
 .carte.ouverte {
   background-image: url(images/cartes5x7.png);
-  background-size: 65em 28em;
+  background-size: 65rem 28rem;
 }
 .pile.ouverte > .carte {
   background-image: url(images/cartes5x7.png);
-  background-size: 65em 28em;
+  background-size: 65rem 28rem;
 }
 .jouable > .carte {
   background-color: yellow;
 }
 .prise {
-  box-shadow: 0.5em 0.5em 1.5em rgba(0, 0, 0, 0.3);
+  box-shadow: 0.5rem 0.5rem 1.5rem rgba(0, 0, 0, 0.3);
 }
 .trou {
   background-color: #FFF;
   box-sizing: border-box;
   background-image: url(images/dos_bleu.png);
-  box-shadow: 0em 0em 0em 0.05em #d3d3d3, 0.05em 0.05em 0.4em rgba(0, 0, 0, 0.5);
-  background-size: 5em 7em;
-  width: 5em;
-  height: 7em;
+  box-shadow: 0rem 0rem 0rem 0.05rem #d3d3d3, 0.05rem 0.05rem 0.4rem rgba(0, 0, 0, 0.5);
+  background-size: 5rem 7rem;
+  width: 5rem;
+  height: 7rem;
   position: absolute;
-  border-radius: .5em;
+  border-radius: .5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: red;
   position: relative;
   background-image: none;
-  border-style: dashed;
-  border-width: .1em;
-  background-color: #393;
   box-shadow: none;
+  border-color: transparent;
+  border-width: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
 }
 .trou.ouverte {
   background-image: url(images/cartes5x7.png);
-  background-size: 65em 28em;
+  background-size: 65rem 28rem;
 }
 .possibilite > .carte {
   background-color: cyan;
@@ -96,22 +103,46 @@ a.choixJeu {
   background-color: #FFF;
   box-sizing: border-box;
   background-image: url(images/dos_bleu.png);
-  box-shadow: 0em 0em 0em 0.05em #d3d3d3, 0.05em 0.05em 0.4em rgba(0, 0, 0, 0.5);
-  background-size: 5em 7em;
-  width: 5em;
-  height: 7em;
+  box-shadow: 0rem 0rem 0rem 0.05rem #d3d3d3, 0.05rem 0.05rem 0.4rem rgba(0, 0, 0, 0.5);
+  background-size: 5rem 7rem;
+  width: 5rem;
+  height: 7rem;
   position: absolute;
-  border-radius: .5em;
+  border-radius: .5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: red;
   position: relative;
   background-image: none;
-  border-style: dashed;
-  border-width: .1em;
-  background-color: #393;
   box-shadow: none;
+  border-color: transparent;
+  border-width: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
 }
 #talon:before.ouverte {
   background-image: url(images/cartes5x7.png);
-  background-size: 65em 28em;
+  background-size: 65rem 28rem;
+}
+#talon::after {
+  position: absolute;
+  font-family: impact;
+  content: attr(data-n);
+  top: 0;
+  left: 0;
+  display: flex;
+  text-align: center;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: 2em;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0.1rem 0.1rem 0em rgba(0, 0, 0, 0.5);
+  -webkit-text-stroke: .05rem black;
 }
 #fondation {
   position: absolute;
@@ -126,27 +157,41 @@ a.choixJeu {
   margin-left: 1em;
 }
 #fondation > .maison:before {
-  display: block;
-  content: "";
   background-color: #FFF;
   box-sizing: border-box;
   background-image: url(images/dos_bleu.png);
-  box-shadow: 0em 0em 0em 0.05em #d3d3d3, 0.05em 0.05em 0.4em rgba(0, 0, 0, 0.5);
-  background-size: 5em 7em;
-  width: 5em;
-  height: 7em;
+  box-shadow: 0rem 0rem 0rem 0.05rem #d3d3d3, 0.05rem 0.05rem 0.4rem rgba(0, 0, 0, 0.5);
+  background-size: 5rem 7rem;
+  width: 5rem;
+  height: 7rem;
   position: absolute;
-  border-radius: .5em;
+  border-radius: .5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: red;
   position: relative;
   background-image: none;
-  border-style: dashed;
-  border-width: .1em;
-  background-color: #393;
   box-shadow: none;
+  border-color: transparent;
+  border-width: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
+  white-space: pre;
+  color: rgba(0, 0, 0, 0.1);
+  background-image: url(images/fond_trou.svg);
+  background-size: 1em;
+  background-repeat: no-repeat;
+  background-position: center center;
+  content: "♥♣\0A♦♠";
+  content: "";
+  line-height: .7em;
+  font-size: 3em;
 }
 #fondation > .maison:before.ouverte {
   background-image: url(images/cartes5x7.png);
-  background-size: 65em 28em;
+  background-size: 65rem 28rem;
 }
 #tableau {
   position: absolute;
@@ -165,22 +210,28 @@ a.choixJeu {
   background-color: #FFF;
   box-sizing: border-box;
   background-image: url(images/dos_bleu.png);
-  box-shadow: 0em 0em 0em 0.05em #d3d3d3, 0.05em 0.05em 0.4em rgba(0, 0, 0, 0.5);
-  background-size: 5em 7em;
-  width: 5em;
-  height: 7em;
+  box-shadow: 0rem 0rem 0rem 0.05rem #d3d3d3, 0.05rem 0.05rem 0.4rem rgba(0, 0, 0, 0.5);
+  background-size: 5rem 7rem;
+  width: 5rem;
+  height: 7rem;
   position: absolute;
-  border-radius: .5em;
+  border-radius: .5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: red;
   position: relative;
   background-image: none;
-  border-style: dashed;
-  border-width: .1em;
-  background-color: #393;
   box-shadow: none;
+  border-color: transparent;
+  border-width: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
 }
 #tableau > .colonne:before.ouverte {
   background-image: url(images/cartes5x7.png);
-  background-size: 65em 28em;
+  background-size: 65rem 28rem;
 }
 #tableau .colonne > .pile .pile {
   margin-top: 1em;
@@ -190,12 +241,12 @@ body .pile.ouverte > .pile {
   margin-top: 1.5em;
 }
 @media all and (min-aspect-ratio: 3/2) {
-  body {
+  html {
     font-size: 2.45901639vh;
   }
 }
 @media all and (max-aspect-ratio: 3/2) {
-  body {
+  html {
     font-size: 1.63934426vw;
   }
 }

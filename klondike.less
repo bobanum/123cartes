@@ -4,15 +4,15 @@
 	width: @largeur*1em;
 }
 #defausse {
-	left: 7em;
-	top: 1em;
+	left: 7rem;
+	top: 1rem;
 	& > .pile:last-child .pile {
-		margin-left: 1em;
+		margin-left: 1rem;
 	}
 }
 #talon {
-	left: 1em;
-	top: 1em;
+	left: 1rem;
+	top: 1rem;
 	&:before {
 		display: block;
 		content: "";
@@ -21,28 +21,47 @@
 }
 #fondation {
 	position: absolute;
-	left: 19em;
-	top: 1em;
+	left: 19rem;
+	top: 1rem;
 	display: flex;
 	& > .maison {
 		position: relative;
 		& + .maison {
-			margin-left: 1em;
+			margin-left: 1rem;
 		}
 		&:before {
-			display: block;
 			content: "";
 			.trou;
+		}
+		&:nth-child(1):before {
+			content: "♥";
+			content: "";
+			background-image: url(images/fond_trou_c.svg);
+		}
+		&:nth-child(2):before {
+			content: "♣";
+			content: "";
+			background-image: url(images/fond_trou_t.svg);
+		}
+		&:nth-child(3):before {
+			content: "♦";
+			content: "";
+			background-image: url(images/fond_trou_k.svg);
+		}
+		&:nth-child(4):before {
+			content: "♠";
+			content: "";
+			background-image: url(images/fond_trou_p.svg);
 		}
 	}
 }
 #tableau {
 	position: absolute;
-	left: 1em;
-	top: 9em;
+	left: 1rem;
+	top: 9rem;
 	display: flex;
 	justify-content: space-between;
-	width: @largeur - 2em;
+	width: @largeur - 2rem;
 	& > .colonne {
 		position: relative;
 		&:before {
@@ -52,22 +71,22 @@
 		}
 	}
 	.colonne > .pile {
-//		margin-top: .5em;
+//		margin-top: .5rem;
 	}
 	.colonne > .pile .pile {
-		margin-top: .5em;
+		margin-top: .5rem;
 	}
 	.pile.ouverte > .pile {
-		margin-top: 1.5em;
+		margin-top: 1.5rem;
 	}
 }
 @media all and (min-aspect-ratio: 4/3) {
-	body {
+	html {
 		font-size: 4/3*100vh/@largeur;
 	}
 }
 @media all and (max-aspect-ratio: 4/3) {
-	body {
+	html {
 		font-size: 100vw/@largeur;
 	}
 }

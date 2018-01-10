@@ -1,7 +1,7 @@
 /*jslint browser:true*/
-/*globals g, placerTrous, distribuer10cartes, evtRecommencer, evtNllePartie, trouverPossibilites, afficherPossibilites, retournerCarte, masquerPossibilites, estDeplacable, html_pile, html_carte, empiler, dessusPile, coordonnees, coordonneesCentre, distance*/
+/*globals g, placerTrous, distribuer10cartes, evtRecommencer, evtNllePartie, trouverPossibilites, afficherPossibilites, retournerCarte, masquerPossibilites, estDeplacable, html_pile, html_carte, empiler, dessusPile, coordonnees, coordonneesCentre, distance, afficherJouables, masquerJouables*/
 /*globals nouveauPaquet,brasser,getValeur,getSorte*/
-/*exported distribuer10cartes, placerTrous, trouverPossibilites, estDeplacable, afficherPossibilites, masquerPossibilites, evtRecommencer, evtNllePartie*/
+/*exported distribuer10cartes, placerTrous, trouverPossibilites, estDeplacable, afficherPossibilites, masquerPossibilites, evtRecommencer, evtNllePartie, trouverJouables*/
 //'use strict';
 
 function spider_main() {
@@ -38,6 +38,7 @@ function html_talon(cartes) {
 		empiler(pile, carte);
 		empiler(resultat, pile);
 	}
+	resultat.setAttribute("data-n", resultat.childElementCount);
 	return resultat;
 }
 function html_fondation() {
@@ -85,6 +86,7 @@ function commencerJeu() {
 			}
 			carte = g.talon.lastChild;
 			empiler(dessusPile(g.colonnes[j]), carte);
+			g.talon.setAttribute("data-n", g.talon.childElementCount);
 		}
 	}
 	//tourner les premières cartes
@@ -190,23 +192,10 @@ function distribuer10cartes() {
 			carte = g.talon.lastChild;
 			retournerCarte(carte);
 			empiler(dessusPile(colonne), carte);
+			g.talon.setAttribute("data-n", g.talon.childElementCount);
 		}
 	}
 	afficherJouables();
-}
-function afficherPossibilites(possibilites) {
-	var i;
-	for (i = 0; i < possibilites.length; i += 1) {
-		possibilites[i].classList.add("possibilite");
-	}
-	return possibilites;
-}
-function masquerPossibilites() {
-	var possibilites, i;
-	possibilites = document.querySelectorAll(".possibilite");
-	for (i = 0; i < possibilites.length; i += 1) {
-		possibilites[i].classList.remove("possibilite");
-	}
 }
 function trouverJouables() {
 	var resultat, i, dessus, deplacables, possibilites;
@@ -288,26 +277,11 @@ function trouverDeplacables() {
 	}
 	return resultat;
 }
-function afficherJouables() {
-	var i;
-	var jouables = trouverJouables();
-	for (i = 0; i < jouables.length; i += 1) {
-		jouables[i].classList.add("jouable");
-	}
-}
 function demarquerDeplacables() {
 	var deplacables, i;
 	deplacables = document.querySelectorAll(".deplacable");
 	for (i = 0; i < deplacables.length; i += 1) {
 		deplacables[i].classList.remove("deplacable");
-	}
-	return;
-}
-function masquerJouables() {
-	var jouables, i;
-	jouables = document.querySelectorAll(".jouable");
-	for (i = 0; i < jouables.length; i += 1) {
-		jouables[i].classList.remove("jouable");
 	}
 	return;
 }

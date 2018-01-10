@@ -1,6 +1,7 @@
 /*jslint browser:true*/
-/*exported g,distance,nouveauPaquet,brasser,getValeur,getSorte,getCouleur,retournerCarte,empiler, dessusPile,coordonnees,coordonneesCentre*/
+/*exported g,distance,nouveauPaquet,brasser,getValeur,getSorte,getCouleur,retournerCarte,empiler,depiler, dessusPile,coordonnees,coordonneesCentre, html_pile, html_carte, afficherJouables, masquerJouables, afficherPossibilites, masquerPossibilites*/
 //'use strict';
+/*global trouverJouables */
 var g = {};
 
 /**
@@ -97,9 +98,9 @@ function retournerCarte(carte, etat) {
 
 /**
  * Transfere la carte donnée vers une autre pile
- * @param   {HTMLElement} carte La carte à transferer
- * @param   {HTMLElement} pile  La pile sur laquelle mettre la carte
- * @returns {HTMLElement} La carte originale
+ * @param   {HTMLElement} destination La pile qui recoit
+ * @param   {HTMLElement} pile        La pile ou carte à mettre par-dessus
+ * @returns undefined
  * @todo RÉVISER
  */
 function empiler(destination, pile) {
@@ -110,7 +111,14 @@ function empiler(destination, pile) {
 	destination.appendChild(pile);
 	pile.style.removeProperty("top");
 	pile.style.removeProperty("left");
-	return destination;
+}
+function depiler(pile) {
+	var pos;
+	pos = coordonnees(pile);
+	document.body.appendChild(pile);
+	pile.style.left = pos.x + "px";
+	pile.style.top = pos.y + "px";
+	return pile;
 }
 
 function dessusPile(pile) {
@@ -193,4 +201,40 @@ function getValeur(carte) {
 function getCouleur(carte) {
 	return getSorte(carte) % 2;
 }
+function afficherJouables() {
+	var jouables, i;
+	jouables = trouverJouables();
+	for (i = 0; i < jouables.length; i += 1) {
+		jouables[i].classList.add("jouable");
+	}
+}
+function masquerJouables() {
+	var i;
+	var jouables = document.querySelectorAll(".jouable");
+	for (i = 0; i < jouables.length; i += 1) {
+		jouables[i].classList.remove("jouable");
+	}
+	return jouables;
+}
+function afficherPossibilites(possibilites) {
+	var i;
+	if (possibilites instanceof Array) {
+		for (i = 0; i < possibilites.length; i += 1) {
+			possibilites[i].classList.add("possibilite");
+		}
+	} else {
+		for (i in possibilites) {
+			afficherPossibilites(possibilites[i]);
+		}
+	}
+}
+function masquerPossibilites() {
+	var i, elements;
+	elements = document.querySelectorAll(".possibilite");
+	for (i = 0; i < elements.length; i += 1) {
+		elements[i].classList.remove("possibilite");
+	}
+	return elements;
+}
+
 window.addEventListener("load", main);

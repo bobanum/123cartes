@@ -1,9 +1,10 @@
-@carte-largeur: 5em;
-@carte-hauteur: 7em;
+@carte-largeur: 5rem;
+@carte-hauteur: 7rem;
 @carte-background-size: (13*@carte-largeur) (4*@carte-hauteur);
 html, body {
 	height: 100%;
 	overflow: hidden;
+	user-select: none;
 }
 body {
 	margin: 0;
@@ -17,12 +18,12 @@ body {
 	background-color: #FFF;
 	box-sizing: border-box;
 	background-image: url(images/dos_bleu.png);
-	box-shadow: 0em 0em 0em .05em rgb(211, 211, 211), 0.05em .05em .4em rgba(0,0,0,.5);
+	box-shadow: 0rem 0rem 0rem .05rem rgb(211, 211, 211), 0.05rem .05rem .4rem rgba(0,0,0,.5);
 	background-size: @carte-largeur @carte-hauteur;
 	width: @carte-largeur;
 	height: @carte-hauteur;
 	position: absolute;
-	border-radius: .5em;
+	border-radius: .5rem;
 	&.ouverte {
 		background-image: url(images/cartes5x7.png);
 		background-size: @carte-background-size;
@@ -36,16 +37,27 @@ body {
 	background-color: yellow;
 }
 .prise {
-	box-shadow: 0.5em 0.5em 1.5em rgba(0,0,0,.3);
+	box-shadow: 0.5rem 0.5rem 1.5rem rgba(0,0,0,.3);
 }
 .trou {
 	.carte;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	background-color: red;
+
 	position: relative;
 	background-image: none;
-	border-style: dashed;
-	border-width: .1em;
-	background-color: #393;
 	box-shadow: none;
+	border-color: transparent;
+	border-width: 0;
+	background-color: rgba(255,255,255,.1);
+	box-shadow:
+		0.05rem 0.05rem rgba(255, 255, 255, 0.6),
+		-0.05rem -0.05rem rgba(0, 0, 0, 0.3),
+		inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6),
+		inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
 }
 .possibilite > .carte {
 	background-color: cyan;
