@@ -1,6 +1,9 @@
-/*jslint browser:true*/
-/*globals g, placerTrous, distribuer10cartes, evtRecommencer, evtNllePartie, trouverPossibilites, afficherPossibilites, retournerCarte, masquerPossibilites, estDeplacable, html_pile, html_carte, empiler, dessusPile, coordonnees, coordonneesCentre, distance, afficherJouables, masquerJouables*/
-/*globals nouveauPaquet,brasser,getValeur,getSorte*/
+/*jslint browser:true, esnext:true*/
+/*globals g, placerTrous, distribuer10cartes, evtRecommencer, evtNllePartie,
+trouverPossibilites, afficherPossibilites, retournerCarte, masquerPossibilites,
+estDeplacable, html_pile, empiler, dessusPile, coordonnees,
+coordonneesCentre, distance, afficherJouables, masquerJouables, getCartesObj*/
+/*globals nouveauPaquet,brasser*/
 /*exported distribuer10cartes, placerTrous, trouverPossibilites, estDeplacable, afficherPossibilites, masquerPossibilites, evtRecommencer, evtNllePartie, trouverJouables*/
 //'use strict';
 
@@ -28,16 +31,16 @@ function html_plateau() {
 	return resultat;
 }
 function html_talon(cartes) {
-	var resultat, pile, i, carte;
+	var resultat, pile;
 	resultat = html_pile();
 	resultat.setAttribute("id", "talon");
 	resultat.classList.add("talon");
-	for (i = 0; i < cartes.length; i += 1) {
-		carte = html_carte(cartes[i]);
+    cartes.forEach(function (carte) {
 		pile = html_pile();
 		empiler(pile, carte);
 		empiler(resultat, pile);
-	}
+
+    }, this);
 	resultat.setAttribute("data-n", resultat.childElementCount);
 	return resultat;
 }
@@ -118,8 +121,8 @@ function dragstart(e) {
 	masquerJouables();
 	demarquerDeplacables();
 	origine = pile.parentNode;
-	possibilites = trouverPossibilites(pile);
-	if (getValeur(pile) === 12) {
+	possibilites = trouverPossibilites(pile.obj);
+	if (pile.obj.valeur === 12) {
 		possibilites.push(document.querySelector("#fondation > .maison:empty"));
 	}
 	afficherPossibilites(possibilites);
@@ -153,10 +156,9 @@ function dragstart(e) {
 			} else {
 				empiler(choix.element, pile);
 			}
-			var cartes = document.querySelectorAll("#tableau .pile:not(.ouverte) > .carte:only-child");
-			for (i = 0; i < cartes.length; i += 1) {
-				retournerCarte(cartes[i]);
-			}
+//			var cartes = document.querySelectorAll("#tableau .pile:not(.visible) > .carte:only-child");
+			var cartes = getCartesObj("#tableau .pile:not(.visible) > .carte:only-child");
+			cartes.forEach(retournerCarte);
 		} else {
 			empiler(origine, pile);
 		}
@@ -198,43 +200,38 @@ function distribuer10cartes() {
 	afficherJouables();
 }
 function trouverJouables() {
-	var resultat, i, dessus, deplacables, possibilites;
+	var resultat, dessus, deplacables;
 	resultat = [];
 	dessus = trouverDessus();
 	deplacables = trouverDeplacables();
-	for (i = 0; i < deplacables.length; i += 1) {
-		possibilites = trouverPossibilites(deplacables[i], dessus);
-		if (possibilites.length > 0) {
-			resultat.push(deplacables[i]);
-		}
-	}
+	deplacables.filter(function (deplacable) {
+		var possibilites = trouverPossibilites(deplacable.obj, dessus.obj);
+        return (possibilites.length > 0);
+    });
 	return resultat;
 }
 function trouverPossibilites(pile, dessus) {
-	var resultat, i, trous;
-	resultat = [];
-	trous = document.querySelectorAll("#tableau .colonne:empty");
-	for (i = 0; i < trous.length; i += 1) {
-		resultat.push(trous[i]);
-	}
+	var trous, empilables;
+	trous = getTrous();
 	if (dessus === undefined) {
 		dessus = trouverDessus();
 	}
-	for (i = 0; i < dessus.length; i += 1) {
-		if (estEmpilable(dessus[i], pile)) {
-			resultat.push(dessus[i]);
+    empilables = dessus.reduce(function (r, d) {
+		if (estEmpilable(d, pile)) {
+			r.push(d);
 		}
-	}
-	return resultat;
+    }, [], this);
+	return [].concat(trous, empilables);
+}
+function getTrous() {
+    return getCartesObj("#tableau .colonne:empty");
 }
 function trouverDessus() {
-	var resultat, cartes, i;
-	resultat = [];
-	cartes = document.querySelectorAll("#tableau .pile.ouverte .carte:only-child");
-	for (i = 0; i < cartes.length; i += 1) {
-		resultat.push(cartes[i].parentNode);
-	}
-	return resultat;
+	return getCartesObj(
+        "#tableau .pile.visible .carte:only-child",
+        null,
+        (carte)=>(carte.parentNode.obj)
+    );
 }
 function estDeplacable(pile) {
 	if (pile.classList.contains("deplacable")) {
@@ -248,41 +245,32 @@ function estDeplacable(pile) {
 	if (!estDeplacable(suivant)) {
 		return false;
 	}
-	if (estEmpilable(pile, suivant, true)) {
+	if (estEmpilable(pile.obj, suivant.obj, true)) {
 		pile.classList.add("deplacable");
 		return true;
 	}
 	return false;
 }
 function estEmpilable(dessous, dessus, strict) {
-	if (getValeur(dessous) !== getValeur(dessus) + 1) {
+	if (dessous.obj.valeur !== dessus.obj.valeur + 1) {
 		return false;
 	}
 	if (!strict) {
 		return true;
 	}
-	if (getSorte(dessous) === getSorte(dessus)) {
+	if (dessous.obj.sorte === dessus.obj.sorte) {
 		return true;
 	}
 	return false;
 }
 function trouverDeplacables() {
-	var resultat, piles, i;
-	resultat = [];
-	piles = document.querySelectorAll("#tableau .pile.ouverte");
-	for (i = 0; i < piles.length; i += 1) {
-		if (estDeplacable(piles[i])) {
-			resultat.push(piles[i]);
-		}
-	}
-	return resultat;
+	return getCartesObj("#tableau .pile.visible", estDeplacable);
 }
 function demarquerDeplacables() {
-	var deplacables, i;
-	deplacables = document.querySelectorAll(".deplacable");
-	for (i = 0; i < deplacables.length; i += 1) {
-		deplacables[i].classList.remove("deplacable");
-	}
+	var deplacables = document.querySelectorAll(".deplacable");
+	deplacables.forEach(function (deplacable) {
+		deplacable.classList.remove("deplacable");
+    });
 	return;
 }
 window.addEventListener("load", spider_main);

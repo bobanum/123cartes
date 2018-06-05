@@ -1,7 +1,8 @@
-/*jslint browser:true*/
-/*exported g,distance,nouveauPaquet,brasser,getValeur,getSorte,getCouleur,retournerCarte,empiler,depiler, dessusPile,coordonnees,coordonneesCentre, html_pile, html_carte, afficherJouables, masquerJouables, afficherPossibilites, masquerPossibilites*/
+/*jslint browser:true, esnext:true*/
+/*exported g,distance,nouveauPaquet,brasser,getSorte,retournerCarte,empiler,depiler, dessusPile,coordonnees,coordonneesCentre, html_pile, html_carte, afficherJouables, masquerJouables, afficherPossibilites, masquerPossibilites,getCartesObj*/
+/*global trouverJouables, Carte */
 //'use strict';
-/*global trouverJouables */
+
 var g = {};
 
 /**
@@ -26,7 +27,7 @@ function nouveauPaquet() {
 	resultat = [];
 	for (s = 0; s < g.sortes.length; s += 1) {
 		for (v = 0; v < g.valeurs.length; v += 1) {
-			resultat.push(g.sortes[s] + g.valeurs[v]);
+			resultat.push(new Carte(s, v));
 		}
 	}
 	return resultat;
@@ -65,34 +66,13 @@ function html_pile() {
 	return resultat;
 }
 /**
- * Retourne un element HTML représentant une carte dont la description est passée en paramètre.
- * @param   {string}   str_carte [[Description]]
- * @returns {[[Type]]} [[Description]]
- */
-function html_carte(str_carte) {
-	var resultat;
-	resultat = document.createElement("div");
-	resultat.classList.add("carte");
-	resultat.setAttribute("data-carte", str_carte);
-	resultat.style.backgroundPositionX = (getValeur(str_carte) * -5) + "em";
-	resultat.style.backgroundPositionY = (getSorte(str_carte) * -7) + "em";
-	return resultat;
-}
-/**
  * Rend visible (ou non) la face carte.
  * @param   {HTMLElement} carte L'élément HTML représentant la carte
  * @param   {boolean}     etat  L'état final de la carte. Par défaut, on inverse l'état actuel.
  * @returns {HTMLElement} La carte ainsi changée
  */
 function retournerCarte(carte, etat) {
-	carte = carte.closest(".pile");
-	if (etat === undefined) {
-		carte.classList.toggle("ouverte");
-	} else if (etat === false) {
-		carte.classList.remove("ouverte");
-	} else {
-		carte.classList.add("ouverte");
-	}
+	carte.obj = etat;
 	return carte;
 }
 
@@ -125,9 +105,10 @@ function dessusPile(pile) {
 	var resultat;
 	resultat = pile.querySelector(".carte:only-child");
 	if (resultat === null) {
-		return pile;
+		return pile.obj;
 	}
-	return resultat.closest(".pile");
+	resultat = resultat.closest(".pile");
+	return resultat.obj;
 }
 
 function coordonnees(element, ref) {
@@ -157,63 +138,41 @@ function distance(p1, p2) {
 	dy = p1.y - p2.y;
 	return Math.sqrt(dx*dx + dy*dy);
 }
-/**
- * Retourne la désignation de la carte passée en paramètre.
- * @param   {string|HTMLElement} carte La carte. Si carte est un string, on le retourne. Sinon, on le récupère de la pile ou de la carte.
- * @returns {string}             L'indice de la valeur de la carte. Un nombre entre 0 et 12 en fonction de g.valeurs
- */
-function getDesignation(carte) {
-	if (typeof carte === "string") {
-		return carte;
-	} else if (carte.firstChild !== null) {
-		return getDesignation(carte.firstChild);
-	} else if (carte.hasAttribute("data-carte")) {
-		return carte.getAttribute("data-carte");
-	}
-}
 
 /**
  * Retourne l'indice de la sorte de la carte passée en paramètre.
  * @todo Réviser
- * @param   {string|HTMLElement} carte La carte. @see getDesignation.
+ * @param   {object Carte} carte La carte.
  * @returns {number} L'indice de la valeur de la carte. Un nombre entre 0 et 3 en fonction de g.sortes
  */
 function getSorte(carte) {
-	var designation = getDesignation(carte);
-	return g.sortes.indexOf(designation.charAt(0));
+	return carte.dom.sorte;
 }
 
-/**
- * Retourne l'indice de la valeur de la carte passée en paramètre.
- * @param   {string|HTMLElement} carte La carte. @see getDesignation.
- * @returns {number} L'indice de la valeur de la carte. Un nombre entre 0 et 12 en fonction de g.valeurs
- */
-function getValeur(carte) {
-	var designation = getDesignation(carte);
-	return g.valeurs.indexOf(designation.charAt(1));
-}
-
-/**
- * Retourne la couleur de la carte passée en paramètre.
- * @param   {string} carte La description de la carte. Ex: K7. Si carte n'est pas un string, on présume qu'il s'agit de l'objet HTML et récupère l'attribut data-carte.
- * @returns {number} La couleur de la carte. 0 pour rouge et 1 pour noir.
- */
-function getCouleur(carte) {
-	return getSorte(carte) % 2;
-}
 function afficherJouables() {
 	var jouables, i;
 	jouables = trouverJouables();
 	for (i = 0; i < jouables.length; i += 1) {
-		jouables[i].classList.add("jouable");
+		jouables[i].dom.classList.add("jouable");
 	}
 }
+function getCartesObj(selector, filter, map) {
+    var cartes;
+    cartes = Array.from(document.querySelectorAll(selector));
+    cartes = cartes.map(carte => carte.obj);
+    if (filter) {
+        cartes = cartes.filter(filter);
+    }
+    if (map) {
+        cartes = cartes.map(map);
+    }
+    return cartes;
+}
 function masquerJouables() {
-	var i;
 	var jouables = document.querySelectorAll(".jouable");
-	for (i = 0; i < jouables.length; i += 1) {
-		jouables[i].classList.remove("jouable");
-	}
+	jouables.forEach(function (jouable) {
+		jouable.classList.remove("jouable");
+    });
 	return jouables;
 }
 function afficherPossibilites(possibilites) {
@@ -229,12 +188,11 @@ function afficherPossibilites(possibilites) {
 	}
 }
 function masquerPossibilites() {
-	var i, elements;
-	elements = document.querySelectorAll(".possibilite");
-	for (i = 0; i < elements.length; i += 1) {
-		elements[i].classList.remove("possibilite");
-	}
-	return elements;
+	var possibilites = document.querySelectorAll(".possibilite");
+	possibilites.forEach(function (possibilite) {
+		possibilite.classList.remove("possibilite");
+    });
+	return possibilites;
 }
 
 window.addEventListener("load", main);

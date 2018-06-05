@@ -24,12 +24,12 @@ body {
 	height: @carte-hauteur;
 	position: absolute;
 	border-radius: .5rem;
-	&.ouverte {
+	&.visible {
 		background-image: url(images/cartes5x7.png);
 		background-size: @carte-background-size;
 	}
 }
-.pile.ouverte > .carte {
+.pile.visible > .carte {
 	background-image: url(images/cartes5x7.png);
 	background-size: @carte-background-size;
 }

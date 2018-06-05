@@ -1,6 +1,9 @@
-/*jslint browser:true, forin:true*/
-/*globals g, placerJeu, placerTrous, distribuer3cartes, afficherJouables, masquerJouables, replacerDefausse, trouverPossibilites, afficherPossibilites, masquerPossibilites, retournerCarte, html_pile, empiler, html_carte, dessusPile, coordonneesCentre, distance, depiler*/
-/*globals nouveauPaquet,brasser,getValeur,getSorte,getCouleur*/
+/*jslint browser:true, esnext:true*/
+/*globals g, placerJeu, placerTrous, distribuer3cartes, afficherJouables, masquerJouables,
+replacerDefausse, trouverPossibilites, afficherPossibilites, masquerPossibilites,
+retournerCarte, html_pile, empiler, dessusPile, coordonneesCentre, distance,
+depiler, getCartesObj*/
+/*globals nouveauPaquet,brasser*/
 /*exported placerJeu, distribuer3cartes, replacerDefausse, placerTrous, trouverPossibilites, afficherPossibilites, masquerPossibilites, trouverJouables*/
 //'use strict';
 
@@ -37,7 +40,8 @@ function commencerJeu() {
 	for (i = 0; i < 7; i += 1) {
 		carte = g.talon.lastChild;
 		empiler(dessusPile(g.colonnes[i]), carte);
-		retournerCarte(carte.firstChild	);
+		debugger;
+        retournerCarte(carte.firstChild.obj);
 		for (j = i + 1; j < 7; j += 1) {
 			carte = g.talon.lastChild;
 			empiler(dessusPile(g.colonnes[j]), g.talon.lastChild);
@@ -70,16 +74,15 @@ function html_tableau() {
 	return resultat;
 }
 function html_talon(cartes) {
-	var resultat, pile, i, carte;
+	var resultat, pile;
 	resultat = html_pile();
 	resultat.setAttribute("id", "talon");
 	resultat.classList.add("talon");
-	for (i = 0; i < cartes.length; i += 1) {
-		carte = html_carte(cartes[i]);
+	cartes.forEach(function (carte) {
 		pile = html_pile();
-		empiler(pile, carte);
+		empiler(pile, carte.dom);
 		empiler(resultat, pile);
-	}
+    }, this);
 	return resultat;
 }
 function html_defausse() {
@@ -112,7 +115,7 @@ function dragstart(e) {
 		distribuer3cartes();
 		return;
 	}
-	carte = e.target.closest(".ouverte");
+	carte = e.target.closest(".visible");
 	if (!carte) {
 		return;
 	}
@@ -123,7 +126,7 @@ function dragstart(e) {
 	pile.classList.add("prise");
 	masquerJouables();
 	origine = pile.parentNode;
-	possibilites = trouverPossibilites(carte);
+	possibilites = trouverPossibilites(carte.obj);
 	afficherPossibilites(possibilites);
 	possibilites = possibilites.maisons.concat(possibilites.colonnes);
 	depiler(pile);
@@ -153,30 +156,30 @@ function dragstart(e) {
 	document.body.addEventListener("mouseup", drop);
 }
 function deposerCarte(pile, possibilites, origine) {
-	var position, choix, possibilite, d;
+	var position, choix;
 	position = coordonneesCentre(pile);
 	choix = {
 		element: null,
 		distance: Infinity
 	};
-	for (i = 0; i < possibilites.length; i += 1) {
-		possibilite = possibilites[i];
-		d = distance(position, coordonneesCentre(possibilite));
+	possibilites.forEach(function (possibilite) {
+		var d = distance(position, coordonneesCentre(possibilite));
 		if (d < choix.distance) {
 			choix.element = possibilite;
 			choix.distance = d;
 		}
-	}
+    });
 	if (choix.element) {
 		if (choix.element.classList.contains("maison")) {
 			empiler(choix.element, pile);
 		} else {
 			empiler(choix.element, pile);
 		}
-		var cartes = document.querySelectorAll("#tableau .pile:not(.ouverte) > .carte:only-child");
-		for (var i = 0; i < cartes.length; i += 1) {
-			retournerCarte(cartes[i]);
-		}
+//		var cartes = document.querySelectorAll("#tableau .pile:not(.visible) > .carte:only-child");
+        var cartes = getCartesObj("#tableau .pile:not(.visible) > .carte:only-child");
+		cartes.forEach(function (carte) {
+			retournerCarte(carte);
+        });
 	} else {
 		empiler(origine, pile);
 	}
@@ -198,13 +201,14 @@ function distribuer3cartes() {
 	return pile;
 }
 function replacerTalon() {
-	var cartes, i;
+	var cartes;
 	masquerJouables();
-	cartes = document.querySelectorAll("#defausse .pile");
-	for (i = 0; i < cartes.length; i += 1) {
-		retournerCarte(cartes[i]);
-		empiler(g.talon, cartes[i]);
-	}
+//	cartes = document.querySelectorAll("#defausse .pile");
+	cartes = getCartesObj("#defausse .pile");
+    cartes.forEach(function (carte) {
+		retournerCarte(carte);
+		empiler(g.talon, carte);
+    });
 	afficherJouables();
 	return;
 }
@@ -212,7 +216,7 @@ function dessusDefausse() {
 	var resultat;
 	resultat = document.querySelector("#defausse > .pile:last-child .carte:only-child");
 	if (resultat) {
-		return resultat.parentNode;
+		return resultat.parentNode.obj;
 	} else {
 		return null;
 	}
@@ -227,8 +231,8 @@ function trouverPossibilites(carte) {
 }
 function trouverPossibilitesMaison(carte) {
 	var sorte, valeur, resultat, dessus;
-	sorte = getSorte(carte);
-	valeur = getValeur(carte);
+	sorte = carte.sorte;
+	valeur = carte.valeur;
 	resultat = [];
 
 	if (carte.nextSibling) {
@@ -239,29 +243,29 @@ function trouverPossibilitesMaison(carte) {
 		return resultat;
 	}
 	dessus = g.maisons[sorte].lastChild;
-	if (dessus && valeur === getValeur(dessus) + 1) {
+	if (dessus && valeur === dessus.obj.valeur + 1) {
 		resultat.push(g.maisons[sorte]);
 	}
 	return resultat;
 }
 function trouverPossibilitesColonne(carte) {
-	var resultat, valeur, couleur, i;
+	var resultat, valeur, couleur;
 	resultat = [];
-	valeur = getValeur(carte);
-	couleur = getCouleur(carte);
+	valeur = carte.valeur;
+	couleur = carte.couleur;
 	if (valeur === 12) {
-		var colonnes = document.querySelectorAll(".colonne:empty");
-		for (i = 0; i < colonnes.length; i += 1) {
-			resultat.push(colonnes[i]);
-		}
+//		var colonnes = document.querySelectorAll(".colonne:empty");
+		var colonnes = getCartesObj(".colonne:empty");
+		resultat = resultat.concat(colonnes);
 		return resultat;
 	}
-	var cartes = document.querySelectorAll(".colonne .carte:only-child");
-	for (i = 0; i < cartes.length; i += 1) {
-		if (couleur !== getCouleur(cartes[i]) && valeur === getValeur(cartes[i]) - 1) {
-			resultat.push(cartes[i].parentNode);
-		}
-	}
+//	var cartes = document.querySelectorAll(".colonne .carte:only-child");
+	var cartes = getCartesObj(
+        ".colonne .carte:only-child",
+        (carte)=>(couleur !== carte.couleur && valeur === carte.valeur - 1),
+        (carte)=>(carte.dom.parentNode.obj)
+    );
+    resultat = resultat.concat(cartes);
 	return resultat;
 }
 function estJouable(carte) {
@@ -277,56 +281,51 @@ function estJouable(carte) {
 	return false;
 }
 function estJouableMaison(carte) {
-	var valeur, sorte, couleur, i, dessus;
-	valeur = getValeur(carte);
-	sorte = getSorte(carte);
-	couleur = getCouleur(carte);
-	if (carte.nextSibling) {
+	var valeur, sorte, couleur, dessus;
+	if (carte.dom.nextSibling) {
 		return false;
 	}
+	valeur = carte.valeur;
+	sorte = carte.sorte;
+	couleur = carte.couleur;
 	if (valeur === 0 && document.querySelector(".maison:empty")) {
 		return true;
 	}
-	for (i = 0; i < g.maisons.length; i += 1) {
-		dessus = g.maisons[i].lastChild;
+    var resultat = g.maisons.find(function (maison) {
+		dessus = maison.lastChild;
 		if (dessus) {
-			if (sorte === getSorte(dessus) && valeur === getValeur(dessus) + 1) {
+			if (sorte === dessus.obj.sorte && valeur === dessus.obj.valeur + 1) {
 				return true;
 			}
 		}
-	}
-	return false;
+    }, this);
+	return resultat;
 }
 function estJouableColonne(carte) {
-	var valeur, couleur, i;
-	valeur = getValeur(carte);
-	couleur = getCouleur(carte);
+	var resultat, valeur, couleur, cartes;
+	valeur = carte.valeur;
+	couleur = carte.couleur;
 	if (valeur === 12 && document.body.querySelector(".colonne:empty")) {
 		return true;
 	}
-	var cartes = document.querySelectorAll(".colonne .carte:only-child");
-	for (i = 0; i < cartes.length; i += 1) {
-		if (couleur !== getCouleur(cartes[i]) && valeur === getValeur(cartes[i]) - 1) {
-			return true;
-		}
-	}
-	return false;
+	cartes = getCartesObj(".colonne .carte:only-child");
+
+    resultat = cartes.find((carte)=>(couleur !== carte.couleur && valeur === carte.valeur - 1));
+    return resultat;
 }
 function trouverJouables() {
-	var resultat, i, carte, piles, pile;
-	resultat = [];
+	var defausse, carte, piles;
+	defausse = [];
 	carte = dessusDefausse();
 	if (estJouable(carte)) {
-		resultat.push(carte);
+		defausse.push(carte);
 	}
-	piles = document.querySelectorAll("#tableau .pile.ouverte");
 
-	for (i = 0; i < piles.length; i += 1) {
-		pile = piles[i];
-		if (estJouable(pile)) {
-			resultat.push(pile);
-		}
-	}
-	return resultat;
+//    piles = Array.from(document.querySelectorAll("#tableau .pile.visible"));
+//    piles = piles.map(pile => pile.obj);
+//    piles = piles.filter((pile) => estJouable(pile));
+    piles = getCartesObj("#tableau .pile.visible", estJouable);
+
+	return [].concat(defausse, piles);
 }
 window.addEventListener("load", klondike_main);

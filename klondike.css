@@ -24,11 +24,11 @@ body {
   position: absolute;
   border-radius: .5rem;
 }
-.carte.ouverte {
+.carte.visible {
   background-image: url(images/cartes5x7.png);
   background-size: 65rem 28rem;
 }
-.pile.ouverte > .carte {
+.pile.visible > .carte {
   background-image: url(images/cartes5x7.png);
   background-size: 65rem 28rem;
 }
@@ -61,7 +61,7 @@ body {
   background-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
 }
-.trou.ouverte {
+.trou.visible {
   background-image: url(images/cartes5x7.png);
   background-size: 65rem 28rem;
 }
@@ -129,7 +129,7 @@ a.choixJeu {
   background-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
 }
-#talon:before.ouverte {
+#talon:before.visible {
   background-image: url(images/cartes5x7.png);
   background-size: 65rem 28rem;
 }
@@ -169,7 +169,7 @@ a.choixJeu {
   background-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
 }
-#fondation > .maison:before.ouverte {
+#fondation > .maison:before.visible {
   background-image: url(images/cartes5x7.png);
   background-size: 65rem 28rem;
 }
@@ -229,14 +229,14 @@ a.choixJeu {
   background-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
 }
-#tableau > .colonne:before.ouverte {
+#tableau > .colonne:before.visible {
   background-image: url(images/cartes5x7.png);
   background-size: 65rem 28rem;
 }
 #tableau .colonne > .pile .pile {
   margin-top: .5rem;
 }
-#tableau .pile.ouverte > .pile {
+#tableau .pile.visible > .pile {
   margin-top: 1.5rem;
 }
 @media all and (min-aspect-ratio: 4/3) {

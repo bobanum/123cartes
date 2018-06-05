@@ -1,0 +1,21 @@
+À rechercher
+-getSorte
+-getValeur
+-getCouleur
+-getDesignation
+-trouverPossibilitesMaison
+?trouverJouables
+estJouable
+estJouableMaison
+estJouableColonne *
+dessusDefausse
+-estEmpilable
+trouverPossibilitesColonne
+-trouverPossibilites
+-trouverDessus
+-trouverDeplacables
+retournerCarte
+masquerJouables
+empiler
+
+*=utiliser l'objet
