@@ -64,19 +64,16 @@
 	display: flex;
 	justify-content: space-between;
 	width: @largeur - 2em;
-	& > .colonne {
+	& > .pile {
 		position: relative;
 		&:before {
 			display: block;
 			content: "";
 			.trou;
 		}
-	}
-	.colonne > .pile {
-//		margin-top: .5em;
-	}
-	.colonne > .pile .pile {
-		margin-top: 1em;
+        & > .pile .pile {
+            margin-top: 1em;
+        }
 	}
 }
 #tableau, body {

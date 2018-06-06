@@ -1,276 +1,312 @@
 /*jslint browser:true, esnext:true*/
-/*globals g, placerTrous, distribuer10cartes, evtRecommencer, evtNllePartie,
-trouverPossibilites, afficherPossibilites, retournerCarte, masquerPossibilites,
-estDeplacable, html_pile, empiler, dessusPile, coordonnees,
-coordonneesCentre, distance, afficherJouables, masquerJouables, getCartesObj*/
-/*globals nouveauPaquet,brasser*/
-/*exported distribuer10cartes, placerTrous, trouverPossibilites, estDeplacable, afficherPossibilites, masquerPossibilites, evtRecommencer, evtNllePartie, trouverJouables*/
-//'use strict';
+/*global Jeu, Pile */
+class Spider extends Jeu {
+    /**
+     * Creates an instance of Spider.
+     * @memberOf Spider
+     */
+    constructor() {
+        super();
+        this.cartes = [];
+    }
+    ////////////////////////////////
+    ////////////////////////////////
+    ////////////////////////////////
 
-function spider_main() {
-	g.paquet = brasser(nouveauPaquet().concat(nouveauPaquet()));
-	g.talon = null;
-	g.maisons = [];
-	g.colonnes = [];
-	g.pref.afficherPossibilites = false;
-	g.plateau = html_plateau();
-	document.body.appendChild(g.plateau);
-	commencerJeu();
-}
-function html_plateau() {
-	var resultat;
-	resultat = document.createElement("div");
-	resultat.setAttribute("id", "plateau");
 
-	g.talon = html_talon(g.paquet);
-	resultat.appendChild(g.talon);
-	g.fondation = html_fondation();
-	resultat.appendChild(g.fondation);
-	g.tableau = html_tableau();
-	resultat.appendChild(g.tableau);
-	return resultat;
-}
-function html_talon(cartes) {
-	var resultat, pile;
-	resultat = html_pile();
-	resultat.setAttribute("id", "talon");
-	resultat.classList.add("talon");
-    cartes.forEach(function (carte) {
-		pile = html_pile();
-		empiler(pile, carte);
-		empiler(resultat, pile);
+    static spider_main() {
+        this.paquet = this.brasser(this.nouveauPaquet().concat(this.nouveauPaquet()));
+        this.talon = null;
+        this.maisons = [];
+        this.colonnes = [];
+        this.pref.afficherPossibilites = false;
+        this.plateau = this.html_plateau();
+        document.body.appendChild(this.plateau);
+        this.commencerJeu();
+    }
+    static html_plateau() {
+        var resultat;
+        resultat = document.createElement("div");
+        resultat.setAttribute("id", "plateau");
 
-    }, this);
-	resultat.setAttribute("data-n", resultat.childElementCount);
-	return resultat;
-}
-function html_fondation() {
-	var resultat, i, maison;
-	resultat = html_pile();
-	resultat.setAttribute("id", "fondation");
-	for (i = 0; i < 8; i += 1) {
-		maison = html_maison(i);
-		g.maisons.push(maison);
-		resultat.appendChild(maison);
-	}
-	return resultat;
-}
-function html_maison(no) {
-	var resultat;
-	resultat = html_pile();
-	resultat.setAttribute("id", "maison" + no);
-	resultat.classList.add("maison");
-	return resultat;
-}
-function html_tableau() {
-	var resultat, i, colonne;
-	resultat = html_pile();
-	resultat.setAttribute("id", "tableau");
-	for (i = 0; i < 10; i += 1) {
-		colonne = html_colonne(i);
-		g.colonnes.push(colonne);
-		resultat.appendChild(colonne);
-	}
-	return resultat;
-}
-function html_colonne(no) {
-	var resultat;
-	resultat = html_pile();
-	resultat.setAttribute("id", "colonne" + no);
-	resultat.classList.add("colonne");
-	return resultat;
-}
-function commencerJeu() {
-	var carte, i, j;
-	for (i = 0; i < 6; i += 1) {
-		for (j = 0; j < 10; j += 1) {
-			if (i === 5 && j > 3) {
-				break;
-			}
-			carte = g.talon.lastChild;
-			empiler(dessusPile(g.colonnes[j]), carte);
-			g.talon.setAttribute("data-n", g.talon.childElementCount);
-		}
-	}
-	//tourner les premières cartes
-	for (j = 0; j < 10; j += 1) {
-		carte = dessusPile(g.colonnes[j]);
-		retournerCarte(carte);
-	}
-	document.body.addEventListener("mousedown", dragstart);
-	afficherJouables();
-	return;
-}
-function dragstart(e) {
-	var pile, origine, possibilites, pos;
-	if (e.target.closest("#talon")) {
-		if (document.querySelector("#tableau > .colonne:empty")) {
-			return;
-		}
-		if (g.talon.childElementCount === 0) {
-			return;
-		}
-		distribuer10cartes();
-		return;
-	}
-	pile = e.target.closest(".deplacable");
-	if (!pile) {
-		return;
-	}
-	pile.classList.add("prise");
-	masquerJouables();
-	demarquerDeplacables();
-	origine = pile.parentNode;
-	possibilites = trouverPossibilites(pile.obj);
-	if (pile.obj.valeur === 12) {
-		possibilites.push(document.querySelector("#fondation > .maison:empty"));
-	}
-	afficherPossibilites(possibilites);
-	pos = coordonnees(pile);
-	document.body.appendChild(pile);
-	pile.style.left = pos.x + "px";
-	pile.style.top = pos.y + "px";
-	pile.decalage = {x: e.offsetX, y: e.offsetY};
-	function dragmove(e) {
-		pile.style.left = e.clientX - pile.decalage.x + "px";
-		pile.style.top = e.clientY - pile.decalage.y + "px";
-	}
-	function drop() {
-		var choix, position, i, possibilite, d;
-		choix = {
-			element: null,
-			distance: Infinity
-		};
-		position = coordonneesCentre(pile);
-		for (i = 0; i < possibilites.length; i += 1) {
-			possibilite = possibilites[i];
-			d = distance(position, coordonneesCentre(possibilite));
-			if (d < choix.distance) {
-				choix.element = possibilite;
-				choix.distance = d;
-			}
-		}
-		if (choix.element) {
-			if (choix.element.classList.contains("maison")) {
-				empiler(dessusPile(choix.element), pile);
-			} else {
-				empiler(choix.element, pile);
-			}
-//			var cartes = document.querySelectorAll("#tableau .pile:not(.visible) > .carte:only-child");
-			var cartes = getCartesObj("#tableau .pile:not(.visible) > .carte:only-child");
-			cartes.forEach(retournerCarte);
-		} else {
-			empiler(origine, pile);
-		}
-		pile.classList.remove("prise");
+        this.talon = this.pile_talon(this.paquet);
+        resultat.appendChild(this.talon);
+        this.fondation = this.html_fondation();
+        resultat.appendChild(this.fondation);
+        this.tableau = this.html_tableau();
+        resultat.appendChild(this.tableau);
+        return resultat;
+    }
+    static pile_talon(cartes) {
+        var resultat, pile;
+        resultat = new Pile("talon");
+        cartes.forEach(function (carte) {
+            pile = resultat.ajouter(new Pile());
+            pile.ajouter(carte);
+        }, this);
+        resultat.dom.setAttribute("data-n", resultat.elements.length);
+        return resultat;
+    }
+    static html_fondation() {
+        var resultat, i, maison;
+        resultat = this.html_pile();
+        resultat.setAttribute("id", "fondation");
+        for (i = 0; i < 8; i += 1) {
+            maison = this.html_maison(i);
+            this.maisons.push(maison);
+            resultat.appendChild(maison);
+        }
+        return resultat;
+    }
+    static html_maison(no) {
+        var resultat;
+        resultat = this.html_pile();
+        resultat.setAttribute("id", "maison" + no);
+        resultat.classList.add("maison");
+        return resultat;
+    }
+    static html_tableau() {
+        var resultat, i, colonne;
+        resultat = this.html_pile();
+        resultat.setAttribute("id", "tableau");
+        for (i = 0; i < 10; i += 1) {
+            colonne = this.html_colonne(i);
+            this.colonnes.push(colonne);
+            resultat.appendChild(colonne);
+        }
+        return resultat;
+    }
+    static html_colonne(no) {
+        var resultat;
+        resultat = this.html_pile();
+        resultat.setAttribute("id", "colonne" + no);
+        resultat.classList.add("colonne");
+        return resultat;
+    }
+    static commencerJeu() {
+        var carte, i, j;
+        for (i = 0; i < 6; i += 1) {
+            for (j = 0; j < 10; j += 1) {
+                if (i === 5 && j > 3) {
+                    break;
+                }
+                carte = this.talon.lastChild;
+                this.empiler(this.colonnes[j].dessus(), carte);
+                this.talon.setAttribute("data-n", this.talon.childElementCount);
+            }
+        }
+        //tourner les premières cartes
+        for (j = 0; j < 10; j += 1) {
+            carte = this.colonnes[j].dessus();
+            this.retournerCarte(carte);
+        }
+        document.body.addEventListener("mousedown", this.dragstart);
+        this.afficherJouables();
+        return;
+    }
+    static dragstart(e) {
+        var pile, origine, possibilites, pos, self = this;
+        if (e.target.closest("#talon")) {
+            if (document.querySelector("#tableau > .colonne:empty")) {
+                return;
+            }
+            if (this.talon.childElementCount === 0) {
+                return;
+            }
+            this.distribuer10cartes();
+            return;
+        }
+        pile = e.target.closest(".deplacable");
+        if (!pile) {
+            return;
+        }
+        pile.classList.add("prise");
+        this.masquerJouables();
+        this.demarquerDeplacables();
+        origine = pile.parentNode;
+        possibilites = this.trouverPossibilites(pile.obj);
+        if (pile.obj.valeur === 12) {
+            possibilites.push(document.querySelector("#fondation > .maison:empty"));
+        }
+        this.afficherPossibilites(possibilites);
+        pos = pile.coordonnees;
+        document.body.appendChild(pile);
+        pile.style.left = pos.x + "px";
+        pile.style.top = pos.y + "px";
+        pile.decalage = {
+            x: e.offsetX,
+            y: e.offsetY
+        };
 
-		document.body.removeEventListener("mousemove", dragmove);
-		document.body.removeEventListener("mouseleave", dragcancel);
-		document.body.removeEventListener("mouseup", drop);
-		afficherJouables();
-		masquerPossibilites();
-	}
-	function dragcancel() {
-		empiler(origine, pile);
-		pile.classList.remove("prise");
-		afficherJouables();
-		masquerPossibilites();
-		document.body.removeEventListener("mousemove", dragmove);
-		document.body.removeEventListener("mouseleave", dragcancel);
-		document.body.removeEventListener("mouseup", drop);
-	}
-	document.body.addEventListener("mousemove", dragmove);
-	document.body.addEventListener("mouseleave", dragcancel);
-	document.body.addEventListener("mouseup", drop);
-	document.body.addEventListener("mousedown", dragstart);
+        function dragmove(e) {
+            pile.style.left = e.clientX - pile.decalage.x + "px";
+            pile.style.top = e.clientY - pile.decalage.y + "px";
+        }
+
+        function drop() {
+            var choix, position, i, possibilite, d;
+            choix = {
+                element: null,
+                distance: Infinity
+            };
+            position = pile.coordonneesCentre;
+            for (i = 0; i < possibilites.length; i += 1) {
+                possibilite = possibilites[i];
+                d = self.distance(position, possibilite.coordonneesCentre);
+                if (d < choix.distance) {
+                    choix.element = possibilite;
+                    choix.distance = d;
+                }
+            }
+            if (choix.element) {
+                if (choix.element.classList.contains("maison")) {
+                    self.empiler(choix.element.dessus(), pile);
+                } else {
+                    self.empiler(choix.element, pile);
+                }
+                //			var cartes = document.querySelectorAll("#tableau .pile:not(.visible) > .carte:only-child");
+                var cartes = self.getCartesObj("#tableau .pile:not(.visible) > .carte:only-child");
+                cartes.forEach(self.retournerCarte);
+            } else {
+                self.empiler(origine, pile);
+            }
+            pile.classList.remove("prise");
+
+            document.body.removeEventListener("mousemove", dragmove);
+            document.body.removeEventListener("mouseleave", dragcancel);
+            document.body.removeEventListener("mouseup", drop);
+            self.afficherJouables();
+            self.masquerPossibilites();
+        }
+
+        function dragcancel() {
+            self.empiler(origine, pile);
+            pile.classList.remove("prise");
+            self.afficherJouables();
+            self.masquerPossibilites();
+            document.body.removeEventListener("mousemove", dragmove);
+            document.body.removeEventListener("mouseleave", dragcancel);
+            document.body.removeEventListener("mouseup", drop);
+        }
+        document.body.addEventListener("mousemove", dragmove);
+        document.body.addEventListener("mouseleave", dragcancel);
+        document.body.addEventListener("mouseup", drop);
+        document.body.addEventListener("mousedown", self.dragstart);
+    }
+    static distribuer10cartes() {
+        var i, colonne, carte;
+        this.masquerJouables();
+        this.demarquerDeplacables();
+        if (this.talon.lastChild) {
+            for (i = 0; i < 10; i += 1) {
+                colonne = this.colonnes[i];
+                carte = this.talon.dessus();
+                this.retournerCarte(carte);
+                this.empiler(colonne.dessus(), carte);
+                this.talon.setAttribute("data-n", this.talon.childElementCount);
+            }
+        }
+        this.afficherJouables();
+    }
+    static trouverJouables() {
+        var resultat, dessus, deplacables;
+        resultat = [];
+        dessus = this.trouverDessus();
+        deplacables = this.trouverDeplacables();
+        deplacables.filter(function (deplacable) {
+            var possibilites = this.trouverPossibilites(deplacable.obj, dessus.obj);
+            return (possibilites.length > 0);
+        });
+        return resultat;
+    }
+    static trouverPossibilites(pile, dessus) {
+        var trous, empilables;
+        trous = this.getTrous();
+        if (dessus === undefined) {
+            dessus = this.trouverDessus();
+        }
+        empilables = dessus.reduce(function (r, d) {
+            if (this.estEmpilable(d, pile)) {
+                r.push(d);
+            }
+        }, [], this);
+        return [].concat(trous, empilables);
+    }
+    static getTrous() {
+        return this.getCartesObj("#tableau .colonne:empty");
+    }
+    static trouverDessus() {
+        return this.getCartesObj(
+            "#tableau .pile.visible .carte:only-child",
+            null,
+            (carte) => (carte.parentNode.obj)
+        );
+    }
+    static estDeplacable(pile) {
+        if (pile.classList.contains("deplacable")) {
+            return true;
+        }
+        if (pile.children.length === 1) {
+            pile.classList.add("deplacable");
+            return true;
+        }
+        var suivant = pile.children[1];
+        if (!this.estDeplacable(suivant)) {
+            return false;
+        }
+        if (this.estEmpilable(pile.obj, suivant.obj, true)) {
+            pile.classList.add("deplacable");
+            return true;
+        }
+        return false;
+    }
+    static estEmpilable(dessous, dessus, strict) {
+        if (dessous.obj.valeur !== dessus.obj.valeur + 1) {
+            return false;
+        }
+        if (!strict) {
+            return true;
+        }
+        if (dessous.obj.sorte === dessus.obj.sorte) {
+            return true;
+        }
+        return false;
+    }
+    static trouverDeplacables() {
+        return this.getCartesObj("#tableau .pile.visible", this.estDeplacable);
+    }
+    static demarquerDeplacables() {
+        var deplacables = document.querySelectorAll(".deplacable");
+        deplacables.forEach(function (deplacable) {
+            deplacable.classList.remove("deplacable");
+        });
+        return;
+    }
+    /////////////////////////////
+    /////////////////////////////
+    /////////////////////////////
+    /**
+     *
+     *
+     * @static
+     *
+     * @memberOf Spider
+     */
+    static load() {
+        this.main();
+    }
+    /**
+     * Inits the class properties
+     *
+     * @static
+     *
+     * @memberOf Spider
+     */
+    static init() {
+        window.addEventListener("load", function () {
+            Spider.load();
+        });
+
+    }
 }
-function distribuer10cartes() {
-	var i, colonne, carte;
-	masquerJouables();
-	demarquerDeplacables();
-	if (g.talon.lastChild) {
-		for (i = 0; i < 10; i += 1) {
-			colonne = g.colonnes[i];
-			carte = g.talon.lastChild;
-			retournerCarte(carte);
-			empiler(dessusPile(colonne), carte);
-			g.talon.setAttribute("data-n", g.talon.childElementCount);
-		}
-	}
-	afficherJouables();
-}
-function trouverJouables() {
-	var resultat, dessus, deplacables;
-	resultat = [];
-	dessus = trouverDessus();
-	deplacables = trouverDeplacables();
-	deplacables.filter(function (deplacable) {
-		var possibilites = trouverPossibilites(deplacable.obj, dessus.obj);
-        return (possibilites.length > 0);
-    });
-	return resultat;
-}
-function trouverPossibilites(pile, dessus) {
-	var trous, empilables;
-	trous = getTrous();
-	if (dessus === undefined) {
-		dessus = trouverDessus();
-	}
-    empilables = dessus.reduce(function (r, d) {
-		if (estEmpilable(d, pile)) {
-			r.push(d);
-		}
-    }, [], this);
-	return [].concat(trous, empilables);
-}
-function getTrous() {
-    return getCartesObj("#tableau .colonne:empty");
-}
-function trouverDessus() {
-	return getCartesObj(
-        "#tableau .pile.visible .carte:only-child",
-        null,
-        (carte)=>(carte.parentNode.obj)
-    );
-}
-function estDeplacable(pile) {
-	if (pile.classList.contains("deplacable")) {
-		return true;
-	}
-	if (pile.children.length === 1) {
-		pile.classList.add("deplacable");
-		return true;
-	}
-	var suivant = pile.children[1];
-	if (!estDeplacable(suivant)) {
-		return false;
-	}
-	if (estEmpilable(pile.obj, suivant.obj, true)) {
-		pile.classList.add("deplacable");
-		return true;
-	}
-	return false;
-}
-function estEmpilable(dessous, dessus, strict) {
-	if (dessous.obj.valeur !== dessus.obj.valeur + 1) {
-		return false;
-	}
-	if (!strict) {
-		return true;
-	}
-	if (dessous.obj.sorte === dessus.obj.sorte) {
-		return true;
-	}
-	return false;
-}
-function trouverDeplacables() {
-	return getCartesObj("#tableau .pile.visible", estDeplacable);
-}
-function demarquerDeplacables() {
-	var deplacables = document.querySelectorAll(".deplacable");
-	deplacables.forEach(function (deplacable) {
-		deplacable.classList.remove("deplacable");
-    });
-	return;
-}
-window.addEventListener("load", spider_main);
+Spider.init();

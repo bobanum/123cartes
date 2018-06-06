@@ -201,10 +201,10 @@ a.choixJeu {
   justify-content: space-between;
   width: 41rem;
 }
-#tableau > .colonne {
+#tableau > .pile {
   position: relative;
 }
-#tableau > .colonne:before {
+#tableau > .pile:before {
   display: block;
   content: "";
   background-color: #FFF;
@@ -229,11 +229,11 @@ a.choixJeu {
   background-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
 }
-#tableau > .colonne:before.visible {
+#tableau > .pile:before.visible {
   background-image: url(images/cartes5x7.png);
   background-size: 65rem 28rem;
 }
-#tableau .colonne > .pile .pile {
+#tableau > .pile > .pile .pile {
   margin-top: .5rem;
 }
 #tableau .pile.visible > .pile {

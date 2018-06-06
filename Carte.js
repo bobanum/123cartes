@@ -53,6 +53,14 @@ class Carte {
         return this;
     }
     /**
+     * Une carte est toujours de dessus d'une pile.
+     * Afin de faire fonctionner dessus() avec tout contenu d'une pile.
+     * @returns {Carte} - this
+     */
+    dessus() {
+        return this.pile || this;
+    }
+    /**
      *
      *
      * @static

@@ -62,19 +62,16 @@
 	display: flex;
 	justify-content: space-between;
 	width: @largeur - 2rem;
-	& > .colonne {
+	& > .pile {
 		position: relative;
 		&:before {
 			display: block;
 			content: "";
 			.trou;
 		}
-	}
-	.colonne > .pile {
-//		margin-top: .5rem;
-	}
-	.colonne > .pile .pile {
-		margin-top: .5rem;
+        & > .pile .pile {
+            margin-top: .5rem;
+        }
 	}
 	.pile.visible > .pile {
 		margin-top: 1.5rem;
