@@ -6,6 +6,7 @@ class Carte {
      */
     constructor(sorte, valeur) {
         this._dom = null;
+        this.initPossibilites();
         this.sorte = sorte;
         this.valeur = valeur;
         this._visible = false;
@@ -29,6 +30,17 @@ class Carte {
         if (this._visible) {
             this.dom.classList.add("visible");
         }
+    }
+    get estJouable() {
+        return this.possibilites.global.length > 0;
+    }
+    initPossibilites() {
+        this.possibilites = {
+            global: [],
+        };
+    }
+    trouverJouables() {
+        throw "Cette méthode devrait être surchargée;";
     }
     /**
      * Retourne un element HTML représentant une carte dont la description est passée en paramètre.

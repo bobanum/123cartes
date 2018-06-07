@@ -51,6 +51,9 @@ class Pile {
         resultat = this.elements.slice(-1)[0];
         return resultat.dessus();
     }
+    get carte() {
+        return this.elements[0];
+    }
     get coordonnees() {
         return Pile.coordonnees(this.dom);
     }

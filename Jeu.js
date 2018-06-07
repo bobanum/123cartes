@@ -12,14 +12,17 @@ class Jeu {
 
     /**
      * Retourne un nouveau paquet de cartes en fonction des variables globales. Les cartes sont les désignations sous forme de chaine.
-     * @returns {[string]} Le tableau
+     * @returns {Carte[]} Le tableau
      */
     static nouveauPaquet() {
-        var resultat, s, v;
+        var resultat;
         resultat = [];
-        for (s = 0; s < this.sortes.length; s += 1) {
-            for (v = 0; v < this.valeurs.length; v += 1) {
-                resultat.push(new Carte(s, v));
+        for (let s = 0; s < this.sortes.length; s += 1) {
+            for (let v = 0; v < this.valeurs.length; v += 1) {
+                let carte  = new this.Carte(s, v);
+                this.cartes.push(carte);
+                carte.jeu = this;
+                resultat.push(carte);
             }
         }
         return resultat;
@@ -78,16 +81,6 @@ class Jeu {
         dx = p1.x - p2.x;
         dy = p1.y - p2.y;
         return Math.sqrt(dx*dx + dy*dy);
-    }
-
-    /**
-     * Retourne l'indice de la sorte de la carte passée en paramètre.
-     * @todo Réviser
-     * @param   {object Carte} carte La carte.
-     * @returns {number} L'indice de la valeur de la carte. Un nombre entre 0 et 3 en fonction de this.sortes
-     */
-    static getSorte(carte) {
-        return carte.dom.sorte;
     }
 
     static afficherJouables() {
@@ -158,6 +151,7 @@ class Jeu {
         this.sortes = "CTKP";
         this.valeurs = "1234567890VDR";
         this.pref = {};
+        this.cartes = [];
         this.MOUSEDOWN = 'mousedown';
         this.MOUSEUP = 'mouseup';
         this.MOUSEMOVE = 'mousemove';
@@ -171,4 +165,4 @@ class Jeu {
 }
 Jeu.init();
 
-
+Jeu.Carte = Carte;

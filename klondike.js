@@ -1,5 +1,5 @@
 /*jslint browser:true, esnext:true*/
-/*global Jeu, Pile */
+/*global Jeu, Pile, Carte */
 class Klondike extends Jeu {
     /**
      * Creates an instance of Klondike.
@@ -8,11 +8,23 @@ class Klondike extends Jeu {
     constructor() {
         super();
         this.cartes = [];
+        this._dessusColonnes = null;
     }
     ////////////////////////////////
     ////////////////////////////////
     ////////////////////////////////
-
+    static get dessusColonnes() {
+        if (this._dessusColonnes === null) {
+            this._dessusColonnes = this.getDessusColonnes();
+        }
+        return this._dessusColonnes;
+    }
+    static set dessusColonnes(val) {
+        this._dessusColonnes = val;
+    }
+    static getDessusColonnes() {
+        return this.jeu.colonnes.map(c=>c.dessus().carte);
+    }
     static main() {
         this.paquet = this.brasser(this.nouveauPaquet());
         this.talon = null;
@@ -42,7 +54,7 @@ class Klondike extends Jeu {
     }
     static commencerJeu() {
         for (let i = 0; i < 7; i += 1) {
-            let pile = new Pile();
+            let pile = new this.Pile();
             let carte = pile.ajouter(this.talon.dessus());
             // this.empiler(this.colonnes[i].dessus(), carte);
             this.colonnes[i].dessus().ajouter(carte);
@@ -59,7 +71,7 @@ class Klondike extends Jeu {
     }
     static pile_fondation() {
         var resultat, i, maison;
-        resultat = new Pile("fondation");
+        resultat = new this.Pile("fondation");
         resultat.dx = 10;
         resultat.dy = 0;
         for (i = 0; i < 4; i += 1) {
@@ -70,7 +82,7 @@ class Klondike extends Jeu {
     }
     static pile_tableau() {
         var resultat, i, colonne;
-        resultat = new Pile("tableau");
+        resultat = new this.Pile("tableau");
         for (i = 0; i < 7; i += 1) {
             colonne = resultat.ajouter(this.pile_colonne(i));
             this.colonnes.push(colonne);
@@ -79,26 +91,26 @@ class Klondike extends Jeu {
     }
     static pile_talon(cartes) {
         var resultat;
-        resultat = new Pile("talon");
+        resultat = new this.Pile("talon");
         cartes.forEach(function (carte) {
-            var pile = resultat.ajouter(new Pile());
+            var pile = resultat.ajouter(new this.Pile());
             pile.ajouter(carte);
         }, this);
         return resultat;
     }
     static pile_defausse() {
         var resultat;
-        resultat = new Pile("defausse");
+        resultat = new this.Pile("defausse");
         return resultat;
     }
     static pile_maison(no) {
         var resultat;
-        resultat = new Pile("maison" + no);
+        resultat = new this.Pile("maison" + no);
         return resultat;
     }
     static pile_colonne(no) {
         var resultat;
-        resultat = new Pile("colonne" + no);
+        resultat = new this.Pile("colonne" + no);
         return resultat;
     }
     static dragstart(e) {
@@ -217,9 +229,10 @@ class Klondike extends Jeu {
     }
     static dessusDefausse() {
         var resultat;
-        resultat = document.querySelector("#defausse > .pile:last-child .carte:only-child");
-        if (resultat) {
-            return resultat.parentNode.obj;
+//        resultat = document.querySelector("#defausse > .pile:last-child .carte:only-child");
+        resultat = this.defausse.dessus();
+        if (resultat.elements.length) {
+            return resultat;
         } else {
             return null;
         }
@@ -271,65 +284,23 @@ class Klondike extends Jeu {
         resultat = resultat.concat(cartes);
         return resultat;
     }
-    static estJouable(carte) {
-        if (!carte) {
-            return false;
-        }
-        if (this.estJouableMaison(carte)) {
-            return true;
-        }
-        if (this.estJouableColonne(carte)) {
-            return true;
-        }
-        return false;
-    }
-    static estJouableMaison(carte) {
-        var valeur, sorte, couleur, dessus;
-        if (carte.dom.nextSibling) {
-            return false;
-        }
-        valeur = carte.valeur;
-        sorte = carte.sorte;
-        couleur = carte.couleur;
-        if (valeur === 0 && document.querySelector(".maison:empty")) {
-            return true;
-        }
-        var resultat = this.maisons.find(function (maison) {
-            dessus = maison.lastChild;
-            if (dessus) {
-                if (sorte === dessus.obj.sorte && valeur === dessus.obj.valeur + 1) {
-                    return true;
-                }
-            }
-        }, this);
-        return resultat;
-    }
-    static estJouableColonne(carte) {
-        var resultat, valeur, couleur, cartes;
-        valeur = carte.valeur;
-        couleur = carte.couleur;
-        if (valeur === 12 && document.body.querySelector(".colonne:empty")) {
-            return true;
-        }
-        cartes = this.getCartesObj(".colonne .carte:only-child");
-
-        resultat = cartes.find((carte) => (couleur !== carte.couleur && valeur === carte.valeur - 1));
-        return resultat;
-    }
     static trouverJouables() {
-        var defausse, carte, piles;
-        defausse = [];
+        var resultat, carte, piles;
+        resultat = [];
         carte = this.dessusDefausse();
-        if (this.estJouable(carte)) {
-            defausse.push(carte);
+        if (carte && carte.estJouable()) {
+            resultat.push(carte);
         }
 
         //    piles = Array.from(document.querySelectorAll("#tableau .pile.visible"));
         //    piles = piles.map(pile => pile.obj);
         //    piles = piles.filter((pile) => estJouable(pile));
-        piles = this.getCartesObj("#tableau .pile.visible", this.estJouable);
-
-        return [].concat(defausse, piles);
+//        piles = this.getCartesObj("#tableau .pile.visible", this.estJouable);
+        piles = this.cartes.filter(function (carte) {
+            return carte.possibilites.global.length > 0;
+        }, this);
+        resultat = [].concat(resultat, piles);
+        return resultat;
     }
     /////////////////////////////
     /////////////////////////////
@@ -359,3 +330,64 @@ class Klondike extends Jeu {
     }
 }
 Klondike.init();
+
+Klondike.Carte = class extends Carte {
+    constructor(sorte, valeur) {
+        super(sorte, valeur);
+    }
+    get estJouable() {
+        return this.possibilites.global.length > 0;
+    }
+    initPossibilites() {
+        this.possibilites = {
+            maison: [],
+            colonnes: [],
+            global: [],
+        };
+    }
+    trouverPossibilites() {
+        this.initPossibilites();
+        if (!this._visible) {
+            return [];
+        }
+        this.trouverPossibilitesMaison();
+        this.trouverPossibilitesColonnes();
+        this.possibilites.global = [].concat(this.possibilites.maison, this.possibilites.colonnes);
+        return this.possibilites.global;
+    }
+    trouverPossibilitesMaison() {
+        var resultat, dessus, carte;
+        resultat = [];
+        // Si la carte n'est pas sur le dessus de la pile, elle ne peut être jouable
+        if (this.pile.elements.length > 1) {
+            this.possibilites.maison = [];
+            return;
+        }
+        dessus = this.jeu.maisons[this.sorte].dessus();
+        if (this.valeur === 0) {
+            this.possibilites.maison = [dessus];
+            return;
+        }
+        carte = dessus.carte;
+        if (carte && this.sorte === carte.sorte && this.valeur === carte.valeur + 1) {
+            this.possibilites.maison = [dessus];
+            return;
+        }
+    }
+    trouverPossibilitesColonne() {
+        if (this.valeur === 12) {
+            console.log("valider");
+            this.possibilites.colonnes = this.jeu.colonnes.filter(c=>c.elements.length === 0);
+            return;
+        } else {
+            var dessusColonnes = this.jeu.dessusColonnes;
+            this.possibilites.colonnes = dessusColonnes.filter(function(carte) {
+                return this.couleur !== carte.couleur && this.valeur === carte.valeur - 1;
+            }, this);
+            return;
+        }
+    }
+};
+
+Klondike.Pile = class extends Pile {
+};

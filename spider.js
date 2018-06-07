@@ -1,5 +1,5 @@
 /*jslint browser:true, esnext:true*/
-/*global Jeu, Pile */
+/*global Jeu, Pile, Carte */
 class Spider extends Jeu {
     /**
      * Creates an instance of Spider.
@@ -39,9 +39,9 @@ class Spider extends Jeu {
     }
     static pile_talon(cartes) {
         var resultat, pile;
-        resultat = new Pile("talon");
+        resultat = new this.Pile("talon");
         cartes.forEach(function (carte) {
-            pile = resultat.ajouter(new Pile());
+            pile = resultat.ajouter(new this.Pile());
             pile.ajouter(carte);
         }, this);
         resultat.dom.setAttribute("data-n", resultat.elements.length);
@@ -310,3 +310,10 @@ class Spider extends Jeu {
     }
 }
 Spider.init();
+
+
+Spider.Carte = class extends Carte {
+};
+
+Spider.Pile = class extends Pile {
+};
