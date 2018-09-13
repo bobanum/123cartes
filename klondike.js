@@ -65,7 +65,7 @@ class Klondike extends Jeu {
                 this.colonnes[j].dessus().ajouter(carte);
             }
         }
-        document.body.addEventListener("mousedown", this.dragstart);
+        document.body.addEventListener("mousedown", e => this.dragstart(e));
         this.afficherJouables();
         return;
     }
@@ -137,10 +137,10 @@ class Klondike extends Jeu {
         possibilites = this.trouverPossibilites(carte.obj);
         this.afficherPossibilites(possibilites);
         possibilites = possibilites.maisons.concat(possibilites.colonnes);
-        this.depiler(pile);
+        this.depiler(pile.obj);
         pile.decalage = {
-            x: e.offsetX,
-            y: e.offsetY
+            x: e.offsetX-pile.clientLeft,
+            y: e.offsetY-pile.clientTop,
         };
 
         function dragmove(e) {
@@ -149,12 +149,12 @@ class Klondike extends Jeu {
         }
 
         function drop() {
-            self.deposerCarte(pile, possibilites, origine);
+            self.deposerCarte(pile.obj, possibilites, origine.obj);
             dragstop();
         }
 
         function dragcancel() {
-            self.empiler(origine, pile);
+            self.empiler(origine.obj, pile.obj);
             pile.classList.remove("prise");
             dragstop();
         }
@@ -198,7 +198,7 @@ class Klondike extends Jeu {
         } else {
             this.empiler(origine, pile);
         }
-        pile.classList.remove("prise");
+        pile.dom.classList.remove("prise");
         return pile;
     }
 
@@ -323,10 +323,7 @@ class Klondike extends Jeu {
      * @memberOf Klondike
      */
     static init() {
-        window.addEventListener("load", function () {
-            Klondike.load();
-        });
-
+        window.addEventListener("load", e => this.load(e));
     }
 }
 Klondike.init();

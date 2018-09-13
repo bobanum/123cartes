@@ -1,5 +1,8 @@
 /*jslint browser:true, esnext:true */
 /*global Carte, Pile */
+/**
+ * Class Jeu.
+ */
 class Jeu {
     /**
      * Creates an instance of Jeu.
@@ -8,7 +11,6 @@ class Jeu {
     constructor() {
 
     }
-    ////////////////////////////////////////
 
     /**
      * Retourne un nouveau paquet de cartes en fonction des variables globales. Les cartes sont les désignations sous forme de chaine.
@@ -30,22 +32,13 @@ class Jeu {
 
     /**
      * Retourne un tableau mélangé
-     * @param   {Array} paquet Le tableau à mélanger
-     * @returns {Array} une copie du tableau
+     * @param   {Carte[]} paquet Le tableau à mélanger
+     * @returns {Carte[]} une copie du tableau
      */
     static brasser(paquet) {
-        var resultat, copie, carte, pos;
-        copie = paquet.slice();
-    //	autre version :
-    //	copie.sort( function () { return Math.random() < 0.5; });
-    //	return copie;
-        resultat = [];
-        while (copie.length > 0) {
-            pos = Math.floor(Math.random() * copie.length);
-            carte = copie[pos];
-            copie.splice(pos, 1);
-            resultat.push(carte);
-        }
+        var resultat;
+        resultat = paquet.slice();
+    	resultat.sort(() => Math.random() < 0.5);
         return resultat;
     }
 
@@ -68,7 +61,7 @@ class Jeu {
      * @todo RÉVISER
      */
     static empiler(destination, element) {
-        this.depiler(element);
+		this.depiler(element);
         destination.ajouter(element);
     }
     static depiler(element) {
