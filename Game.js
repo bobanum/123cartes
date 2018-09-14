@@ -75,23 +75,35 @@ class Game {
     }
 
     static afficherJouables() {
-        var jouables, i;
-        jouables = this.trouverJouables();
-        for (i = 0; i < jouables.length; i += 1) {
-            jouables[i].dom.classList.add("jouable");
-        }
+        var playables;
+        playables = this.findPlayables();
+		playables.forEach(playable => {
+            playable.dom.classList.add("jouable");
+		});
     }
-    static getCartesObj(selector, filter, map) {
-        var cartes;
-        cartes = Array.from(document.querySelectorAll(selector));
-        cartes = cartes.map(carte => carte.obj);
+    /**
+     * Returns an array of cards according to given selector.
+     * Array can be filtered or mapped with respective functions
+     * @param   {string}   selector Selector to get all the wanted cards (and more).
+     * @param   {function} filter   Function to filter cards
+     * @param   {function} map      Treatment to apply to remaining cards
+     * @returns {Card[]} Card objects
+     */
+    static selectObjects(selector, filter, map) {
+        var result;
+		if (typeof selector === "string") {
+        	result = Array.from(document.querySelectorAll(selector));
+		} else {
+        	result = Array.from(selector);
+		}
+        result = result.map(card => (card.obj || card));
         if (filter) {
-            cartes = cartes.filter(filter);
+            result = result.filter(filter);
         }
         if (map) {
-            cartes = cartes.map(map);
+            result = result.map(map);
         }
-        return cartes;
+        return result;
     }
     static masquerJouables() {
         var jouables = document.querySelectorAll(".jouable");
@@ -100,24 +112,24 @@ class Game {
         });
         return jouables;
     }
-    static afficherPossibilites(possibilites) {
+    static afficherPossibilites(moves) {
         var i;
-        if (possibilites instanceof Array) {
-            for (i = 0; i < possibilites.length; i += 1) {
-                possibilites[i].classList.add("possibilite");
+        if (moves instanceof Array) {
+            for (i = 0; i < moves.length; i += 1) {
+                moves[i].classList.add("possibilite");
             }
         } else {
-            for (i in possibilites) {
-                this.afficherPossibilites(possibilites[i]);
+            for (i in moves) {
+                this.afficherPossibilites(moves[i]);
             }
         }
     }
     static masquerPossibilites() {
-        var possibilites = document.querySelectorAll(".possibilite");
-        possibilites.forEach(function (possibilite) {
+        var moves = document.querySelectorAll(".possibilite");
+        moves.forEach(function (possibilite) {
             possibilite.classList.remove("possibilite");
         });
-        return possibilites;
+        return moves;
     }
 /////////////////////////////////
 /////////////////////////////////

@@ -105,7 +105,7 @@ class Spider extends Game {
         return;
     }
     static dragstart(e) {
-        var pile, origine, possibilites, pos, self = this;
+        var pile_dom, origine, moves, pos, self = this;
         if (e.target.closest("#talon")) {
             if (document.querySelector("#tableau > .colonne:empty")) {
                 return;
@@ -116,31 +116,31 @@ class Spider extends Game {
             this.distribuer10cartes();
             return;
         }
-        pile = e.target.closest(".deplacable");
-        if (!pile) {
+        pile_dom = e.target.closest(".deplacable");
+        if (!pile_dom) {
             return;
         }
-        pile.classList.add("prise");
+        pile_dom.classList.add("prise");
         this.masquerJouables();
         this.demarquerDeplacables();
-        origine = pile.parentNode;
-        possibilites = this.trouverPossibilites(pile.obj);
-        if (pile.obj.valeur === 12) {
-            possibilites.push(document.querySelector("#fondation > .maison:empty"));
+        origine = pile_dom.parentNode;
+        moves = this.findMoves(pile_dom.obj);
+        if (pile_dom.obj.valeur === 12) {
+            moves.push(document.querySelector("#fondation > .maison:empty"));
         }
-        this.afficherPossibilites(possibilites);
-        pos = pile.coordonnees;
-        document.body.appendChild(pile);
-        pile.style.left = pos.x + "px";
-        pile.style.top = pos.y + "px";
-        pile.decalage = {
+        this.afficherPossibilites(moves);
+        pos = pile_dom.coordonnees;
+        document.body.appendChild(pile_dom);
+        pile_dom.style.left = pos.x + "px";
+        pile_dom.style.top = pos.y + "px";
+        pile_dom.decalage = {
             x: e.offsetX,
             y: e.offsetY
         };
 
         function dragmove(e) {
-            pile.style.left = e.clientX - pile.decalage.x + "px";
-            pile.style.top = e.clientY - pile.decalage.y + "px";
+            pile_dom.style.left = e.clientX - pile_dom.decalage.x + "px";
+            pile_dom.style.top = e.clientY - pile_dom.decalage.y + "px";
         }
 
         function drop() {
@@ -149,9 +149,9 @@ class Spider extends Game {
                 element: null,
                 distance: Infinity
             };
-            position = pile.coordonneesCentre;
-            for (i = 0; i < possibilites.length; i += 1) {
-                possibilite = possibilites[i];
+            position = pile_dom.coordonneesCentre;
+            for (i = 0; i < moves.length; i += 1) {
+                possibilite = moves[i];
                 d = self.distance(position, possibilite.coordonneesCentre);
                 if (d < choix.distance) {
                     choix.element = possibilite;
@@ -160,19 +160,19 @@ class Spider extends Game {
             }
             if (choix.element) {
                 if (choix.element.classList.contains("maison")) {
-                    choix.element.top().push(pile);
+                    choix.element.top().push(pile_dom);
                 } else {
-                    choix.element.push(pile);
+                    choix.element.push(pile_dom);
 //                    self.empiler(choix.element, pile);
                 }
                 //			var cartes = document.querySelectorAll("#tableau .pile:not(.visible) > .carte:only-child");
-                var cards = self.getCartesObj("#tableau .pile:not(.visible) > .carte:only-child");
+                var cards = self.selectObjects("#tableau .pile:not(.visible) > .carte:only-child");
                 cards.forEach(self.flipCard);
             } else {
 //                self.empiler(origine, pile);
-                origine.push(pile);
+                origine.push(pile_dom);
             }
-            pile.classList.remove("prise");
+            pile_dom.classList.remove("prise");
 
             document.body.removeEventListener("mousemove", dragmove);
             document.body.removeEventListener("mouseleave", dragcancel);
@@ -182,8 +182,8 @@ class Spider extends Game {
         }
 
         function dragcancel() {
-            origine.push(pile);
-            pile.classList.remove("prise");
+            origine.push(pile_dom);
+            pile_dom.classList.remove("prise");
             self.afficherJouables();
             self.masquerPossibilites();
             document.body.removeEventListener("mousemove", dragmove);
@@ -210,77 +210,110 @@ class Spider extends Game {
         }
         this.afficherJouables();
     }
-    static trouverJouables() {
-        var resultat, dessus, deplacables;
-        resultat = [];
-        dessus = this.trouverDessus();
-        deplacables = this.trouverDeplacables();
-        deplacables.filter(function (deplacable) {
-            var possibilites = this.trouverPossibilites(deplacable.obj, dessus.obj);
-            return (possibilites.length > 0);
-        });
-        return resultat;
+    /**
+     * Returns all playable cards or piles on the board
+     * @returns {Card[]|Pile[]} An array
+     */
+    static findPlayables() {
+        var result, top, movables;
+        result = [];
+		//TODO Revise. findTops returns an array... not dom
+        top = this.findTops().obj;
+        movables = this.findMovables();
+		//TODO Validate the assignation
+        movables = movables.filter(movable => (this.findMoves(movable, top).length > 0));
+        return result;
     }
-    static trouverPossibilites(pile, dessus) {
-        var trous, empilables;
-        trous = this.getTrous();
-        if (dessus === undefined) {
-            dessus = this.trouverDessus();
-        }
-        empilables = dessus.reduce(function (r, d) {
-            if (this.estEmpilable(d, pile)) {
-                r.push(d);
-            }
-        }, [], this);
-        return [].concat(trous, empilables);
+    /**
+     * Returns all the moves that can be made with given cards (or tops of piles)
+     * @param   {Pile}     pile The pile to evaluate
+     * @param   {[[Type]]} top  [[Description]]
+     * @returns {[[Type]]} [[Description]]
+     */
+    static findMoves(pile, top) {
+		//TODO REVISE AND DOC
+		var result, stackables;
+		result = this.getHoles();
+		if (top === undefined) {
+			top = this.findTops();
+		}
+		stackables = top.filter(d => {
+			return this.isStackable(d, pile);
+		});
+		result.push(...stackables);
+		return result;
     }
-    static getTrous() {
-        return this.getCartesObj("#tableau .colonne:empty");
+    /**
+     * Returns all the holes in the "tableau"
+     * @returns {Pile[]} Some of the columns
+     */
+    static getHoles() {
+        return this.selectObjects("#tableau .colonne:empty");
     }
-    static trouverDessus() {
-        return this.getCartesObj(
+    /**
+     * Returns all cards on the top of each column in the tablbeau
+     * @returns {Card[]} An array of Card objects
+     */
+    static findTops() {
+        return this.selectObjects(
             "#tableau .pile.visible .carte:only-child",
             null,
-            (carte) => (carte.parentNode.obj)
+            (card) => (card.parentNode.obj)
         );
     }
-    static estDeplacable(pile) {
-        if (pile.classList.contains("deplacable")) {
+    /**
+     * Returns true if given pile can be moved to another pile
+     * @param   {HTMLElement}  pile_dom The Pile object to assert
+     * @returns {boolean} true if pile is movable
+     */
+    static isMovable(pile_dom) {
+        if (pile_dom.classList.contains("movable")) {
             return true;
         }
-        if (pile.children.length === 1) {
-            pile.classList.add("deplacable");
+        if (pile_dom.children.length === 1) {
+            pile_dom.classList.add("movable");
             return true;
         }
-        var suivant = pile.children[1];
-        if (!this.estDeplacable(suivant)) {
+        var next = pile_dom.children[1];
+        if (!this.isMovable(next)) {
             return false;
         }
-        if (this.estEmpilable(pile.obj, suivant.obj, true)) {
-            pile.classList.add("deplacable");
+        if (this.isStackable(pile_dom.obj, next.obj, true)) {
+            pile_dom.classList.add("movable");
             return true;
         }
         return false;
     }
-    static estEmpilable(dessous, dessus, strict) {
-        if (dessous.obj.valeur !== dessus.obj.valeur + 1) {
+    /**
+     * Returns true if top pile can be put on bottom pile in an ascending sequence
+     * @param   {Pile?|Card?} bottom The card on which to put top
+     * @param   {Pile?|Card?} top    The card to place on bottom
+     * @param   {boolean}     strict If true, suit must match
+     * @returns {boolean}
+     */
+    static isStackable(bottom, top, strict) {
+        if (bottom.valeur !== top.valeur + 1) {
             return false;
         }
         if (!strict) {
             return true;
         }
-        if (dessous.obj.sorte === dessus.obj.sorte) {
+        if (bottom.sorte === top.sorte) {
             return true;
         }
         return false;
     }
-    static trouverDeplacables() {
-        return this.getCartesObj("#tableau .pile.visible", this.estDeplacable);
+    /**
+     * Returns all cards that can be place elsewhere
+     * @returns {Pile[]} An Array of Pile objects
+     */
+    static findMovables() {
+        return this.selectCards("#tableau .pile.visible", this.isMovable);
     }
     static demarquerDeplacables() {
         var deplacables = document.querySelectorAll(".deplacable");
         deplacables.forEach(function (deplacable) {
-            deplacable.classList.remove("deplacable");
+            deplacable.classList.remove("movable");
         });
         return;
     }

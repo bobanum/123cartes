@@ -6,7 +6,7 @@ class Card {
      */
     constructor(sorte, valeur) {
         this._dom = null;
-        this.initPossibilites();
+        this.initMoves();
         this.sorte = sorte;
         this.valeur = valeur;
         this._visible = false;
@@ -32,15 +32,15 @@ class Card {
         }
     }
     get estJouable() {
-        return this.possibilites.global.length > 0;
+        return this.moves.global.length > 0;
     }
-    initPossibilites() {
-        this.possibilites = {
+    initMoves() {
+        this.moves = {
             global: [],
         };
     }
-    trouverJouables() {
-        throw "Cette méthode devrait être surchargée;";
+    findPlayables() {
+        throw "This method should be overloaded;";
     }
     /**
      * Retourne un element HTML représentant une carte dont la description est passée en paramètre.
