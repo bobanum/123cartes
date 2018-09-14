@@ -19,21 +19,21 @@ class Spider extends Game {
         this.talon = null;
         this.maisons = [];
         this.colonnes = [];
-        this.pref.afficherPossibilites = false;
-        this.plateau = this.html_plateau();
-        document.body.appendChild(this.plateau);
+        this.pref.showMoves = false;
+        this.board = this.dom_board();
+        document.body.appendChild(this.board);
         this.commencerJeu();
     }
-    static html_plateau() {
+    static dom_board() {
         var resultat;
         resultat = document.createElement("div");
-        resultat.setAttribute("id", "plateau");
+        resultat.setAttribute("id", "board");
 
         this.talon = this.pile_talon(this.paquet);
         resultat.appendChild(this.talon);
-        this.fondation = this.html_fondation();
+        this.fondation = this.dom_fondation();
         resultat.appendChild(this.fondation);
-        this.tableau = this.html_tableau();
+        this.tableau = this.dom_tableau();
         resultat.appendChild(this.tableau);
         return resultat;
     }
@@ -47,38 +47,38 @@ class Spider extends Game {
         result.dom.setAttribute("data-n", result.elements.length);
         return result;
     }
-    static html_fondation() {
+    static dom_fondation() {
         var resultat, i, maison;
-        resultat = this.html_pile();
+        resultat = this.dom_pile();
         resultat.setAttribute("id", "fondation");
         for (i = 0; i < 8; i += 1) {
-            maison = this.html_maison(i);
+            maison = this.dom_maison(i);
             this.maisons.push(maison);
             resultat.appendChild(maison);
         }
         return resultat;
     }
-    static html_maison(no) {
+    static dom_maison(no) {
         var resultat;
-        resultat = this.html_pile();
+        resultat = this.dom_pile();
         resultat.setAttribute("id", "maison" + no);
         resultat.classList.add("maison");
         return resultat;
     }
-    static html_tableau() {
+    static dom_tableau() {
         var resultat, i, colonne;
-        resultat = this.html_pile();
+        resultat = this.dom_pile();
         resultat.setAttribute("id", "tableau");
         for (i = 0; i < 10; i += 1) {
-            colonne = this.html_colonne(i);
+            colonne = this.dom_colonne(i);
             this.colonnes.push(colonne);
             resultat.appendChild(colonne);
         }
         return resultat;
     }
-    static html_colonne(no) {
+    static dom_colonne(no) {
         var resultat;
-        resultat = this.html_pile();
+        resultat = this.dom_pile();
         resultat.setAttribute("id", "colonne" + no);
         resultat.classList.add("colonne");
         return resultat;
@@ -101,7 +101,7 @@ class Spider extends Game {
             this.flipCard(card);
         }
         document.body.addEventListener("mousedown", this.dragstart);
-        this.afficherJouables();
+        this.showPlayables();
         return;
     }
     static dragstart(e) {
@@ -116,19 +116,19 @@ class Spider extends Game {
             this.distribuer10cartes();
             return;
         }
-        pile_dom = e.target.closest(".deplacable");
+        pile_dom = e.target.closest(".movable");
         if (!pile_dom) {
             return;
         }
         pile_dom.classList.add("prise");
-        this.masquerJouables();
-        this.demarquerDeplacables();
+        this.hidePlayables();
+        this.unmarkMovables();
         origine = pile_dom.parentNode;
         moves = this.findMoves(pile_dom.obj);
-        if (pile_dom.obj.valeur === 12) {
+        if (pile_dom.obj.value === 12) {
             moves.push(document.querySelector("#fondation > .maison:empty"));
         }
-        this.afficherPossibilites(moves);
+        this.showMoves(moves);
         pos = pile_dom.coordonnees;
         document.body.appendChild(pile_dom);
         pile_dom.style.left = pos.x + "px";
@@ -144,25 +144,24 @@ class Spider extends Game {
         }
 
         function drop() {
-            var choix, position, i, possibilite, d;
-            choix = {
+            var choice, position;
+            choice = {
                 element: null,
                 distance: Infinity
             };
             position = pile_dom.coordonneesCentre;
-            for (i = 0; i < moves.length; i += 1) {
-                possibilite = moves[i];
-                d = self.distance(position, possibilite.coordonneesCentre);
-                if (d < choix.distance) {
-                    choix.element = possibilite;
-                    choix.distance = d;
+            moves.forEach(move => {
+                var distance = self.distance(position, move.coordonneesCentre);
+                if (distance < choice.distance) {
+                    choice.element = move;
+                    choice.distance = distance;
                 }
-            }
-            if (choix.element) {
-                if (choix.element.classList.contains("maison")) {
-                    choix.element.top().push(pile_dom);
+			});
+            if (choice.element) {
+                if (choice.element.classList.contains("maison")) {
+                    choice.element.top().push(pile_dom);
                 } else {
-                    choix.element.push(pile_dom);
+                    choice.element.push(pile_dom);
 //                    self.empiler(choix.element, pile);
                 }
                 //			var cartes = document.querySelectorAll("#tableau .pile:not(.visible) > .carte:only-child");
@@ -177,15 +176,15 @@ class Spider extends Game {
             document.body.removeEventListener("mousemove", dragmove);
             document.body.removeEventListener("mouseleave", dragcancel);
             document.body.removeEventListener("mouseup", drop);
-            self.afficherJouables();
-            self.masquerPossibilites();
+            self.showPlayables();
+            self.hideMoves();
         }
 
         function dragcancel() {
             origine.push(pile_dom);
             pile_dom.classList.remove("prise");
-            self.afficherJouables();
-            self.masquerPossibilites();
+            self.showPlayables();
+            self.hideMoves();
             document.body.removeEventListener("mousemove", dragmove);
             document.body.removeEventListener("mouseleave", dragcancel);
             document.body.removeEventListener("mouseup", drop);
@@ -197,8 +196,8 @@ class Spider extends Game {
     }
     static distribuer10cartes() {
         var i, colonne, carte;
-        this.masquerJouables();
-        this.demarquerDeplacables();
+        this.hidePlayables();
+        this.unmarkMovables();
         if (this.talon.lastChild) {
             for (i = 0; i < 10; i += 1) {
                 colonne = this.colonnes[i];
@@ -208,7 +207,7 @@ class Spider extends Game {
                 this.talon.setAttribute("data-n", this.talon.childElementCount);
             }
         }
-        this.afficherJouables();
+        this.showPlayables();
     }
     /**
      * Returns all playable cards or piles on the board
@@ -292,13 +291,13 @@ class Spider extends Game {
      * @returns {boolean}
      */
     static isStackable(bottom, top, strict) {
-        if (bottom.valeur !== top.valeur + 1) {
+        if (bottom.value !== top.value + 1) {
             return false;
         }
         if (!strict) {
             return true;
         }
-        if (bottom.sorte === top.sorte) {
+        if (bottom.suit === top.suit) {
             return true;
         }
         return false;
@@ -308,12 +307,15 @@ class Spider extends Game {
      * @returns {Pile[]} An Array of Pile objects
      */
     static findMovables() {
-        return this.selectCards("#tableau .pile.visible", this.isMovable);
+        return this.selectObjects("#tableau .pile.visible", this.isMovable);
     }
-    static demarquerDeplacables() {
-        var deplacables = document.querySelectorAll(".deplacable");
-        deplacables.forEach(function (deplacable) {
-            deplacable.classList.remove("movable");
+    /**
+     * Remove "movable" class from all dom
+     */
+    static unmarkMovables() {
+        var movables = document.querySelectorAll(".movable");
+        movables.forEach(function (movable) {
+            movable.classList.remove("movable");
         });
         return;
     }

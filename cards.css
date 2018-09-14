@@ -9,7 +9,7 @@ body {
   margin: 0;
   background-color: #393;
 }
-#plateau {
+#board {
   position: relative;
   margin: 0 auto;
 }
@@ -65,7 +65,7 @@ body {
   background-image: url(images/cartes5x7.png);
   background-size: 65rem 28rem;
 }
-.possibilite > .carte {
+.move > .carte {
   background-color: cyan;
 }
 #talon div.carte {

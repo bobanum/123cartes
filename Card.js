@@ -4,15 +4,15 @@ class Card {
      * Creates an instance of Card.
      * @memberOf Card
      */
-    constructor(sorte, valeur) {
+    constructor(suit, value) {
         this._dom = null;
         this.initMoves();
-        this.sorte = sorte;
-        this.valeur = valeur;
+        this.suit = suit;
+        this.value = value;
         this._visible = false;
     }
-    get couleur() {
-        return this.sorte % 12;
+    get color() {
+        return this.suit % 12;
     }
     get dom() {
         if (!this._dom) {
@@ -50,9 +50,9 @@ class Card {
         var resultat;
         resultat = document.createElement("div");
         resultat.classList.add("carte");
-        resultat.setAttribute("data-carte", this.sorte + this.valeur.toString(13));
-        resultat.style.backgroundPositionX = (this.valeur * -5) + "em";
-        resultat.style.backgroundPositionY = (this.sorte * -7) + "em";
+        resultat.setAttribute("data-carte", this.suit + this.value.toString(13));
+        resultat.style.backgroundPositionX = (this.value * -5) + "em";
+        resultat.style.backgroundPositionY = (this.suit * -7) + "em";
         resultat.obj = this;
         return resultat;
     }

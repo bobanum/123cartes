@@ -74,9 +74,13 @@ class Game {
         return Math.sqrt(dx*dx + dy*dy);
     }
 
-    static afficherJouables() {
-        var playables;
-        playables = this.findPlayables();
+    /**
+     * Adds "playable" HTML class to dom for given elements
+     * @param {Card[]} playables Optional. The cards to change or every playable cards
+     */
+    static showPlayables(playables) {
+ 		//TODO Evaluate the possibility of only changing the stylesheet and putting the class on evaluation (findMoves)
+       	playables = playables || this.findPlayables();
 		playables.forEach(playable => {
             playable.dom.classList.add("jouable");
 		});
@@ -105,29 +109,44 @@ class Game {
         }
         return result;
     }
-    static masquerJouables() {
-        var jouables = document.querySelectorAll(".jouable");
-        jouables.forEach(function (jouable) {
-            jouable.classList.remove("jouable");
+    /**
+     * Remove class
+     * @returns {[[Type]]} [[Description]]
+     */
+    static hidePlayables() {
+		//TODO Evaluate the possibility of only changing the stylesheet and putting the class on evaluation (findMoves)
+        var playables = document.querySelectorAll(".jouable");
+        playables.forEach(function (playable) {
+            playable.classList.remove("jouable");
         });
-        return jouables;
+        return playables;
     }
-    static afficherPossibilites(moves) {
+    /**
+     * Adds "move" HTML class to given objects
+     * @param {[[Type]]} moves [[Description]]
+     */
+    static showMoves(moves) {
+		//TODO Evaluate the possibility of only changing the stylesheet and putting the class on evaluation (findMoves)
         var i;
         if (moves instanceof Array) {
-            for (i = 0; i < moves.length; i += 1) {
-                moves[i].classList.add("possibilite");
-            }
+            moves.forEach(move => {
+                move.dom.classList.add("move");
+			});
         } else {
             for (i in moves) {
-                this.afficherPossibilites(moves[i]);
+                this.showMoves(moves[i]);
             }
         }
     }
-    static masquerPossibilites() {
-        var moves = document.querySelectorAll(".possibilite");
-        moves.forEach(function (possibilite) {
-            possibilite.classList.remove("possibilite");
+    /**
+     * Removes "move" HTML class from given elements
+     * @returns {[[Type]]} [[Description]]
+     */
+    static hideMoves() {
+		//TODO Evaluate the possibility of only changing the stylesheet and putting the class on evaluation (findMoves)
+        var moves = this.selectObjects(".move");
+        moves.forEach(move => {
+            move.dom.classList.remove("move");
         });
         return moves;
     }

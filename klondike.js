@@ -31,16 +31,16 @@ class Klondike extends Game {
         this.defausse = null;
         this.maisons = [];
         this.colonnes = [];
-        this.plateau = null;
-        this.plateau = this.html_plateau();
-        document.body.appendChild(this.plateau);
+        this.board = null;
+        this.board = this.dom_board();
+        document.body.appendChild(this.board);
         this.commencerJeu();
         return;
     }
-    static html_plateau() {
+    static dom_board() {
         var resultat;
         resultat = document.createElement("div");
-        resultat.setAttribute("id", "plateau");
+        resultat.setAttribute("id", "board");
 
         this.talon = this.pile_talon(this.paquet);
         resultat.appendChild(this.talon.dom);
@@ -64,7 +64,7 @@ class Klondike extends Game {
             }
         }
         document.body.addEventListener("mousedown", e => this.dragstart(e));
-        this.afficherJouables();
+        this.showPlayables();
         return;
     }
     static pile_fondation() {
@@ -131,10 +131,10 @@ class Klondike extends Game {
             return;
         }
         pile_dom.classList.add("prise");
-        this.masquerJouables();
+        this.hidePlayables();
         origin = pile_dom.parentNode;
         moves = this.findMoves(card.obj);
-        this.afficherPossibilites(moves);
+        this.showMoves(moves);
         moves = moves.maisons.concat(moves.colonnes);
         pile.detach();
         pile_dom.decalage = {
@@ -163,8 +163,8 @@ class Klondike extends Game {
 			document.body.removeEventListener("mousemove", dragmove);
             document.body.removeEventListener("mouseleave", dragcancel);
             document.body.removeEventListener("mouseup", drop);
-            self.masquerPossibilites();
-            self.afficherJouables();
+            self.hideMoves();
+            self.showPlayables();
         }
         document.body.addEventListener("mousemove", dragmove);
         document.body.addEventListener("mouseleave", dragcancel);
@@ -177,10 +177,10 @@ class Klondike extends Game {
             element: null,
             distance: Infinity
         };
-        moves.forEach(function (possibilite) {
-            var d = this.distance(position, possibilite.coordonneesCentre);
+        moves.forEach(function (move) {
+            var d = this.distance(position, move.coordonneesCentre);
             if (d < choices.distance) {
-                choices.element = possibilite;
+                choices.element = move;
                 choices.distance = d;
             }
         });
@@ -206,7 +206,7 @@ class Klondike extends Game {
     }
 
     static distribuer3cartes() {
-        this.masquerJouables();
+        this.hidePlayables();
         var pile = this.defausse;
         for (let i = 0; i < 3 && this.talon.firstChild; i += 1) {
             let card = this.talon.top();
@@ -215,18 +215,18 @@ class Klondike extends Game {
 //            this.empiler(pile, card);
             pile = card;
         }
-        this.afficherJouables();
+        this.showPlayables();
         return pile;
     }
     static replacerTalon() {
         var cartes;
-        this.masquerJouables();
+        this.hidePlayables();
         cartes = this.selectObjects("#defausse .pile");
         cartes.forEach(function (carte) {
             this.flipCard(carte);
             this.talon.push(carte);
         });
-        this.afficherJouables();
+        this.showPlayables();
         return;
     }
     static dessusDefausse() {
@@ -254,8 +254,8 @@ class Klondike extends Game {
     }
     static findMoves_foundation(card) {
         var suit, value, result, top;
-        suit = card.sorte;
-        value = card.valeur;
+        suit = card.suit;
+        value = card.value;
         result = [];
 
         if (card.dom.nextSibling) {
@@ -269,7 +269,7 @@ class Klondike extends Game {
 		if (!top) {
 			return result;
 		}
-        if (value === top.obj.valeur + 1) {
+        if (value === top.obj.value + 1) {
             result.push(this.maisons[suit]);
         }
         return result;
@@ -277,8 +277,8 @@ class Klondike extends Game {
     static findMoves_tableau(card) {
         var result, value, color;
         result = [];
-        value = card.valeur;
-        color = card.couleur;
+        value = card.value;
+        color = card.color;
         if (value === 12) {
             var columns = this.selectObjects(".colonne:empty");
             result.push(...columns);
@@ -286,7 +286,7 @@ class Klondike extends Game {
         }
         var cards = this.selectObjects(
             ".colonne .carte:only-child",
-            (card) => (color !== card.color && value === card.valeur - 1),
+            (card) => (color !== card.color && value === card.value - 1),
             (card) => (card.dom.parentNode.obj)
         );
         result = result.concat(cards);
@@ -341,8 +341,8 @@ class Klondike extends Game {
 Klondike.init();
 
 Klondike.Card = class extends Card {
-    constructor(sorte, valeur) {
-        super(sorte, valeur);
+    constructor(suit, value) {
+        super(suit, value);
     }
     get estJouable() {
         return this.moves.global.length > 0;
@@ -378,26 +378,26 @@ Klondike.Card = class extends Card {
             this.moves.maison = [];
             return;
         }
-        dessus = this.jeu.maisons[this.sorte].top();
-        if (this.valeur === 0) {
+        dessus = this.jeu.maisons[this.suit].top();
+        if (this.value === 0) {
             this.moves.maison = [dessus];
             return;
         }
         carte = dessus.carte;
-        if (carte && this.sorte === carte.sorte && this.valeur === carte.valeur + 1) {
+        if (carte && this.suit === carte.suit && this.value === carte.value + 1) {
             this.moves.maison = [dessus];
             return;
         }
     }
     findMoves_tableau() {
-        if (this.valeur === 12) {
+        if (this.value === 12) {
             console.log("valider");
             this.moves.colonnes = this.jeu.colonnes.filter(c=>c.elements.length === 0);
             return;
         } else {
             var dessusColonnes = this.jeu.dessusColonnes;
             this.moves.colonnes = dessusColonnes.filter(function(carte) {
-                return this.couleur !== carte.couleur && this.valeur === carte.valeur - 1;
+                return this.color !== carte.color && this.value === carte.value - 1;
             }, this);
             return;
         }
