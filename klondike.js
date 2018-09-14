@@ -1,6 +1,6 @@
 /*jslint browser:true, esnext:true*/
-/*global Jeu, Pile, Carte */
-class Klondike extends Jeu {
+/*global Game, Pile, Card */
+class Klondike extends Game {
     /**
      * Creates an instance of Klondike.
      * @memberOf Klondike
@@ -328,7 +328,7 @@ class Klondike extends Jeu {
 }
 Klondike.init();
 
-Klondike.Carte = class extends Carte {
+Klondike.Card = class extends Card {
     constructor(sorte, valeur) {
         super(sorte, valeur);
     }

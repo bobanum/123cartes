@@ -1,12 +1,12 @@
 /*jslint browser:true, esnext:true */
-/*global Carte, Pile */
+/*global Card, Pile */
 /**
- * Class Jeu.
+ * Class Game.
  */
-class Jeu {
+class Game {
     /**
-     * Creates an instance of Jeu.
-     * @memberOf Jeu
+     * Creates an instance of Game.
+     * @memberOf Game
      */
     constructor() {
 
@@ -21,7 +21,7 @@ class Jeu {
         resultat = [];
         for (let s = 0; s < this.sortes.length; s += 1) {
             for (let v = 0; v < this.valeurs.length; v += 1) {
-                let carte  = new this.Carte(s, v);
+                let carte  = new this.Card(s, v);
                 this.cartes.push(carte);
                 carte.jeu = this;
                 resultat.push(carte);
@@ -129,7 +129,7 @@ class Jeu {
      *
      * @static
      *
-     * @memberOf Jeu
+     * @memberOf Game
      */
     static load() {
     }
@@ -138,7 +138,7 @@ class Jeu {
      *
      * @static
      *
-     * @memberOf Jeu
+     * @memberOf Game
      */
     static init() {
         this.sortes = "CTKP";
@@ -151,11 +151,11 @@ class Jeu {
         this.MOUSEOUT = 'mouseout';
 
         window.addEventListener("load", function () {
-            Jeu.load();
+            Game.load();
         });
 
     }
 }
-Jeu.init();
+Game.init();
 
-Jeu.Carte = Carte;
+Game.Card = Card;

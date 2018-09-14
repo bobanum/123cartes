@@ -1,6 +1,6 @@
 /*jslint browser:true, esnext:true*/
-/*global Jeu, Pile, Carte */
-class Spider extends Jeu {
+/*global Game, Pile, Card */
+class Spider extends Game {
     /**
      * Creates an instance of Spider.
      * @memberOf Spider
@@ -312,7 +312,7 @@ class Spider extends Jeu {
 Spider.init();
 
 
-Spider.Carte = class extends Carte {
+Spider.Card = class extends Card {
 };
 
 Spider.Pile = class extends Pile {

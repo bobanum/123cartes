@@ -1,8 +1,8 @@
 /*jslint browser:true, esnext:true */
-class Carte {
+class Card {
     /**
-     * Creates an instance of Carte.
-     * @memberOf Carte
+     * Creates an instance of Card.
+     * @memberOf Card
      */
     constructor(sorte, valeur) {
         this._dom = null;
@@ -77,7 +77,7 @@ class Carte {
      *
      * @static
      *
-     * @memberOf Carte
+     * @memberOf Card
      */
     static load() {
 
@@ -87,13 +87,13 @@ class Carte {
      *
      * @static
      *
-     * @memberOf Carte
+     * @memberOf Card
      */
     static init() {
         window.addEventListener("load", function () {
-            Carte.load();
+            Card.load();
         });
 
     }
 }
-Carte.init();
+Card.init();
