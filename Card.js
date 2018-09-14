@@ -56,6 +56,17 @@ class Card {
         resultat.obj = this;
         return resultat;
     }
+	/**
+	 * Puts the card loose on the board: not part of another pile.
+	 * @returns {Card} this
+	 */
+	detach() {
+		if (!this.pile) {
+            //Card is not in a pile. Nothing to do.
+			return this;
+        }
+		return this.pile.detach(this);
+    }
     retourner(etat) {
         if (etat === undefined) {
             this.visible = !this._visible;
@@ -66,10 +77,10 @@ class Card {
     }
     /**
      * Une carte est toujours de dessus d'une pile.
-     * Afin de faire fonctionner dessus() avec tout contenu d'une pile.
-     * @returns {Carte} - this
+     * Afin de faire fonctionner top() avec tout contenu d'une pile.
+     * @returns {Card} - this
      */
-    dessus() {
+    top() {
         return this.pile || this;
     }
     /**

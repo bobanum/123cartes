@@ -7,7 +7,7 @@ class Spider extends Game {
      */
     constructor() {
         super();
-        this.cartes = [];
+        this.cards = [];
     }
     ////////////////////////////////
     ////////////////////////////////
@@ -15,7 +15,7 @@ class Spider extends Game {
 
 
     static spider_main() {
-        this.paquet = this.brasser(this.nouveauPaquet().concat(this.nouveauPaquet()));
+        this.paquet = this.shuffle(this.newDeck().concat(this.newDeck()));
         this.talon = null;
         this.maisons = [];
         this.colonnes = [];
@@ -38,14 +38,14 @@ class Spider extends Game {
         return resultat;
     }
     static pile_talon(cartes) {
-        var resultat, pile;
-        resultat = new this.Pile("talon");
-        cartes.forEach(function (carte) {
-            pile = resultat.ajouter(new this.Pile());
-            pile.ajouter(carte);
+        var result, pile;
+        result = new this.Pile("talon");
+        cartes.forEach(function (card) {
+            pile = result.push(new this.Pile());
+            pile.push(card);
         }, this);
-        resultat.dom.setAttribute("data-n", resultat.elements.length);
-        return resultat;
+        result.dom.setAttribute("data-n", result.elements.length);
+        return result;
     }
     static html_fondation() {
         var resultat, i, maison;
@@ -84,21 +84,21 @@ class Spider extends Game {
         return resultat;
     }
     static commencerJeu() {
-        var carte, i, j;
+        var card, i, j;
         for (i = 0; i < 6; i += 1) {
             for (j = 0; j < 10; j += 1) {
                 if (i === 5 && j > 3) {
                     break;
                 }
-                carte = this.talon.lastChild;
-                this.empiler(this.colonnes[j].dessus(), carte);
+                card = this.talon.lastChild;
+                this.colonnes[j].top().push(card);
                 this.talon.setAttribute("data-n", this.talon.childElementCount);
             }
         }
         //tourner les premières cartes
         for (j = 0; j < 10; j += 1) {
-            carte = this.colonnes[j].dessus();
-            this.retournerCarte(carte);
+            card = this.colonnes[j].top();
+            this.flipCard(card);
         }
         document.body.addEventListener("mousedown", this.dragstart);
         this.afficherJouables();
@@ -160,15 +160,17 @@ class Spider extends Game {
             }
             if (choix.element) {
                 if (choix.element.classList.contains("maison")) {
-                    self.empiler(choix.element.dessus(), pile);
+                    choix.element.top().push(pile);
                 } else {
-                    self.empiler(choix.element, pile);
+                    choix.element.push(pile);
+//                    self.empiler(choix.element, pile);
                 }
                 //			var cartes = document.querySelectorAll("#tableau .pile:not(.visible) > .carte:only-child");
-                var cartes = self.getCartesObj("#tableau .pile:not(.visible) > .carte:only-child");
-                cartes.forEach(self.retournerCarte);
+                var cards = self.getCartesObj("#tableau .pile:not(.visible) > .carte:only-child");
+                cards.forEach(self.flipCard);
             } else {
-                self.empiler(origine, pile);
+//                self.empiler(origine, pile);
+                origine.push(pile);
             }
             pile.classList.remove("prise");
 
@@ -180,7 +182,7 @@ class Spider extends Game {
         }
 
         function dragcancel() {
-            self.empiler(origine, pile);
+            origine.push(pile);
             pile.classList.remove("prise");
             self.afficherJouables();
             self.masquerPossibilites();
@@ -200,9 +202,9 @@ class Spider extends Game {
         if (this.talon.lastChild) {
             for (i = 0; i < 10; i += 1) {
                 colonne = this.colonnes[i];
-                carte = this.talon.dessus();
-                this.retournerCarte(carte);
-                this.empiler(colonne.dessus(), carte);
+                carte = this.talon.top();
+                this.flipCard(carte);
+                colonne.top().push(carte);
                 this.talon.setAttribute("data-n", this.talon.childElementCount);
             }
         }

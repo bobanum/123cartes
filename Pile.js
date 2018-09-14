@@ -20,8 +20,8 @@ class Pile {
         }
         return this._dom;
     }
-    ajouter(element) {
-        Pile.retirer(element);
+    push(element) {
+        element.detach();
         this.elements.push(element);
         element.pile = this;
         this.dom.appendChild(element.dom);
@@ -29,27 +29,40 @@ class Pile {
         element.dom.style.removeProperty("left");
         return element;
     }
-    static retirer(element) {
-        if (!element.pile) {
-            return element;
+
+	/**
+	 * Puts the pile loose on the board: not part of another pile.
+	 * @returns {Pile} this
+	 */
+	detach(element) {
+		if (!element) {
+			element = this;
+		}
+		if (!element.pile) {
+            //Pile is not in a pile. Nothing to do.
+			return element;
         }
         var idx = element.pile.elements.indexOf(element);
         var pos = element.coordonnees;
         element.pile.elements.splice(idx, 1);
-        //element.dom.removeChild(element.dom);
         element.pile = null;
         document.body.appendChild(element.dom);
         element.dom.style.left = pos.x + "px";
         element.dom.style.top = pos.y + "px";
         return element;
     }
-    dessus() {
-        var resultat;
+    /**
+     * Returns the first element on top of the pile
+     * @returns {Pile|Card} [[Description]]
+     */
+    top() {
+        var result;
         if (this.elements.length === 0) {
-            return this;
+            //This is an empty pile
+			return this;
         }
-        resultat = this.elements.slice(-1)[0];
-        return resultat.dessus();
+        result = this.elements.slice(-1)[0];
+        return result.top();
     }
     get carte() {
         return this.elements[0];

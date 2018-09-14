@@ -13,60 +13,58 @@ class Game {
     }
 
     /**
-     * Retourne un nouveau paquet de cartes en fonction des variables globales. Les cartes sont les désignations sous forme de chaine.
-     * @returns {Carte[]} Le tableau
+     * Returns a new deck of cards according to global properties.
+     * @returns {Card[]} The deck
      */
-    static nouveauPaquet() {
-        var resultat;
-        resultat = [];
-        for (let s = 0; s < this.sortes.length; s += 1) {
-            for (let v = 0; v < this.valeurs.length; v += 1) {
-                let carte  = new this.Card(s, v);
-                this.cartes.push(carte);
-                carte.jeu = this;
-                resultat.push(carte);
+    static newDeck() {
+        var result;
+        result = [];
+        for (let s = 0; s < this.suits.length; s += 1) {
+            for (let v = 0; v < this.values.length; v += 1) {
+                let card  = new this.Card(s, v);
+                this.cards.push(card);
+                card.jeu = this;
+                result.push(card);
             }
         }
-        return resultat;
+        return result;
     }
 
     /**
-     * Retourne un tableau mélangé
-     * @param   {Carte[]} paquet Le tableau à mélanger
-     * @returns {Carte[]} une copie du tableau
+     * Returns shuffles array
+     * @param   {Card[]} deck The array to shuffle
+     * @returns {Card[]} A shuffled copy of the deck
      */
-    static brasser(paquet) {
-        var resultat;
-        resultat = paquet.slice();
-    	resultat.sort(() => Math.random() < 0.5);
-        return resultat;
+    static shuffle(deck) {
+        var result;
+        result = Array.from(deck);
+    	result.sort(() => Math.random() < 0.5);
+        return result;
     }
 
     /**
      * Rend visible (ou non) la face carte.
-     * @param   {HTMLElement} carte L'élément HTML représentant la carte
-     * @param   {boolean}     etat  L'état final de la carte. Par défaut, on inverse l'état actuel.
+     * @param   {HTMLElement} card L'élément HTML représentant la carte
+     * @param   {boolean}     state  L'état final de la carte. Par défaut, on inverse l'état actuel.
      * @returns {HTMLElement} La carte ainsi changée
+     * @obselete ? Use Card method instead
      */
-    static retournerCarte(carte, etat) {
-        carte.obj = etat;
-        return carte;
+    static flipCard(card, state) {
+        debugger;
+		card.obj.flip(state);
+        return card;
     }
 
     /**
      * Transfere la carte donnée vers une autre pile
-     * @param   {Pile} destination La pile qui recoit
-     * @param   {Pile} pile        La pile ou carte à mettre par-dessus
+     * @param   {Pile}      destination The receiving Pile object
+     * @param   {Pile|Card} element  	   La pile ou carte à mettre par-dessus
      * @returns undefined
      * @todo RÉVISER
      */
-    static empiler(destination, element) {
-		this.depiler(element);
-        destination.ajouter(element);
-    }
-    static depiler(element) {
-        Pile.retirer(element);
-        return element;
+    static zzzempiler(destination, element) {
+        element.detach();
+        destination.push(element);
     }
 
     static distance(p1, p2) {
@@ -141,10 +139,10 @@ class Game {
      * @memberOf Game
      */
     static init() {
-        this.sortes = "CTKP";
-        this.valeurs = "1234567890VDR";
+        this.suits = "HDCD";
+        this.values = "1234567890VDR";
         this.pref = {};
-        this.cartes = [];
+        this.cards = [];
         this.MOUSEDOWN = 'mousedown';
         this.MOUSEUP = 'mouseup';
         this.MOUSEMOVE = 'mousemove';
