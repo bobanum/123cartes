@@ -1,24 +1,18 @@
 /*jslint browser:true, esnext:true */
-class Pile {
+/*global Thing */
+class Pile extends Thing {
     /**
      * Creates an instance of Pile.
      * @memberOf Pile
      */
     constructor(id) {
-        this.id = id;
-        this._dom = null;
+        super();
+		this.id = id;
         this.elements = [];
         this.x = 0;
         this.y = 0;
         this.dx = 0;
         this.dy = 0;
-    }
-    get dom() {
-        if (!this._dom) {
-            this._dom = this.dom_create();
-            this._dom.obj = this;
-        }
-        return this._dom;
     }
     push(element) {
         element.detach();
@@ -43,7 +37,7 @@ class Pile {
 			return element;
         }
         var idx = element.pile.elements.indexOf(element);
-        var pos = element.coordonnees;
+        var pos = element.coordinates;
         element.pile.elements.splice(idx, 1);
         element.pile = null;
         document.body.appendChild(element.dom);
@@ -67,33 +61,10 @@ class Pile {
     get carte() {
         return this.elements[0];
     }
-    get coordonnees() {
-        return Pile.coordonnees(this.dom);
-    }
-    get coordonneesCentre() {
-        return Pile.coordonneesCentre(this.dom);
-    }
-    retourner(etat) {
-        this.elements.forEach(function (e) {
-            e.retourner(etat);
+    flip(etat) {
+        this.elements.forEach(function (element) {
+            element.flip(etat);
         }, this);
-    }
-    static coordonnees(element, ref) {
-        ref = ref || document.body;
-        var resultat = {x: 0, y: 0};
-        while (element && element !== ref && element !== document.body) {
-            resultat.x += element.offsetLeft;
-            resultat.y += element.offsetTop;
-            element = element.parentNode;
-        }
-        return resultat;
-    }
-    static coordonneesCentre(element, ref) {
-        ref = ref || document.body;
-        var resultat = this.coordonnees(element, ref);
-        resultat.x += element.offsetWidth / 2;
-        resultat.y += element.offsetHeight / 2;
-        return resultat;
     }
     /**
      * Retourne un élément html représentant une pile vide.
@@ -109,6 +80,10 @@ class Pile {
         resultat.classList.add("pile");
         return resultat;
     }
+	remove() {
+		this.dom.parentNode.removeChild(this.dom);
+		return this;
+	}
     /**
      *
      * @static

@@ -27,7 +27,7 @@ class Klondike extends Game {
     }
     static main() {
         this.deck = this.shuffle(this.newDeck());
-        this.talon = null;
+        this.stock = null;
         this.waste = null;
         this.maisons = [];
         this.colonnes = [];
@@ -42,8 +42,8 @@ class Klondike extends Game {
         resultat = document.createElement("div");
         resultat.setAttribute("id", "board");
 
-        this.talon = this.pile_talon(this.deck);
-        resultat.appendChild(this.talon.dom);
+        this.stock = new this.Stock(this.deck);
+        resultat.appendChild(this.stock.dom);
         this.waste = this.pile_waste(this.deck);
         resultat.appendChild(this.waste.dom);
         this.fondation = this.pile_fondation();
@@ -52,14 +52,45 @@ class Klondike extends Game {
         resultat.appendChild(this.tableau.dom);
         return resultat;
     }
+	static placer(i) {
+		var card = this.stock.top();
+		return new Promise(resolve => {
+			let start = card.coordinates;
+			this.colonnes[i].top().push(card);
+			let stop = card.coordinates;
+			let distance = Game.distance(stop, start);
+			card.detach();
+			let transport = new Pile();
+			transport.push(card);
+			transport.dom.classList.add("transport");
+			document.body.appendChild(transport.dom);
+			var temp = transport.dom.appendChild(card.dom.cloneNode());
+			temp.style.zIndex = "1000";
+			card.flip();
+			transport.coordinates = start;
+			transport.dom.style.transform = "rotateY(180deg)";
+			transport.dom.addEventListener("transitionend", (e)=>{
+				if (e.target.style.transition && e.propertyName !== "z-index") {
+					e.target.style.transition = "";
+					this.colonnes[i].push(card);
+					transport.remove();
+					resolve();
+				}
+			});
+			window.setTimeout(() => {
+				var duration = Math.sqrt(distance)*Game.pref.animationSpeed;
+				transport.coordinates = stop;
+				transport.dom.style.transform = "rotateY(0deg)";
+				temp.style.transition = duration + "ms";
+				temp.style.zIndex = "-1000";
+				transport.dom.style.transition = duration + "ms";
+			}, 10);
+		});
+	}
     static start() {
 		var result = Promise.resolve();
         for (let i = 0; i < 7; i += 1) {
-			let pile = new this.Pile();
-			let card = this.talon.top();
-			card = pile.push(card);
-			this.colonnes[i].top().push(card);
-			card.retourner();
+			result = result.then(() => this.placer(i));
         }
         document.body.addEventListener("mousedown", e => this.dragstart(e));
         this.showPlayables();
@@ -71,11 +102,11 @@ class Klondike extends Game {
             result.then(new Promise(resolve => {
 				window.setTimeout(()=>{
 					let pile = new this.Pile();
-					let card = pile.push(this.talon.top());
+					let card = pile.push(this.stock.top());
 					this.colonnes[i].top().push(card);
-					card.retourner();
+					card.flip();
 					for (let j = i + 1; j < 7; j += 1) {
-						card = this.talon.top();
+						card = this.stock.top();
 						this.colonnes[j].top().push(card);
 					}
 					resolve();
@@ -107,15 +138,6 @@ class Klondike extends Game {
         }
         return resultat;
     }
-    static pile_talon(cards) {
-        var result;
-        result = new this.Pile("talon");
-        cards.forEach(function (card) {
-            var pile = result.push(new this.Pile());
-            pile.push(card);
-        }, this);
-        return result;
-    }
     static pile_waste() {
         var result;
         result = new this.Pile("waste");
@@ -133,11 +155,11 @@ class Klondike extends Game {
     }
     static dragstart(e) {
         var pile_dom, pile, card, origin, moves, self=this;
-        if (e.target === this.talon) {
-            this.replacerTalon();
+        if (e.target === this.stock) {
+            this.resetStock();
             return;
         }
-        if (e.target.closest("#talon")) {
+        if (e.target.closest("#stock")) {
             this.distribuer3cartes();
             return;
         }
@@ -196,9 +218,9 @@ class Klondike extends Game {
      */
     static dropCard(pile, moves, origin) {
         var position, choices;
-        position = pile.coordonneesCentre;
+        position = pile.coordinates_center;
         choices = moves.map(move => {
-            return {element: move, distance: this.distance(position, move.coordonneesCentre)};
+            return {element: move, distance: this.distance(position, move.coordinates_center)};
         });
 		choices.sort((a,b) => a.distance > b.distance);
         if (choices.length > 0) {
@@ -222,8 +244,8 @@ class Klondike extends Game {
     static distribuer3cartes() {
         this.hidePlayables();
         var pile = this.waste;
-        for (let i = 0; i < 3 && this.talon.firstChild; i += 1) {
-            let card = this.talon.top();
+        for (let i = 0; i < 3 && this.stock.firstChild; i += 1) {
+            let card = this.stock.top();
             this.flipCard(card);
 			pile.push(card);
 //            this.empiler(pile, card);
@@ -232,13 +254,13 @@ class Klondike extends Game {
         this.showPlayables();
         return pile;
     }
-    static replacerTalon() {
+    static resetStock() {
         var cartes;
         this.hidePlayables();
         cartes = this.selectObjects("#waste .pile");
         cartes.forEach(function (carte) {
             this.flipCard(carte);
-            this.talon.push(carte);
+            this.stock.push(carte);
         });
         this.showPlayables();
         return;
@@ -421,6 +443,20 @@ Klondike.Card = class extends Card {
 
 Klondike.Pile = class extends Pile {
 };
-Klondike.Talon = class extends Pile {
-
+Klondike.Stock = class extends Pile {
+	constructor(cards = []) {
+		super("stock");
+        cards.forEach(function (card) {
+//            var pile = this.push(new Pile());
+//            pile.push(card);
+			this.push(card);
+        }, this);
+	}
+	top(n = 1) {
+		if (n > 1) {
+			return this.elements.slice(-n);
+		} else {
+			return this.elements.slice(-n)[0];
+		}
+	}
 };

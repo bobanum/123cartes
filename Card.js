@@ -1,11 +1,12 @@
 /*jslint browser:true, esnext:true */
-class Card {
+/*global Thing */
+class Card extends Thing {
     /**
      * Creates an instance of Card.
      * @memberOf Card
      */
     constructor(suit, value) {
-        this._dom = null;
+        super();
         this.initMoves();
         this.suit = suit;
         this.value = value;
@@ -13,13 +14,6 @@ class Card {
     }
     get color() {
         return this.suit % 2;
-    }
-    get dom() {
-        if (!this._dom) {
-            this._dom = this.dom_create();
-            this._dom.obj = this;
-        }
-        return this._dom;
     }
     get visible() {
         return this._visible;
@@ -74,14 +68,6 @@ class Card {
 			return this;
         }
 		return this.pile.detach(this);
-    }
-    retourner(etat) {
-        if (etat === undefined) {
-            this.visible = !this._visible;
-        } else {
-            this.visible = etat;
-        }
-        return this;
     }
     /**
      * Une carte est toujours de dessus d'une pile.

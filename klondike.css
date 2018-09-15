@@ -46,14 +46,13 @@ body {
   background-size: 5rem 7rem;
   width: 5rem;
   height: 7rem;
-  position: absolute;
   border-radius: .5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   background-color: red;
-  position: relative;
+  position: absolute;
   background-image: none;
   box-shadow: none;
   border-color: transparent;
@@ -68,7 +67,7 @@ body {
 .move > .carte {
   background-color: cyan;
 }
-#talon div.carte {
+#stock div.carte {
   box-shadow: none;
 }
 .pile {
@@ -100,11 +99,11 @@ a.gameChoice {
 #waste > .pile:last-child .pile {
   margin-left: 1rem;
 }
-#talon {
+#stock {
   left: 1rem;
   top: 1rem;
 }
-#talon:before {
+#stock:before {
   display: block;
   content: "";
   background-color: #FFF;
@@ -114,22 +113,21 @@ a.gameChoice {
   background-size: 5rem 7rem;
   width: 5rem;
   height: 7rem;
-  position: absolute;
   border-radius: .5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   background-color: red;
-  position: relative;
   background-image: none;
   box-shadow: none;
   border-color: transparent;
   border-width: 0;
   background-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
+  position: absolute;
 }
-#talon:before.visible {
+#stock:before.visible {
   background-image: url(images/cartes5x7.png);
   background-size: 65rem 28rem;
 }
@@ -154,14 +152,13 @@ a.gameChoice {
   background-size: 5rem 7rem;
   width: 5rem;
   height: 7rem;
-  position: absolute;
   border-radius: .5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   background-color: red;
-  position: relative;
+  position: absolute;
   background-image: none;
   box-shadow: none;
   border-color: transparent;
@@ -214,14 +211,13 @@ a.gameChoice {
   background-size: 5rem 7rem;
   width: 5rem;
   height: 7rem;
-  position: absolute;
   border-radius: .5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   background-color: red;
-  position: relative;
+  position: absolute;
   background-image: none;
   box-shadow: none;
   border-color: transparent;

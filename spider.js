@@ -16,7 +16,7 @@ class Spider extends Game {
 
     static spider_main() {
         this.deck = this.shuffle(this.newDeck().concat(this.newDeck()));
-        this.talon = null;
+        this.stock = null;
         this.maisons = [];
         this.colonnes = [];
         this.pref.showMoves = true;
@@ -29,17 +29,17 @@ class Spider extends Game {
         resultat = document.createElement("div");
         resultat.setAttribute("id", "board");
 
-        this.talon = this.pile_talon(this.deck);
-        resultat.appendChild(this.talon);
+        this.stock = this.pile_stock(this.deck);
+        resultat.appendChild(this.stock);
         this.fondation = this.dom_fondation();
         resultat.appendChild(this.fondation);
         this.tableau = this.dom_tableau();
         resultat.appendChild(this.tableau);
         return resultat;
     }
-    static pile_talon(cartes) {
+    static pile_stock(cartes) {
         var result, pile;
-        result = new this.Pile("talon");
+        result = new this.Pile("stock");
         cartes.forEach(function (card) {
             pile = result.push(new this.Pile());
             pile.push(card);
@@ -90,9 +90,9 @@ class Spider extends Game {
                 if (i === 5 && j > 3) {
                     break;
                 }
-                card = this.talon.lastChild;
+                card = this.stock.lastChild;
                 this.colonnes[j].top().push(card);
-                this.talon.setAttribute("data-n", this.talon.childElementCount);
+                this.stock.setAttribute("data-n", this.stock.childElementCount);
             }
         }
         //tourner les premières cartes
@@ -106,11 +106,11 @@ class Spider extends Game {
     }
     static dragstart(e) {
         var pile_dom, origine, moves, pos, self = this;
-        if (e.target.closest("#talon")) {
+        if (e.target.closest("#stock")) {
             if (document.querySelector("#tableau > .colonne:empty")) {
                 return;
             }
-            if (this.talon.childElementCount === 0) {
+            if (this.stock.childElementCount === 0) {
                 return;
             }
             this.distribuer10cartes();
@@ -129,7 +129,7 @@ class Spider extends Game {
             moves.push(document.querySelector("#fondation > .maison:empty"));
         }
         this.showMoves(moves.global);
-        pos = pile_dom.coordonnees;
+        pos = pile_dom.coordinates;
         document.body.appendChild(pile_dom);
         pile_dom.style.left = pos.x + "px";
         pile_dom.style.top = pos.y + "px";
@@ -149,9 +149,9 @@ class Spider extends Game {
                 element: null,
                 distance: Infinity
             };
-            position = pile_dom.coordonneesCentre;
+            position = pile_dom.coordinates_center;
             moves.forEach(move => {
-                var distance = self.distance(position, move.coordonneesCentre);
+                var distance = self.distance(position, move.coordinates_center);
                 if (distance < choice.distance) {
                     choice.element = move;
                     choice.distance = distance;
@@ -198,13 +198,13 @@ class Spider extends Game {
         var i, colonne, carte;
         this.hidePlayables();
         this.unmarkMovables();
-        if (this.talon.lastChild) {
+        if (this.stock.lastChild) {
             for (i = 0; i < 10; i += 1) {
                 colonne = this.colonnes[i];
-                carte = this.talon.top();
+                carte = this.stock.top();
                 this.flipCard(carte);
                 colonne.top().push(carte);
-                this.talon.setAttribute("data-n", this.talon.childElementCount);
+                this.stock.setAttribute("data-n", this.stock.childElementCount);
             }
         }
         this.showPlayables();

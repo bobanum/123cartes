@@ -9,6 +9,7 @@ html, body {
 body {
 	margin: 0;
 	background-color: #393;
+	perspective: 8in;
 }
 #board {
 	position: relative;
@@ -33,6 +34,11 @@ body {
 	background-image: url(images/cartes5x7.png);
 	background-size: @carte-background-size;
 }
+.transport {
+	width: 5em;
+	height: 7em;
+	transform-origin: center center;
+}
 .jouable > .carte {
 	background-color: yellow;
 }
@@ -47,7 +53,7 @@ body {
 	text-align: center;
 	background-color: red;
 
-	position: relative;
+	position: absolute;
 	background-image: none;
 	box-shadow: none;
 	border-color: transparent;
@@ -62,7 +68,7 @@ body {
 .move > .carte {
 	background-color: cyan;
 }
-#talon div.carte {
+#stock div.carte {
 	box-shadow: none;
 }
 .pile {
