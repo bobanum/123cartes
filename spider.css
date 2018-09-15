@@ -8,6 +8,7 @@ body {
 body {
   margin: 0;
   background-color: #393;
+  perspective: 8in;
 }
 #board {
   position: relative;
@@ -31,6 +32,11 @@ body {
 .pile.visible > .carte {
   background-image: url(images/cartes5x7.png);
   background-size: 65rem 28rem;
+}
+.transport {
+  width: 5em;
+  height: 7em;
+  transform-origin: center center;
 }
 .jouable > .carte {
   background-color: yellow;

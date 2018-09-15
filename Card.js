@@ -1,5 +1,5 @@
 /*jslint browser:true, esnext:true */
-/*global Thing */
+/*global Thing, Game */
 class Card extends Thing {
     /**
      * Creates an instance of Card.
@@ -77,6 +77,7 @@ class Card extends Thing {
     top() {
         return this.pile || this;
     }
+
     /**
      *
      *

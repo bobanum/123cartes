@@ -64,15 +64,21 @@
 	justify-content: space-between;
 	width: @largeur - 2rem;
 	& > .pile {
+		width: @carte-largeur;
 		position: relative;
-		&:before {
-			display: block;
+		&::after {
 			content: "";
 			.trou;
+			z-index: -1000;
+			left: 0;
+			top:0;
 		}
-        & > .pile .pile {
-            margin-top: .5rem;
-        }
+		& > div {
+			position: relative;
+		}
+		& > :not(:first-of-type) {
+			margin-top: -6.5em;
+		}
 	}
 	.pile.visible > .pile {
 		margin-top: 1.5rem;

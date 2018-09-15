@@ -8,6 +8,7 @@ body {
 body {
   margin: 0;
   background-color: #393;
+  perspective: 8in;
 }
 #board {
   position: relative;
@@ -31,6 +32,11 @@ body {
 .pile.visible > .carte {
   background-image: url(images/cartes5x7.png);
   background-size: 65rem 28rem;
+}
+.transport {
+  width: 5em;
+  height: 7em;
+  transform-origin: center center;
 }
 .jouable > .carte {
   background-color: yellow;
@@ -58,7 +64,7 @@ body {
   border-color: transparent;
   border-width: 0;
   background-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
+  zzzbox-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
 }
 .trou.visible {
   background-image: url(images/cartes5x7.png);
@@ -124,7 +130,7 @@ a.gameChoice {
   border-color: transparent;
   border-width: 0;
   background-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
+  zzzbox-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
   position: absolute;
 }
 #stock:before.visible {
@@ -164,7 +170,7 @@ a.gameChoice {
   border-color: transparent;
   border-width: 0;
   background-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
+  zzzbox-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
 }
 #fondation > .maison:before.visible {
   background-image: url(images/cartes5x7.png);
@@ -199,10 +205,10 @@ a.gameChoice {
   width: 41rem;
 }
 #tableau > .pile {
+  width: 5rem;
   position: relative;
 }
-#tableau > .pile:before {
-  display: block;
+#tableau > .pile::after {
   content: "";
   background-color: #FFF;
   box-sizing: border-box;
@@ -223,14 +229,20 @@ a.gameChoice {
   border-color: transparent;
   border-width: 0;
   background-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
+  zzzbox-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
+  z-index: -1000;
+  left: 0;
+  top: 0;
 }
-#tableau > .pile:before.visible {
+#tableau > .pile::after.visible {
   background-image: url(images/cartes5x7.png);
   background-size: 65rem 28rem;
 }
-#tableau > .pile > .pile .pile {
-  margin-top: .5rem;
+#tableau > .pile > div {
+  position: relative;
+}
+#tableau > .pile > :not(:first-of-type) {
+  margin-top: -6.5em;
 }
 #tableau .pile.visible > .pile {
   margin-top: 1.5rem;

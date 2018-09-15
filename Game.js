@@ -149,6 +149,9 @@ class Game {
         });
         return moves;
     }
+	static duration(distance) {
+		return Math.pow(distance, 0.3)*this.pref.animationSpeed;
+	}
 /////////////////////////////////
 /////////////////////////////////
 /////////////////////////////////
@@ -182,7 +185,6 @@ class Game {
         window.addEventListener("load", function () {
             Game.load();
         });
-
     }
 }
 Game.init();

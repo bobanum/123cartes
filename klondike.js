@@ -48,75 +48,27 @@ class Klondike extends Game {
         resultat.appendChild(this.waste.dom);
         this.fondation = this.pile_fondation();
         resultat.appendChild(this.fondation.dom);
-        this.tableau = this.pile_tableau(this.deck);
+        this.tableau = this.pile_tableau();
         resultat.appendChild(this.tableau.dom);
         return resultat;
     }
-	static placer(i) {
-		var card = this.stock.top();
-		return new Promise(resolve => {
-			let start = card.coordinates;
-			this.colonnes[i].top().push(card);
-			let stop = card.coordinates;
-			let distance = Game.distance(stop, start);
-			card.detach();
-			let transport = new Pile();
-			transport.push(card);
-			transport.dom.classList.add("transport");
-			document.body.appendChild(transport.dom);
-			var temp = transport.dom.appendChild(card.dom.cloneNode());
-			temp.style.zIndex = "1000";
-			card.flip();
-			transport.coordinates = start;
-			transport.dom.style.transform = "rotateY(180deg)";
-			transport.dom.addEventListener("transitionend", (e)=>{
-				if (e.target.style.transition && e.propertyName !== "z-index") {
-					e.target.style.transition = "";
-					this.colonnes[i].push(card);
-					transport.remove();
-					resolve();
-				}
-			});
-			window.setTimeout(() => {
-				var duration = Math.sqrt(distance)*Game.pref.animationSpeed;
-				transport.coordinates = stop;
-				transport.dom.style.transform = "rotateY(0deg)";
-				temp.style.transition = duration + "ms";
-				temp.style.zIndex = "-1000";
-				transport.dom.style.transition = duration + "ms";
-			}, 10);
-		});
-	}
     static start() {
 		var result = Promise.resolve();
         for (let i = 0; i < 7; i += 1) {
-			result = result.then(() => this.placer(i));
+			for (let j = i; j < 7; j += 1) {
+				result = result.then(() => this.stock.top().moveTo(this.colonnes[j], i === j));
+				if (i==j) {
+					result = result.then(data => {
+						let pile = new Pile();
+						data.pile.push(pile);
+						pile.push(data);
+					});
+				}
+			}
         }
         document.body.addEventListener("mousedown", e => this.dragstart(e));
         this.showPlayables();
         return result;
-    }
-    static zzzstart() {
-		var result = Promise.resolve();
-        for (let i = 0; i < 7; i += 1) {
-            result.then(new Promise(resolve => {
-				window.setTimeout(()=>{
-					let pile = new this.Pile();
-					let card = pile.push(this.stock.top());
-					this.colonnes[i].top().push(card);
-					card.flip();
-					for (let j = i + 1; j < 7; j += 1) {
-						card = this.stock.top();
-						this.colonnes[j].top().push(card);
-					}
-					resolve();
-				}, 1000);
-
-			}));
-        }
-        document.body.addEventListener("mousedown", e => this.dragstart(e));
-        this.showPlayables();
-        return;
     }
     static pile_fondation() {
         var resultat, i, maison;
@@ -133,7 +85,7 @@ class Klondike extends Game {
         var resultat, i, column;
         resultat = new this.Pile("tableau");
         for (i = 0; i < 7; i += 1) {
-            column = resultat.push(this.pile_colonne(i));
+            column = resultat.push(new this.Tableau(i));
             this.colonnes.push(column);
         }
         return resultat;
@@ -148,11 +100,7 @@ class Klondike extends Game {
         resultat = new this.Pile("maison" + no);
         return resultat;
     }
-    static pile_colonne(no) {
-        var resultat;
-        resultat = new this.Pile("colonne" + no);
-        return resultat;
-    }
+
     static dragstart(e) {
         var pile_dom, pile, card, origin, moves, self=this;
         if (e.target === this.stock) {
@@ -446,11 +394,21 @@ Klondike.Pile = class extends Pile {
 Klondike.Stock = class extends Pile {
 	constructor(cards = []) {
 		super("stock");
-        cards.forEach(function (card) {
-//            var pile = this.push(new Pile());
-//            pile.push(card);
+        cards.forEach(card => {
 			this.push(card);
-        }, this);
+        });
+	}
+	top(n = 1) {
+		if (n > 1) {
+			return this.elements.slice(-n);
+		} else {
+			return this.elements.slice(-n)[0];
+		}
+	}
+};
+Klondike.Tableau = class extends Pile {
+	constructor(no) {
+		super("colonne"+no);
 	}
 	top(n = 1) {
 		if (n > 1) {

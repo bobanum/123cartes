@@ -1,4 +1,5 @@
 /*jslint browser:true, esnext:true */
+/*global Game, Pile */
 class Thing {
 	constructor() {
 		this._dom = null;
@@ -21,6 +22,53 @@ class Thing {
     get coordinates_center() {
         return Thing.coordinates_center(this.dom);
     }
+	moveTo(destination, flip = false) {
+		if (Game.pref.animationSpeed === 0) {
+			return new Promise(resolve => {
+				destination.push(this);
+				if (flip) {
+					this.flip();
+				}
+				resolve();
+			});
+		}
+		return new Promise(resolve => {
+			let start = this.coordinates;
+			destination.push(this);
+			let stop = this.coordinates;
+			let distance = Game.distance(stop, start);
+			this.detach();
+			let transport = new Pile();
+			transport.push(this);
+			transport.dom.classList.add("transport");
+			document.body.appendChild(transport.dom);
+			if (flip) {
+				var temp = transport.dom.appendChild(this.dom.cloneNode());
+				temp.style.zIndex = "1000";
+				this.flip();
+				transport.dom.style.transform = "rotateY(180deg)";
+			}
+			transport.coordinates = start;
+			transport.dom.addEventListener("transitionend", (e)=>{
+				if (e.target.style.transition && e.propertyName !== "z-index") {
+					e.target.style.transition = "";
+					destination.push(this);
+					transport.remove();
+					resolve(this);
+				}
+			});
+			window.setTimeout(() => {
+				var duration = Game.duration(distance);
+				transport.coordinates = stop;
+				if (flip) {
+					transport.dom.style.transform = "rotateY(0deg)";
+					temp.style.transition = duration + "ms";
+					temp.style.zIndex = "-1000";
+				}
+				transport.dom.style.transition = duration + "ms";
+			}, 10);
+		});
+	}
     static coordinates(element, ref) {
         ref = ref || document.body;
         var resultat = {x: 0, y: 0};
