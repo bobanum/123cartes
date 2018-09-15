@@ -244,8 +244,8 @@ a.gameChoice {
 #tableau > .pile > :not(:first-of-type) {
   margin-top: -6.5em;
 }
-#tableau .pile.visible > .pile {
-  margin-top: 1.5rem;
+#tableau .carte.visible + .pile {
+  top: 1.5rem;
 }
 @media all and (min-aspect-ratio: 4/3) {
   html {

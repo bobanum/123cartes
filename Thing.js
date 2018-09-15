@@ -29,7 +29,7 @@ class Thing {
 				if (flip) {
 					this.flip();
 				}
-				resolve();
+				resolve(this);
 			});
 		}
 		return new Promise(resolve => {
