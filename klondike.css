@@ -93,11 +93,11 @@ a.gameChoice {
 #board {
   width: 43em;
 }
-#defausse {
+#waste {
   left: 7rem;
   top: 1rem;
 }
-#defausse > .pile:last-child .pile {
+#waste > .pile:last-child .pile {
   margin-left: 1rem;
 }
 #talon {

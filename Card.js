@@ -12,7 +12,7 @@ class Card {
         this._visible = false;
     }
     get color() {
-        return this.suit % 12;
+        return this.suit % 2;
     }
     get dom() {
         if (!this._dom) {
@@ -25,7 +25,7 @@ class Card {
         return this._visible;
     }
     set visible(val) {
-        this._visible = val;
+        this._visible = !!val;
         this.dom.classList.remove("visible");
         if (this._visible) {
             this.dom.classList.add("visible");
@@ -42,6 +42,14 @@ class Card {
     findPlayables() {
         throw "This method should be overloaded;";
     }
+	flip(state) {
+		if (state === undefined) {
+			this.visible = !this.visible;
+		} else {
+			this.visible = state;
+		}
+		return this;
+	}
     /**
      * Retourne un element HTML représentant une carte dont la description est passée en paramètre.
      * @returns {HTMLElement} Le div représentant la carte

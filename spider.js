@@ -15,21 +15,21 @@ class Spider extends Game {
 
 
     static spider_main() {
-        this.paquet = this.shuffle(this.newDeck().concat(this.newDeck()));
+        this.deck = this.shuffle(this.newDeck().concat(this.newDeck()));
         this.talon = null;
         this.maisons = [];
         this.colonnes = [];
-        this.pref.showMoves = false;
+        this.pref.showMoves = true;
         this.board = this.dom_board();
         document.body.appendChild(this.board);
-        this.commencerJeu();
+        this.start();
     }
     static dom_board() {
         var resultat;
         resultat = document.createElement("div");
         resultat.setAttribute("id", "board");
 
-        this.talon = this.pile_talon(this.paquet);
+        this.talon = this.pile_talon(this.deck);
         resultat.appendChild(this.talon);
         this.fondation = this.dom_fondation();
         resultat.appendChild(this.fondation);
@@ -83,7 +83,7 @@ class Spider extends Game {
         resultat.classList.add("colonne");
         return resultat;
     }
-    static commencerJeu() {
+    static start() {
         var card, i, j;
         for (i = 0; i < 6; i += 1) {
             for (j = 0; j < 10; j += 1) {
@@ -128,7 +128,7 @@ class Spider extends Game {
         if (pile_dom.obj.value === 12) {
             moves.push(document.querySelector("#fondation > .maison:empty"));
         }
-        this.showMoves(moves);
+        this.showMoves(moves.global);
         pos = pile_dom.coordonnees;
         document.body.appendChild(pile_dom);
         pile_dom.style.left = pos.x + "px";
@@ -230,16 +230,17 @@ class Spider extends Game {
      * @returns {[[Type]]} [[Description]]
      */
     static findMoves(pile, top) {
-		//TODO REVISE AND DOC
+		//TODO REVISE AND DOC. use .global
 		var result, stackables;
-		result = this.getHoles();
+		result = {};
+		result.global = this.getHoles();
 		if (top === undefined) {
 			top = this.findTops();
 		}
 		stackables = top.filter(d => {
 			return this.isStackable(d, pile);
 		});
-		result.push(...stackables);
+		result.global.push(...stackables);
 		return result;
     }
     /**

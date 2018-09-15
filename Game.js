@@ -1,5 +1,5 @@
 /*jslint browser:true, esnext:true */
-/*global Card, Pile */
+/*global Card */
 /**
  * Class Game.
  */
@@ -31,7 +31,7 @@ class Game {
     }
 
     /**
-     * Returns shuffles array
+     * Returns shuffled array
      * @param   {Card[]} deck The array to shuffle
      * @returns {Card[]} A shuffled copy of the deck
      */
@@ -51,7 +51,7 @@ class Game {
      */
     static flipCard(card, state) {
         debugger;
-		card.obj.flip(state);
+		card.flip(state);
         return card;
     }
 
@@ -67,6 +67,12 @@ class Game {
         destination.push(element);
     }
 
+    /**
+     * Returns the distance between 2 points
+     * @param   {object} p1 Point of origin
+     * @param   {object} p2 Point of destination
+     * @returns {number} The distance
+     */
     static distance(p1, p2) {
         var dx, dy;
         dx = p1.x - p2.x;
@@ -127,16 +133,9 @@ class Game {
      */
     static showMoves(moves) {
 		//TODO Evaluate the possibility of only changing the stylesheet and putting the class on evaluation (findMoves)
-        var i;
-        if (moves instanceof Array) {
-            moves.forEach(move => {
-                move.dom.classList.add("move");
-			});
-        } else {
-            for (i in moves) {
-                this.showMoves(moves[i]);
-            }
-        }
+		moves.forEach(move => {
+			move.dom.classList.add("move");
+		});
     }
     /**
      * Removes "move" HTML class from given elements

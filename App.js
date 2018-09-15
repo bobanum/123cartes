@@ -22,6 +22,7 @@ class App {
      */
     static init() {
         Math.seedrandom("test");
+//        Math.seedrandom("testC");
         window.addEventListener("load", function () {
             App.load();
         });
