@@ -43,7 +43,10 @@ class Card extends Thing {
 		if (state === this.visible) {
 			return Promise.resolve(this);
 		}
-		if (duration < 20 || Game.pref.animationSpeed === 0) {
+		if (duration === undefined) {
+			duration = Game.pref.animationSpeed * 5;
+		}
+		if (duration < 20) {
 			return new Promise(resolve => {
 				this.visible = state;
 				resolve(this);

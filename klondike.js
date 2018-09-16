@@ -123,7 +123,8 @@ class Klondike extends Game {
         pile_dom.classList.add("prise");
         this.hidePlayables();
         origin = pile.pile;
-        moves = this.findMoves(card.obj).global;
+        moves = this.findMoves(card.obj);
+        moves = moves.global;
         this.showMoves(moves);
         pile.detach();
         pile_dom.decalage = {
@@ -165,23 +166,26 @@ class Klondike extends Game {
      * @returns {[[Type]]} [[Description]]
      */
     static dropCard(pile, moves, origin) {
-        var position, choices;
-        position = pile.coordinates_center;
-        choices = moves.map(move => {
-            return {element: move, distance: this.distance(position, move.coordinates_center)};
-        });
-		choices.sort((a,b) => a.distance > b.distance);
-        if (choices.length > 0) {
-			let choice = choices[0].element;
-			choice.push(pile);
-			this.colonnes.forEach(column => {
-				column.normalize();
+		return new Promise(resolve => {
+			var position, choices, destination;
+			position = pile.coordinates_center;
+			choices = moves.map(move => {
+				return {element: move, distance: this.distance(position, move.coordinates_center)};
 			});
-        } else {
-            origin.push(pile);
-        }
-        pile.dom.classList.remove("prise");
-        return pile;
+			choices.sort((a,b) => a.distance > b.distance);
+			if (choices.length > 0) {
+				destination = choices[0].element;
+			} else {
+				destination = origin;
+			}
+			pile.moveTo(destination).then(() => {
+				Promise.all(this.colonnes.map(column => {
+					return column.normalize();
+				}));
+			});
+			pile.dom.classList.remove("prise");
+			return resolve(pile);
+		});
     }
 
     static distribuer3cartes() {
@@ -254,12 +258,12 @@ class Klondike extends Game {
         return result;
     }
     static findMoves_tableau(card) {
-        var result, value, color;
+        var result;
         result = [];
-        value = card.value;
-        color = card.color;
+        var value = card.value;
+        var color = card.color;
         if (value === 12) {
-            var columns = this.selectObjects(".colonne:empty");
+			var columns = this.colonnes.filter(column => column.elements.length === 0);
             result.push(...columns);
             return result;
         }
@@ -349,7 +353,7 @@ Klondike.Card = class extends Card {
         this.moves.global = [].concat(this.moves.maison, this.moves.colonnes);
         return this.moves.global;
     }
-    findMoves_foundation() {
+    zzz_findMoves_foundation() {
         var resultat, dessus, carte;
         resultat = [];
         // Si la carte n'est pas sur le dessus de la pile, elle ne peut être jouable
@@ -368,9 +372,9 @@ Klondike.Card = class extends Card {
             return;
         }
     }
-    findMoves_tableau() {
-        if (this.value === 12) {
+    zzz_findMoves_tableau() {
             console.log("valider");
+        if (this.value === 12) {
             this.moves.colonnes = this.jeu.colonnes.filter(c=>c.elements.length === 0);
             return;
         } else {
