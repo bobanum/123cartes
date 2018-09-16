@@ -173,15 +173,10 @@ class Klondike extends Game {
 		choices.sort((a,b) => a.distance > b.distance);
         if (choices.length > 0) {
 			let choice = choices[0].element;
-            if (choice.dom.classList.contains("maison")) {
-                choice.push(pile);
-            } else {
-                choice.push(pile);
-            }
-            var cards = this.selectObjects("#tableau .pile:not(.visible) > .carte:only-child:not(.visible)");
-            cards.forEach(function (card) {
-                card.visible = true;
-            }, this);
+			choice.push(pile);
+			this.colonnes.forEach(column => {
+				column.normalize();
+			});
         } else {
             origin.push(pile);
         }
@@ -196,7 +191,6 @@ class Klondike extends Game {
             let card = this.stock.top();
             this.flipCard(card);
 			pile.push(card);
-//            this.empiler(pile, card);
             pile = card;
         }
         this.showPlayables();
@@ -416,5 +410,21 @@ Klondike.Tableau = class extends Pile {
 		} else {
 			return this.elements.slice(-n)[0];
 		}
+	}
+
+	/**
+	 * Makes sure the pile is ready to be played on (top card flipped)
+	 * @returns {Promise} Resolves when ready
+	 */
+	normalize() {
+		var card = this.top();
+		if (!card || card.visible === true) {
+			return Promise.resolve(this);
+		}
+		return card.flip(true).then(data=>{
+			var pile = data.pile.push(new Pile());
+			pile.push(data);
+			return data;
+		});
 	}
 };

@@ -23,51 +23,48 @@ class Thing {
         return Thing.coordinates_center(this.dom);
     }
 	moveTo(destination, flip = false) {
-		if (Game.pref.animationSpeed === 0) {
+		let start = this.coordinates;
+		destination.push(this);
+		let stop = this.coordinates;
+		let distance = Game.distance(stop, start);
+		var duration = Game.duration(distance);
+		if (duration < 20 || Game.pref.animationSpeed === 0) {
 			return new Promise(resolve => {
 				destination.push(this);
 				if (flip) {
-					this.flip();
+					this.flip(true, 0);
 				}
 				resolve(this);
 			});
 		}
-		return new Promise(resolve => {
-			let start = this.coordinates;
-			destination.push(this);
-			let stop = this.coordinates;
-			let distance = Game.distance(stop, start);
-			this.detach();
+		var result = new Promise(resolve => {
 			let transport = new Pile();
 			transport.push(this);
 			transport.dom.classList.add("transport");
+			transport.dom.classList.add("moveTo");
 			document.body.appendChild(transport.dom);
-			if (flip) {
-				var temp = transport.dom.appendChild(this.dom.cloneNode());
-				temp.style.zIndex = "1000";
-				this.flip();
-				transport.dom.style.transform = "rotateY(180deg)";
-			}
 			transport.coordinates = start;
 			transport.dom.addEventListener("transitionend", (e)=>{
-				if (e.target.style.transition && e.propertyName !== "z-index") {
-					e.target.style.transition = "";
-					destination.push(this);
+				if (transport.dom.style.transition && ["top", "left"].indexOf(e.propertyName) >= 0) {
+					event.stopPropagation();
+					transport.dom.style.transition = "";
+					destination.push(transport.elements);
 					transport.remove();
 					resolve(this);
 				}
 			});
 			window.setTimeout(() => {
-				var duration = Game.duration(distance);
-				transport.coordinates = stop;
-				if (flip) {
-					transport.dom.style.transform = "rotateY(0deg)";
-					temp.style.transition = duration + "ms";
-					temp.style.zIndex = "-1000";
-				}
 				transport.dom.style.transition = duration + "ms";
+				transport.coordinates = stop;
 			}, 10);
 		});
+		if (!flip) {
+			return result;
+		}
+		return Promise.all([
+			result,
+			this.flip(true, duration * 0.9),
+		]).then(data => data[0]);
 	}
     static coordinates(element, ref) {
         ref = ref || document.body;

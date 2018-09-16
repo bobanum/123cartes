@@ -21,7 +21,11 @@ class App {
      * @memberOf App
      */
     static init() {
-        Math.seedrandom("test");
+//		var seed = Math.random() + "";
+//		console.log(seed);
+//        Math.seedrandom(seed);
+//        Math.seedrandom("test");
+//        Math.seedrandom("0.47793571906247045");
 //        Math.seedrandom("testC");
         window.addEventListener("load", function () {
             App.load();

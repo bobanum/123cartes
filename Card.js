@@ -1,5 +1,5 @@
 /*jslint browser:true, esnext:true */
-/*global Thing, Game */
+/*global Thing, Game, Pile */
 class Card extends Thing {
     /**
      * Creates an instance of Card.
@@ -36,13 +36,46 @@ class Card extends Thing {
     findPlayables() {
         throw "This method should be overloaded;";
     }
-	flip(state) {
+	flip(state, duration) {
 		if (state === undefined) {
-			this.visible = !this.visible;
-		} else {
-			this.visible = state;
+			state = !this.visible;
 		}
-		return this;
+		if (state === this.visible) {
+			return Promise.resolve(this);
+		}
+		if (duration < 20 || Game.pref.animationSpeed === 0) {
+			return new Promise(resolve => {
+				this.visible = state;
+				resolve(this);
+			});
+		}
+		return new Promise(resolve => {
+			let transport = new Pile();
+			this.pile.push(transport);
+			transport.push(this);
+			transport.dom.classList.add("transport");
+			transport.dom.classList.add("flip");
+
+			var temp = transport.dom.appendChild(this.dom.cloneNode());
+			temp.style.zIndex = "1000";
+			transport.dom.style.transform = "rotateY(180deg)";
+			this.visible = state;
+			transport.dom.addEventListener("transitionend", (e)=>{
+				if (e.target.style.transition && e.propertyName === "transform") {
+					event.stopPropagation();
+					e.target.style.transition = "";
+					transport.pile.push(transport.elements);
+					transport.remove();
+					resolve(this);
+				}
+			});
+			window.setTimeout(() => {
+				transport.dom.style.transform = "rotateY(0deg)";
+				temp.style.transition = duration + "ms";
+				temp.style.zIndex = "-1000";
+				transport.dom.style.transition = duration + "ms";
+			}, 10);
+		});
 	}
     /**
      * Retourne un element HTML représentant une carte dont la description est passée en paramètre.

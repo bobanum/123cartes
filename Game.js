@@ -172,10 +172,10 @@ class Game {
      * @memberOf Game
      */
     static init() {
-        this.suits = "HDCD";
+        this.suits = "HDCS";
         this.values = "1234567890VDR";
         this.pref = {};
-		this.pref.animationSpeed = 0;
+		this.pref.animationSpeed = 20;
         this.cards = [];
         this.MOUSEDOWN = 'mousedown';
         this.MOUSEUP = 'mouseup';

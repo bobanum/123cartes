@@ -15,7 +15,13 @@ class Pile extends Thing {
         this.dy = 0;
     }
     push(element) {
-        element.detach();
+        if (arguments.length > 1) {
+			element = Array.from(arguments);
+		}
+		if (element instanceof Array) {
+			return element.forEach(e => this.push(e));
+		}
+		element.detach();
         this.elements.push(element);
         element.pile = this;
         this.dom.appendChild(element.dom);
@@ -41,8 +47,9 @@ class Pile extends Thing {
         element.pile.elements.splice(idx, 1);
         element.pile = null;
         document.body.appendChild(element.dom);
-        element.dom.style.left = pos.x + "px";
-        element.dom.style.top = pos.y + "px";
+//        element.dom.style.left = pos.x + "px";
+//        element.dom.style.top = pos.y + "px";
+		element.coordinates = pos;
         return element;
     }
     /**
@@ -61,10 +68,14 @@ class Pile extends Thing {
     get carte() {
         return this.elements[0];
     }
-    flip(etat) {
-        this.elements.forEach(function (element) {
-            element.flip(etat);
-        }, this);
+	get visible() {
+		return this.carte.visible;
+	}
+	set visible(val) {
+		this.carte.visible = val;
+	}
+    flip(state, duration) {
+		return this.carte.flip(state, duration);
     }
     /**
      * Retourne un élément html représentant une pile vide.
@@ -81,6 +92,7 @@ class Pile extends Thing {
         return resultat;
     }
 	remove() {
+		this.detach();
 		this.dom.parentNode.removeChild(this.dom);
 		return this;
 	}
