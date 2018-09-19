@@ -36,9 +36,15 @@ class Game {
      * @returns {Card[]} A shuffled copy of the deck
      */
     static shuffle(deck) {
-        var result;
-        result = Array.from(deck);
-    	result.sort(() => Math.random() < 0.5);
+        var result = [], copy;
+        copy = Array.from(deck);
+		while (copy.length) {
+			let pos = Math.floor(Math.random() * copy.length);
+			result.push(copy[pos]);
+			copy.splice(pos, 1);
+		}
+//    	copy.sort(() => Math.random() - 0.5);
+//		return copy;
         return result;
     }
 

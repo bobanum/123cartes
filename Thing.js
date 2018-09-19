@@ -23,10 +23,12 @@ class Thing {
         return Thing.coordinates_center(this.dom);
     }
 	moveTo(destination, flip = false) {
-		let start = this.coordinates;
+		var start = this.coordinates;
+		//console.trace("moveto Promise");
+
 		destination.push(this);
-		let stop = this.coordinates;
-		let distance = Game.distance(stop, start);
+		var stop = this.coordinates;
+		var distance = Game.distance(stop, start);
 		var duration = Game.duration(distance);
 		if (duration < 20 || Game.pref.animationSpeed === 0) {
 			return new Promise(resolve => {
@@ -37,7 +39,7 @@ class Thing {
 				resolve(this);
 			});
 		}
-		var result = new Promise(resolve => {
+		var movePromise = new Promise(resolve => {
 			let transport = new Pile();
 			transport.push(this);
 			transport.dom.classList.add("transport");
@@ -46,25 +48,33 @@ class Thing {
 			transport.coordinates = start;
 			transport.dom.addEventListener("transitionend", (e)=>{
 				if (transport.dom.style.transition && ["top", "left"].indexOf(e.propertyName) >= 0) {
+					//console.trace("moveTo transitionend");
 					event.stopPropagation();
 					transport.dom.style.transition = "";
-					destination.push(transport.elements);
-					transport.remove();
-					resolve(this);
+					resolve(transport);
 				}
 			});
 			window.setTimeout(() => {
+				//console.trace("moveTo start");
 				transport.dom.style.transition = duration + "ms";
 				transport.coordinates = stop;
 			}, 10);
 		});
-		if (!flip) {
-			return result;
+		var flipPromise;
+		if (flip) {
+			flipPromise = this.flip(true, duration *1.1);
+		} else {
+			flipPromise = Promise.resolve();
 		}
 		return Promise.all([
-			result,
-			this.flip(true, duration * 0.9),
-		]).then(data => data[0]);
+			movePromise,
+			flipPromise,
+		]).then(data => {
+			//console.trace("moveto and flip resolved");
+			destination.push(data[0].elements);
+			data[0].remove();
+			return this;
+		});
 	}
     static coordinates(element, ref) {
         ref = ref || document.body;

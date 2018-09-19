@@ -40,6 +40,7 @@ class Card extends Thing {
         throw "This method should be overloaded;";
     }
 	flip(state, duration) {
+		//console.trace("flip Promise");
 		if (state === undefined) {
 			state = !this.visible;
 		}
@@ -49,7 +50,7 @@ class Card extends Thing {
 		if (duration === undefined) {
 			duration = Game.pref.animationSpeed * 5;
 		}
-		if (duration < 20) {
+		if (duration <= 0) {
 			return new Promise(resolve => {
 				this.visible = state;
 				resolve(this);
@@ -67,7 +68,9 @@ class Card extends Thing {
 			transport.dom.style.transform = "rotateY(180deg)";
 			this.visible = state;
 			transport.dom.addEventListener("transitionend", (e)=>{
+				//console.trace("flip transitionend", e.target, e.propertyName);
 				if (e.target.style.transition && e.propertyName === "transform") {
+					//console.trace("flip resolve");
 					event.stopPropagation();
 					e.target.style.transition = "";
 					transport.pile.push(transport.elements);
@@ -76,6 +79,7 @@ class Card extends Thing {
 				}
 			});
 			window.setTimeout(() => {
+				//console.trace("flip start");
 				transport.dom.style.transform = "rotateY(0deg)";
 				temp.style.transition = duration + "ms";
 				temp.style.zIndex = "-1000";
