@@ -64,7 +64,7 @@ body {
   border-color: transparent;
   border-width: 0;
   background-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
+  zzzbox-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
 }
 .trou.visible {
   background-image: url(images/cartes5x7.png);
@@ -124,7 +124,7 @@ a.gameChoice {
   border-color: transparent;
   border-width: 0;
   background-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
+  zzzbox-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
 }
 #stock:before.visible {
   background-image: url(images/cartes5x7.png);
@@ -148,19 +148,19 @@ a.gameChoice {
   text-shadow: 0.1rem 0.1rem 0em rgba(0, 0, 0, 0.5);
   -webkit-text-stroke: .05rem black;
 }
-#fondation {
+#foundation {
   position: absolute;
   left: 13em;
   top: 1em;
   display: flex;
 }
-#fondation > .maison {
+#foundation > .foundation {
   position: relative;
 }
-#fondation > .maison + .maison {
+#foundation > .foundation + .foundation {
   margin-left: 1em;
 }
-#fondation > .maison:before {
+#foundation > .foundation:before {
   background-color: #FFF;
   box-sizing: border-box;
   background-image: url(images/dos_bleu.png);
@@ -180,7 +180,7 @@ a.gameChoice {
   border-color: transparent;
   border-width: 0;
   background-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
+  zzzbox-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
   white-space: pre;
   color: rgba(0, 0, 0, 0.1);
   background-image: url(images/fond_trou.svg);
@@ -192,7 +192,7 @@ a.gameChoice {
   line-height: .7em;
   font-size: 3em;
 }
-#fondation > .maison:before.visible {
+#foundation > .foundation:before.visible {
   background-image: url(images/cartes5x7.png);
   background-size: 65rem 28rem;
 }
@@ -229,7 +229,7 @@ a.gameChoice {
   border-color: transparent;
   border-width: 0;
   background-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
+  zzzbox-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
 }
 #tableau > .pile:before.visible {
   background-image: url(images/cartes5x7.png);

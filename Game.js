@@ -175,7 +175,7 @@ class Game {
         this.suits = "HDCS";
         this.values = "1234567890VDR";
         this.pref = {};
-		this.pref.animationSpeed = 10;
+		this.pref.animationSpeed = 0;
         this.cards = [];
         this.MOUSEDOWN = 'mousedown';
         this.MOUSEUP = 'mouseup';

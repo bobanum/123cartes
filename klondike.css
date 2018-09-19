@@ -137,19 +137,22 @@ a.gameChoice {
   background-image: url(images/cartes5x7.png);
   background-size: 65rem 28rem;
 }
-#fondation {
+#foundation {
   position: absolute;
   left: 19rem;
   top: 1rem;
   display: flex;
+  width: 23rem;
+  justify-content: space-between;
 }
-#fondation > .maison {
+#foundation > .pile {
   position: relative;
+  flex: 0 0 5em;
 }
-#fondation > .maison + .maison {
+#foundation > .pile + .foundation {
   margin-left: 1rem;
 }
-#fondation > .maison:before {
+#foundation > .pile:before {
   content: "";
   background-color: #FFF;
   box-sizing: border-box;
@@ -172,26 +175,26 @@ a.gameChoice {
   background-color: rgba(255, 255, 255, 0.1);
   zzzbox-shadow: 0.05rem 0.05rem rgba(255, 255, 255, 0.6), -0.05rem -0.05rem rgba(0, 0, 0, 0.3), inset 0.05rem 0.05rem rgba(255, 255, 255, 0.6), inset -0.05rem -0.05rem rgba(0, 0, 0, 0.3);
 }
-#fondation > .maison:before.visible {
+#foundation > .pile:before.visible {
   background-image: url(images/cartes5x7.png);
   background-size: 65rem 28rem;
 }
-#fondation > .maison:nth-child(1):before {
+#foundation > .pile:nth-child(1):before {
   content: "♥";
   content: "";
   background-image: url(images/fond_trou_c.svg);
 }
-#fondation > .maison:nth-child(2):before {
+#foundation > .pile:nth-child(2):before {
   content: "♣";
   content: "";
   background-image: url(images/fond_trou_t.svg);
 }
-#fondation > .maison:nth-child(3):before {
+#foundation > .pile:nth-child(3):before {
   content: "♦";
   content: "";
   background-image: url(images/fond_trou_k.svg);
 }
-#fondation > .maison:nth-child(4):before {
+#foundation > .pile:nth-child(4):before {
   content: "♠";
   content: "";
   background-image: url(images/fond_trou_p.svg);

@@ -17,8 +17,8 @@ class Spider extends Game {
     static spider_main() {
         this.deck = this.shuffle(this.newDeck().concat(this.newDeck()));
         this.stock = null;
-        this.maisons = [];
-        this.colonnes = [];
+        this.foundation = [];
+        this.tableau = [];
         this.pref.showMoves = true;
         this.board = this.dom_board();
         document.body.appendChild(this.board);
@@ -31,10 +31,10 @@ class Spider extends Game {
 
         this.stock = this.pile_stock(this.deck);
         resultat.appendChild(this.stock);
-        this.fondation = this.dom_fondation();
-        resultat.appendChild(this.fondation);
-        this.tableau = this.dom_tableau();
-        resultat.appendChild(this.tableau);
+        this.foundation = this.dom_foundation();
+        resultat.appendChild(this.foundation);
+        this.tableau_dom = this.dom_tableau();
+        resultat.appendChild(this.tableau_dom);
         return resultat;
     }
     static pile_stock(cartes) {
@@ -47,22 +47,22 @@ class Spider extends Game {
         result.dom.setAttribute("data-n", result.elements.length);
         return result;
     }
-    static dom_fondation() {
-        var resultat, i, maison;
+    static dom_foundation() {
+        var resultat, i, pile;
         resultat = this.dom_pile();
-        resultat.setAttribute("id", "fondation");
+        resultat.setAttribute("id", "foundation");
         for (i = 0; i < 8; i += 1) {
-            maison = this.dom_maison(i);
-            this.maisons.push(maison);
-            resultat.appendChild(maison);
+            pile = this.dom_foundationPile(i);
+            this.foundation.push(pile);
+            resultat.appendChild(pile);
         }
         return resultat;
     }
-    static dom_maison(no) {
+    static dom_foundationPile(no) {
         var resultat;
         resultat = this.dom_pile();
-        resultat.setAttribute("id", "maison" + no);
-        resultat.classList.add("maison");
+        resultat.setAttribute("id", "foundation" + no);
+        resultat.classList.add("foundation");
         return resultat;
     }
     static dom_tableau() {
@@ -71,7 +71,7 @@ class Spider extends Game {
         resultat.setAttribute("id", "tableau");
         for (i = 0; i < 10; i += 1) {
             colonne = this.dom_colonne(i);
-            this.colonnes.push(colonne);
+            this.tableau.push(colonne);
             resultat.appendChild(colonne);
         }
         return resultat;
@@ -91,13 +91,13 @@ class Spider extends Game {
                     break;
                 }
                 card = this.stock.lastChild;
-                this.colonnes[j].top().push(card);
+                this.tableau[j].top().push(card);
                 this.stock.setAttribute("data-n", this.stock.childElementCount);
             }
         }
         //tourner les premières cartes
         for (j = 0; j < 10; j += 1) {
-            card = this.colonnes[j].top();
+            card = this.tableau[j].top();
             this.flipCard(card);
         }
         document.body.addEventListener("mousedown", this.dragstart);
@@ -126,7 +126,7 @@ class Spider extends Game {
         origine = pile_dom.parentNode;
         moves = this.findMoves(pile_dom.obj);
         if (pile_dom.obj.value === 12) {
-            moves.push(document.querySelector("#fondation > .maison:empty"));
+            moves.push(document.querySelector("#foundation > .foundation:empty"));
         }
         this.showMoves(moves.global);
         pos = pile_dom.coordinates;
@@ -158,7 +158,7 @@ class Spider extends Game {
                 }
 			});
             if (choice.element) {
-                if (choice.element.classList.contains("maison")) {
+                if (choice.element.classList.contains("foundation")) {
                     choice.element.top().push(pile_dom);
                 } else {
                     choice.element.push(pile_dom);
@@ -200,7 +200,7 @@ class Spider extends Game {
         this.unmarkMovables();
         if (this.stock.lastChild) {
             for (i = 0; i < 10; i += 1) {
-                colonne = this.colonnes[i];
+                colonne = this.tableau[i];
                 carte = this.stock.top();
                 this.flipCard(carte);
                 colonne.top().push(carte);

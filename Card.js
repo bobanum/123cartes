@@ -28,6 +28,9 @@ class Card extends Thing {
     get estJouable() {
         return this.moves.global.length > 0;
     }
+	isOnTop() {
+		return  !this.pile || this.pile.elements.slice(-1)[0] === this;
+	}
     initMoves() {
         this.moves = {
             global: [],
