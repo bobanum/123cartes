@@ -161,9 +161,7 @@ class Game {
 /////////////////////////////////
 /////////////////////////////////
 /////////////////////////////////
-    /**
-     *
-     *
+	/**
      * @static
      *
      * @memberOf Game
@@ -181,7 +179,7 @@ class Game {
         this.suits = "HDCS";
         this.values = "1234567890VDR";
         this.pref = {};
-		this.pref.animationSpeed = 40;
+		this.pref.animationSpeed = 20;
         this.cards = [];
         this.MOUSEDOWN = 'mousedown';
         this.MOUSEUP = 'mouseup';

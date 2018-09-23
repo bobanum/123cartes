@@ -49,7 +49,7 @@ class Thing {
 			transport.dom.addEventListener("transitionend", (e)=>{
 				if (transport.dom.style.transition && ["top", "left"].indexOf(e.propertyName) >= 0) {
 					//console.trace("moveTo transitionend");
-					event.stopPropagation();
+					e.stopPropagation();
 					transport.dom.style.transition = "";
 					resolve(transport);
 				}

@@ -71,7 +71,7 @@ class Card extends Thing {
 				//console.trace("flip transitionend", e.target, e.propertyName);
 				if (e.target.style.transition && e.propertyName === "transform") {
 					//console.trace("flip resolve");
-					event.stopPropagation();
+					e.stopPropagation();
 					e.target.style.transition = "";
 					transport.pile.push(transport.elements);
 					transport.remove();

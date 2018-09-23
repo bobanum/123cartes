@@ -1,5 +1,5 @@
 /*jslint browser:true, esnext:true */
-console.trace = (true) ? console.log : function () {return true;}
+console.trace = (true) ? console.log : function () {return true;};
 class App {
     /**
      * Creates an instance of App.
