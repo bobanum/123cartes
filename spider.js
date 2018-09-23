@@ -44,7 +44,7 @@ class Spider extends Game {
             pile = result.push(new this.Pile());
             pile.push(card);
         }, this);
-        result.dom.setAttribute("data-n", result.elements.length);
+        result.dom.setAttribute("data-n", result.length);
         return result;
     }
     static dom_foundation() {

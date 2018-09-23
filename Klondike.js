@@ -92,25 +92,26 @@ class Klondike extends Game {
     }
     static pile_waste() {
         var result;
-        result = new this.Pile("waste");
+        result = new this.Waste();
         return result;
     }
 
 
     static dragstart(e) {
         var pile_dom, pile, card, origin, moves, self=this;
-        if (e.target === this.stock) {
-            this.resetStock();
-            return;
-        }
-        if (e.target.closest("#stock")) {
-            this.distribuer3cartes();
-            return;
-        }
-        card = e.target.closest(".visible");
+        card = e.target.obj;
         if (!card) {
             return;
         }
+		if (card instanceof this.Stock) {
+            this.resetStock();
+            return;
+        }
+        if (card.pile instanceof this.Stock) {
+            this.deal3cards();
+            return;
+        }
+        card = e.target.closest(".visible");
         pile_dom = card.closest(".pile");
 		pile = pile_dom.obj;
         if (pile_dom.classList.contains("foundation")) {
@@ -184,26 +185,20 @@ class Klondike extends Game {
 		});
     }
 
-    static distribuer3cartes() {
+    static deal3cards() {
         this.hidePlayables();
-        var pile = this.waste;
-        for (let i = 0; i < 3 && this.stock.firstChild; i += 1) {
-            let card = this.stock.top();
-            this.flipCard(card);
-			pile.push(card);
-            pile = card;
+        var pile = new this.Pile();
+        this.waste.push(pile);
+		var result = Promise.resolve();
+        for (let i = 0; i < 3 && this.stock.top(); i += 1) {
+			result = result.then(() => this.stock.top().moveTo(pile, true));
         }
         this.showPlayables();
         return pile;
     }
     static resetStock() {
-        var cartes;
         this.hidePlayables();
-        cartes = this.selectObjects("#waste .pile");
-        cartes.forEach(function (carte) {
-            this.flipCard(carte);
-            this.stock.push(carte);
-        });
+		this.waste.reset(this.stock);
         this.showPlayables();
         return;
     }
@@ -211,7 +206,7 @@ class Klondike extends Game {
         var resultat;
 //        resultat = document.querySelector("#waste > .pile:last-child .carte:only-child");
         resultat = this.waste.top();
-        if (resultat.elements.length) {
+        if (resultat.length) {
             return resultat;
         } else {
             return null;
@@ -258,7 +253,7 @@ class Klondike extends Game {
         var value = card.value;
         var color = card.color;
         if (value === 12) {
-			var columns = this.tableau.filter(column => column.elements.length === 0);
+			var columns = this.tableau.filter(column => column.length === 0);
             result.push(...columns);
             return result;
         }
@@ -352,7 +347,7 @@ Klondike.Card = class extends Card {
         var resultat, dessus, carte;
         resultat = [];
         // Si la carte n'est pas sur le dessus de la pile, elle ne peut être jouable
-        if (this.pile.elements.length > 1) {
+        if (this.pile.length > 1) {
             this.moves.foundation = [];
             return;
         }
@@ -370,7 +365,7 @@ Klondike.Card = class extends Card {
     zzz_findMoves_tableau() {
             console.log("valider");
         if (this.value === 12) {
-            this.moves.tableau = this.jeu.tableau.filter(c=>c.elements.length === 0);
+            this.moves.tableau = this.jeu.tableau.filter(c=>c.length === 0);
             return;
         } else {
             var dessusColumns = this.jeu.dessusColumns;
@@ -396,6 +391,74 @@ Klondike.Stock = class extends Pile {
 			return this.elements.slice(-n);
 		} else {
 			return this.elements.slice(-n)[0];
+		}
+	}
+};
+Klondike.Waste = class extends Pile {
+	constructor() {
+		super("waste");
+	}
+	top() {
+		var topPile = this.topPile();
+		if (!topPile) {
+			return this;
+		} else {
+			return topPile.elements[topPile.length - 1];
+		}
+	}
+	topPile() {
+		if (this.length === 0) {
+			return false;
+		} else {
+			for (let pos = this.length - 1; pos >= 0; pos -= 1) {
+				if (this.elements[pos].length > 0) {
+					return this.elements[pos];
+				}
+			}
+			// All empty piles
+			return false;
+		}
+	}
+	push3(cards, instant = false) {
+		var pile = new Klondike.Pile();
+        this.push(pile);
+		var result = Promise.resolve();
+		if (instant) {
+			cards.forEach(card => {
+				pile.push(card);
+			});
+		} else {
+			cards.forEach(card => {
+				result = result.then(() => card.moveTo(pile, true));
+			});
+		}
+		return result;
+	}
+    reset(to) {
+        var card;
+		while ((card = this.top()) !== this) {
+			card.visible = false;
+			to.push(card);
+		}
+		this.normalize();
+        return;
+    }
+	getAllCards() {
+		var result = [];
+		this.elements.forEach(pile => {
+			result.push(...pile.elements);
+		});
+		return result;
+	}
+	normalize() {
+		var cards = this.getAllCards();
+		cards.forEach(card => card.detach());
+		Array.from(this.elements).forEach(element => {
+			element.detach();
+			element.remove();
+		});
+		while (cards.length > 0) {
+			this.push3(cards.splice(0, 3), true);
 		}
 	}
 };
@@ -432,14 +495,14 @@ Klondike.Foundation = class extends Pile {
 		super("foundation" + no);
 	}
 	top() {
-		if (this.elements.length === 0) {
+		if (this.length === 0) {
 			return -1;
 		} else {
 			return this.elements.slice(-1)[0];
 		}
 	}
 	value() {
-		return this.elements.length - 1;
+		return this.length - 1;
 	}
 	canTake(card) {
 		return this.value + 1 === card.value;

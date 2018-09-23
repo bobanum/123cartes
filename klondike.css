@@ -105,6 +105,13 @@ a.gameChoice {
 #waste > .pile:last-child .pile {
   margin-left: 1rem;
 }
+#waste .pile {
+  display: flex;
+}
+#waste .pile .carte {
+  margin-right: -3em;
+  position: static;
+}
 #stock {
   left: 1rem;
   top: 1rem;

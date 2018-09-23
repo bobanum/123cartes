@@ -58,11 +58,11 @@ class Pile extends Thing {
      */
     top() {
         var result;
-        if (this.elements.length === 0) {
+        if (this.length === 0) {
             //This is an empty pile
 			return this;
         }
-        result = this.elements.slice(-1)[0];
+        result = this.elements[this.length - 1];
         return result.top();
     }
     get carte() {
@@ -73,6 +73,9 @@ class Pile extends Thing {
 	}
 	set visible(val) {
 		this.carte.visible = val;
+	}
+	get length() {
+		return this.elements.length;
 	}
     flip(state, duration) {
 		return this.carte.flip(state, duration);
