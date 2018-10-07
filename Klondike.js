@@ -98,7 +98,7 @@ class Klondike extends Game {
 
 
     static dragstart(e) {
-        var pile_dom, pile, card, origin, moves, self=this;
+        var pile_dom, pile, card, origin;
         card = e.target.obj;
         if (!card) {
             return;
@@ -111,6 +111,83 @@ class Klondike extends Game {
             this.deal3cards();
             return;
         }
+		if (card.root() === this.waste) {
+			if (card === this.waste.top()) {
+//				debugger;
+			} else {
+				return;
+			}
+		}
+        card = e.target.closest(".visible");
+        pile_dom = card.closest(".pile");
+		pile = pile_dom.obj;
+        if (pile_dom.classList.contains("foundation")) {
+            return;
+        }
+        pile_dom.classList.add("prise");
+        this.hidePlayables();
+        origin = pile.pile;
+        pile.moves = this.findMoves(card.obj).global;
+        this.showMoves(pile.moves);
+        pile.detach();
+        var decalage = {
+            x: e.offsetX-pile_dom.clientLeft,
+            y: e.offsetY-pile_dom.clientTop,
+        };
+		this.dragstart2(pile, decalage, origin);
+/*
+		var evts = {
+			dragmove: (e) => {
+				pile_dom.style.left = e.clientX - pile_dom.decalage.x + "px";
+				pile_dom.style.top = e.clientY - pile_dom.decalage.y + "px";
+			},
+
+			drop: () => {
+				this.dropCard(pile, moves, origin);
+				evts.dragstop();
+			},
+
+			dragcancel: () => {
+				origin.push(pile);
+				pile_dom.classList.remove("prise");
+				evts.dragstop();
+			},
+
+			dragstop: () => {
+				document.body.removeEventListener("mousemove", evts.dragmove);
+				document.body.removeEventListener("mouseleave", evts.dragcancel);
+				document.body.removeEventListener("mouseup", evts.drop);
+				this.hideMoves();
+				this.showPlayables();
+			}
+
+		};
+        document.body.addEventListener("mousemove", evts.dragmove);
+        document.body.addEventListener("mouseleave", evts.dragcancel);
+        document.body.addEventListener("mouseup", evts.drop);
+*/
+    }
+    static dragstart2(pile, decalage, origin) {
+/*
+        var pile_dom, pile, card, origin, moves, this=this;
+        card = e.target.obj;
+        if (!card) {
+            return;
+        }
+		if (card instanceof this.Stock) {
+            this.resetStock();
+            return;
+        }
+        if (card.pile instanceof this.Stock) {
+            this.deal3cards();
+            return;
+        }
+		if (card.root() === this.waste) {
+			if (card === this.waste.top()) {
+			} else {
+				return;
+			}
+		}
         card = e.target.closest(".visible");
         pile_dom = card.closest(".pile");
 		pile = pile_dom.obj;
@@ -128,32 +205,36 @@ class Klondike extends Game {
             x: e.offsetX-pile_dom.clientLeft,
             y: e.offsetY-pile_dom.clientTop,
         };
-        function dragmove(e) {
-            pile_dom.style.left = e.clientX - pile_dom.decalage.x + "px";
-            pile_dom.style.top = e.clientY - pile_dom.decalage.y + "px";
-        }
+*/
+		var evts = {
+			dragmove: e => {
+				pile.dom.style.left = e.clientX - decalage.x + "px";
+				pile.dom.style.top = e.clientY - decalage.y + "px";
+			},
 
-        function drop() {
-            self.dropCard(pile, moves, origin);
-            dragstop();
-        }
+			drop: () => {
+				this.dropCard(pile.dom.obj, pile.moves, origin);
+				evts.dragstop();
+			},
 
-        function dragcancel() {
-			origin.push(pile);
-            pile_dom.classList.remove("prise");
-            dragstop();
-        }
+			dragcancel: () => {
+				origin.push(pile);
+				pile.dom.classList.remove("prise");
+				evts.dragstop();
+			},
 
-        function dragstop() {
-			document.body.removeEventListener("mousemove", dragmove);
-            document.body.removeEventListener("mouseleave", dragcancel);
-            document.body.removeEventListener("mouseup", drop);
-            self.hideMoves();
-            self.showPlayables();
-        }
-        document.body.addEventListener("mousemove", dragmove);
-        document.body.addEventListener("mouseleave", dragcancel);
-        document.body.addEventListener("mouseup", drop);
+			dragstop: () => {
+				document.body.removeEventListener("mousemove", evts.dragmove);
+				document.body.removeEventListener("mouseleave", evts.dragcancel);
+				document.body.removeEventListener("mouseup", evts.drop);
+				this.hideMoves();
+				this.showPlayables();
+			}
+
+		};
+        document.body.addEventListener("mousemove", evts.dragmove);
+        document.body.addEventListener("mouseleave", evts.dragcancel);
+        document.body.addEventListener("mouseup", evts.drop);
     }
     /**
      * Puts a pile on a pile

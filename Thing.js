@@ -22,6 +22,13 @@ class Thing {
     get coordinates_center() {
         return Thing.coordinates_center(this.dom);
     }
+	root() {
+		if (!this.pile) {
+			return this;
+		} else {
+			return this.pile.root();
+		}
+	}
 	moveTo(destination, flip = false) {
 		var start = this.coordinates;
 		//console.trace("moveto Promise");
