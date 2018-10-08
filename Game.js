@@ -74,19 +74,6 @@ class Game {
     }
 
     /**
-     * Returns the distance between 2 points
-     * @param   {object} p1 Point of origin
-     * @param   {object} p2 Point of destination
-     * @returns {number} The distance
-     */
-    static distance(p1, p2) {
-        var dx, dy;
-        dx = p1.x - p2.x;
-        dy = p1.y - p2.y;
-        return Math.sqrt(dx*dx + dy*dy);
-    }
-
-    /**
      * Adds "playable" HTML class to dom for given elements
      * @param {Card[]} playables Optional. The cards to change or every playable cards
      */

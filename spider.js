@@ -151,7 +151,7 @@ class Spider extends Game {
             };
             position = pile_dom.coordinates_center;
             moves.forEach(move => {
-                var distance = self.distance(position, move.coordinates_center);
+                var distance = Thing.distance(position, move.coordinates_center);
                 if (distance < choice.distance) {
                     choice.element = move;
                     choice.distance = distance;

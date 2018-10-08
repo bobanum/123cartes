@@ -99,6 +99,68 @@ class Pile extends Thing {
 		this.dom.parentNode.removeChild(this.dom);
 		return this;
 	}
+    findBestMove() {
+		var position, choices, result;
+		position = this.coordinates_center;
+		choices = this.moves.map(move => {
+			return {element: move, distance: Thing.distance(position, move.coordinates_center)};
+		});
+		choices.sort((a,b) => a.distance > b.distance);
+		if (choices.length > 0) {
+			result = choices[0].element;
+		} else {
+			result = this.origin;
+		}
+		return result;
+    }
+    zzzdragstart(e, game) {
+        var pile_dom, pile, origin;
+		debugger;
+		pile = this.pile;
+        pile_dom = pile.dom;
+        pile_dom.classList.add("prise");
+        game.hidePlayables();
+        origin = pile.pile;
+        pile.moves = game.findMoves(this.obj).global;
+        game.showMoves(pile.moves);
+        pile.detach();
+        var decalage = {
+            x: e.offsetX-pile_dom.clientLeft,
+            y: e.offsetY-pile_dom.clientTop,
+        };
+		game.dragstart2(pile, decalage, origin);
+    }
+    zzzdragstart2(pile, decalage, origin) {
+		var evts = {
+			dragmove: e => {
+				pile.dom.style.left = e.clientX - decalage.x + "px";
+				pile.dom.style.top = e.clientY - decalage.y + "px";
+			},
+
+			drop: () => {
+				this.dropCard(pile.dom.obj, pile.moves, origin);
+				evts.dragstop();
+			},
+
+			dragcancel: () => {
+				origin.push(pile);
+				pile.dom.classList.remove("prise");
+				evts.dragstop();
+			},
+
+			dragstop: () => {
+				document.body.removeEventListener("mousemove", evts.dragmove);
+				document.body.removeEventListener("mouseleave", evts.dragcancel);
+				document.body.removeEventListener("mouseup", evts.drop);
+				this.hideMoves();
+				this.showPlayables();
+			}
+
+		};
+        document.body.addEventListener("mousemove", evts.dragmove);
+        document.body.addEventListener("mouseleave", evts.dragcancel);
+        document.body.addEventListener("mouseup", evts.drop);
+    }
     /**
      *
      * @static

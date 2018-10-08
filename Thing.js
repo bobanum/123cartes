@@ -22,6 +22,12 @@ class Thing {
     get coordinates_center() {
         return Thing.coordinates_center(this.dom);
     }
+	offset(e) {
+        return {
+            x: e.offsetX - this.dom.clientLeft,
+            y: e.offsetY - this.dom.clientTop,
+        };
+	}
 	root() {
 		if (!this.pile) {
 			return this;
@@ -35,7 +41,7 @@ class Thing {
 
 		destination.push(this);
 		var stop = this.coordinates;
-		var distance = Game.distance(stop, start);
+		var distance = Thing.distance(stop, start);
 		var duration = Game.duration(distance);
 		if (duration < 20 || Game.pref.animationSpeed === 0) {
 			return new Promise(resolve => {
@@ -83,6 +89,19 @@ class Thing {
 			return this;
 		});
 	}
+    /**
+     * Returns the distance between 2 points
+     * @param   {object} p1 Point of origin
+     * @param   {object} p2 Point of destination
+     * @returns {number} The distance
+     */
+    static distance(p1, p2) {
+        var dx, dy;
+        dx = p1.x - p2.x;
+        dy = p1.y - p2.y;
+        return Math.sqrt(dx*dx + dy*dy);
+    }
+
     static coordinates(element, ref) {
         ref = ref || document.body;
         var resultat = {x: 0, y: 0};

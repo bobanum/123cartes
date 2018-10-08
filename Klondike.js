@@ -59,7 +59,7 @@ class Klondike extends Game {
 				result = result.then(() => this.stock.top().moveTo(this.tableau[j], i === j));
 				if (i==j) {
 					result = result.then(data => {
-						let pile = new Pile();
+						let pile = new this.Tableau();
 						data.pile.push(pile);
 						pile.push(data);
 					});
@@ -98,143 +98,16 @@ class Klondike extends Game {
 
 
     static dragstart(e) {
-        var pile_dom, pile, card, origin;
-        card = e.target.obj;
-        if (!card) {
+        var pile_dom, pile, origin;
+        pile = e.target.obj;
+        if (!pile) {
             return;
         }
-		if (card instanceof this.Stock) {
-            this.resetStock();
-            return;
-        }
-        if (card.pile instanceof this.Stock) {
-            this.deal3cards();
-            return;
-        }
-		if (card.root() === this.waste) {
-			if (card === this.waste.top()) {
-//				debugger;
-			} else {
-				return;
-			}
+		if (pile instanceof Card) {
+			pile = pile.pile;
 		}
-        card = e.target.closest(".visible");
-        pile_dom = card.closest(".pile");
-		pile = pile_dom.obj;
-        if (pile_dom.classList.contains("foundation")) {
-            return;
-        }
-        pile_dom.classList.add("prise");
         this.hidePlayables();
-        origin = pile.pile;
-        pile.moves = this.findMoves(card.obj).global;
-        this.showMoves(pile.moves);
-        pile.detach();
-        var decalage = {
-            x: e.offsetX-pile_dom.clientLeft,
-            y: e.offsetY-pile_dom.clientTop,
-        };
-		this.dragstart2(pile, decalage, origin);
-/*
-		var evts = {
-			dragmove: (e) => {
-				pile_dom.style.left = e.clientX - pile_dom.decalage.x + "px";
-				pile_dom.style.top = e.clientY - pile_dom.decalage.y + "px";
-			},
-
-			drop: () => {
-				this.dropCard(pile, moves, origin);
-				evts.dragstop();
-			},
-
-			dragcancel: () => {
-				origin.push(pile);
-				pile_dom.classList.remove("prise");
-				evts.dragstop();
-			},
-
-			dragstop: () => {
-				document.body.removeEventListener("mousemove", evts.dragmove);
-				document.body.removeEventListener("mouseleave", evts.dragcancel);
-				document.body.removeEventListener("mouseup", evts.drop);
-				this.hideMoves();
-				this.showPlayables();
-			}
-
-		};
-        document.body.addEventListener("mousemove", evts.dragmove);
-        document.body.addEventListener("mouseleave", evts.dragcancel);
-        document.body.addEventListener("mouseup", evts.drop);
-*/
-    }
-    static dragstart2(pile, decalage, origin) {
-/*
-        var pile_dom, pile, card, origin, moves, this=this;
-        card = e.target.obj;
-        if (!card) {
-            return;
-        }
-		if (card instanceof this.Stock) {
-            this.resetStock();
-            return;
-        }
-        if (card.pile instanceof this.Stock) {
-            this.deal3cards();
-            return;
-        }
-		if (card.root() === this.waste) {
-			if (card === this.waste.top()) {
-			} else {
-				return;
-			}
-		}
-        card = e.target.closest(".visible");
-        pile_dom = card.closest(".pile");
-		pile = pile_dom.obj;
-        if (pile_dom.classList.contains("foundation")) {
-            return;
-        }
-        pile_dom.classList.add("prise");
-        this.hidePlayables();
-        origin = pile.pile;
-        moves = this.findMoves(card.obj);
-        moves = moves.global;
-        this.showMoves(moves);
-        pile.detach();
-        pile_dom.decalage = {
-            x: e.offsetX-pile_dom.clientLeft,
-            y: e.offsetY-pile_dom.clientTop,
-        };
-*/
-		var evts = {
-			dragmove: e => {
-				pile.dom.style.left = e.clientX - decalage.x + "px";
-				pile.dom.style.top = e.clientY - decalage.y + "px";
-			},
-
-			drop: () => {
-				this.dropCard(pile.dom.obj, pile.moves, origin);
-				evts.dragstop();
-			},
-
-			dragcancel: () => {
-				origin.push(pile);
-				pile.dom.classList.remove("prise");
-				evts.dragstop();
-			},
-
-			dragstop: () => {
-				document.body.removeEventListener("mousemove", evts.dragmove);
-				document.body.removeEventListener("mouseleave", evts.dragcancel);
-				document.body.removeEventListener("mouseup", evts.drop);
-				this.hideMoves();
-				this.showPlayables();
-			}
-
-		};
-        document.body.addEventListener("mousemove", evts.dragmove);
-        document.body.addEventListener("mouseleave", evts.dragcancel);
-        document.body.addEventListener("mouseup", evts.drop);
+		pile.dragstart(e, this);
     }
     /**
      * Puts a pile on a pile
@@ -243,19 +116,9 @@ class Klondike extends Game {
      * @param   {Pile}     origin The pile from which we took the pile in case we don't have a move and to help choos the next move
      * @returns {[[Type]]} [[Description]]
      */
-    static dropCard(pile, moves, origin) {
+    static dropCard(pile, destination) {
+		destination = destination || pile.findBestMove();
 		return new Promise(resolve => {
-			var position, choices, destination;
-			position = pile.coordinates_center;
-			choices = moves.map(move => {
-				return {element: move, distance: this.distance(position, move.coordinates_center)};
-			});
-			choices.sort((a,b) => a.distance > b.distance);
-			if (choices.length > 0) {
-				destination = choices[0].element;
-			} else {
-				destination = origin;
-			}
 			pile.moveTo(destination).then(() => {
 				Promise.all(this.tableau.map(column => {
 					return column.normalize();
@@ -460,12 +323,26 @@ Klondike.Card = class extends Card {
 
 Klondike.Pile = class extends Pile {
 };
-Klondike.Stock = class extends Pile {
+Klondike.Stock = class extends Klondike.Pile {
 	constructor(cards = []) {
 		super("stock");
         cards.forEach(card => {
 			this.push(card);
         });
+	}
+    dragstart(e, game) {
+		console.log(e, game);
+		debugger;
+		/////VIEUX
+		if (pile instanceof this.Stock) {
+            this.resetStock();
+            return;
+        }
+        if (pile.pile instanceof this.Stock) {
+            this.deal3cards();
+            return;
+        }
+		/////
 	}
 	top(n = 1) {
 		if (n > 1) {
@@ -475,9 +352,22 @@ Klondike.Stock = class extends Pile {
 		}
 	}
 };
-Klondike.Waste = class extends Pile {
+Klondike.Waste = class extends Klondike.Pile {
 	constructor() {
 		super("waste");
+	}
+    dragstart(e, game) {
+		console.log(e, game);
+		debugger;
+		/////VIEUX
+		if (pile.root() === this.waste) {
+			if (pile === this.waste.top()) {
+//				debugger;
+			} else {
+				return;
+			}
+		}
+		/////
 	}
 	top() {
 		var topPile = this.topPile();
@@ -543,10 +433,60 @@ Klondike.Waste = class extends Pile {
 		}
 	}
 };
-Klondike.Tableau = class extends Pile {
+Klondike.Tableau = class extends Klondike.Pile {
 	constructor(no) {
 		super("colonne"+no);
 	}
+	get mainCard() {
+		return this.elements[0];
+	}
+	grab() {
+
+	}
+	drop() {
+		Klondike.dropCard(this);
+		delete this.moves;
+		delete this.origin;
+	}
+    dragstart(e) {
+		var mainCard = this.mainCard;
+		if (!mainCard.visible) {
+			return false;
+		}
+        this.dom.classList.add("prise");
+        this.origin = this.pile;
+        this.moves = Klondike.findMoves(mainCard).global;
+        Klondike.showMoves(this.moves);
+        this.detach();
+        var offset = this.offset(e);
+		var evts = {
+			dragmove: e => {
+				this.dom.style.left = e.clientX - offset.x + "px";
+				this.dom.style.top = e.clientY - offset.y + "px";
+			},
+
+			drop: () => {
+				this.drop();
+				evts.dragstop();
+			},
+
+			dragcancel: () => {
+				this.drop(this.origin);
+				evts.dragstop();
+			},
+
+			dragstop: () => {
+				document.body.removeEventListener("mousemove", evts.dragmove);
+				document.body.removeEventListener("mouseleave", evts.dragcancel);
+				document.body.removeEventListener("mouseup", evts.drop);
+				Klondike.hideMoves();
+				Klondike.showPlayables();
+			}
+		};
+        document.body.addEventListener("mousemove", evts.dragmove);
+        document.body.addEventListener("mouseleave", evts.dragcancel);
+        document.body.addEventListener("mouseup", evts.drop);
+    }
 	top(n = 1) {
 		if (n > 1) {
 			return this.elements.slice(-n);
@@ -565,15 +505,24 @@ Klondike.Tableau = class extends Pile {
 			return Promise.resolve(this);
 		}
 		return card.flip(true).then(data=>{
-			var pile = data.pile.push(new Pile());
+			var pile = data.pile.push(new this.constructor());
 			pile.push(data);
 			return data;
 		});
 	}
 };
-Klondike.Foundation = class extends Pile {
+Klondike.Foundation = class extends Klondike.Pile {
 	constructor(no) {
 		super("foundation" + no);
+	}
+    dragstart(e, game) {
+		console.log(e, game);
+		debugger;
+		/////VIEUX
+        if (pile_dom.classList.contains("foundation")) {
+            return;
+        }
+		/////
 	}
 	top() {
 		if (this.length === 0) {
