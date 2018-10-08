@@ -46,6 +46,8 @@ class Klondike extends Game {
         resultat.appendChild(this.stock.dom);
         this.waste = this.pile_waste(this.deck);
         resultat.appendChild(this.waste.dom);
+		this.stock.waste = this.waste;
+		this.waste.stock = this.stock;
         this.foundation_pile = this.pile_foundation();
         resultat.appendChild(this.foundation_pile.dom);
         this.tableau_pile = this.pile_tableau();
@@ -67,7 +69,6 @@ class Klondike extends Game {
 			}
         }
         document.body.addEventListener("mousedown", e => this.dragstart(e));
-        this.showPlayables();
         return result;
     }
     static pile_foundation() {
@@ -106,7 +107,6 @@ class Klondike extends Game {
 		if (pile instanceof Card) {
 			pile = pile.pile;
 		}
-        this.hidePlayables();
 		pile.dragstart(e, this);
     }
     /**
@@ -129,22 +129,14 @@ class Klondike extends Game {
 		});
     }
 
-    static deal3cards() {
-        this.hidePlayables();
+    static zzzdeal3cards() {
         var pile = new this.Pile();
         this.waste.push(pile);
 		var result = Promise.resolve();
         for (let i = 0; i < 3 && this.stock.top(); i += 1) {
 			result = result.then(() => this.stock.top().moveTo(pile, true));
         }
-        this.showPlayables();
         return pile;
-    }
-    static resetStock() {
-        this.hidePlayables();
-		this.waste.reset(this.stock);
-        this.showPlayables();
-        return;
     }
     static wasteTop() {
         var resultat;
@@ -330,19 +322,32 @@ Klondike.Stock = class extends Klondike.Pile {
 			this.push(card);
         });
 	}
-    dragstart(e, game) {
-		console.log(e, game);
-		debugger;
-		/////VIEUX
-		if (pile instanceof this.Stock) {
-            this.resetStock();
+    reset() {
+        var card;
+		while ((card = this.waste.top()) !== this.waste) {
+			card.visible = false;
+			this.push(card);
+		}
+		this.waste.normalize();
+        return;
+    }
+    deal3cards() {
+        var pile = new Klondike.Pile();
+        this.waste.push(pile);
+		var result = Promise.resolve();
+        for (let i = 0; i < 3 && this.top(); i += 1) {
+			result = result.then(() => this.top().moveTo(pile, true));
+        }
+        return pile;
+    }
+	dragstart(e, game) {
+//		console.log(e, game);
+		if (this.elements.length === 0) {
+            this.reset();
             return;
         }
-        if (pile.pile instanceof this.Stock) {
-            this.deal3cards();
-            return;
-        }
-		/////
+		this.deal3cards();
+		return;
 	}
 	top(n = 1) {
 		if (n > 1) {
@@ -405,11 +410,11 @@ Klondike.Waste = class extends Klondike.Pile {
 		}
 		return result;
 	}
-    reset(to) {
+    zzzreset() {
         var card;
 		while ((card = this.top()) !== this) {
 			card.visible = false;
-			to.push(card);
+			this.stock.push(card);
 		}
 		this.normalize();
         return;
@@ -480,7 +485,6 @@ Klondike.Tableau = class extends Klondike.Pile {
 				document.body.removeEventListener("mouseleave", evts.dragcancel);
 				document.body.removeEventListener("mouseup", evts.drop);
 				Klondike.hideMoves();
-				Klondike.showPlayables();
 			}
 		};
         document.body.addEventListener("mousemove", evts.dragmove);
